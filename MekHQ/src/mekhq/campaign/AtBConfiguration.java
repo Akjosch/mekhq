@@ -96,7 +96,7 @@ public class AtBConfiguration implements Serializable {
 		Document xmlDoc = null;
 		
 		try {
-			FileInputStream fis = new FileInputStream("data/universe/atbconfig.xml");
+			FileInputStream fis = new FileInputStream(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/atbconfig.xml");
 			DocumentBuilder db = dbf.newDocumentBuilder();
 	
 			xmlDoc = db.parse(fis);

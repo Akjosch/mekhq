@@ -431,7 +431,7 @@ public class Bloodname implements Serializable {
 		Clan.loadClanData();
 		bloodnames = new ArrayList<Bloodname>();
 
-		File f = new File("data/names/bloodnames/bloodnames.xml");
+		File f = new File(MekHQ.getPreference(MekHQ.DATA_DIR) + "/names/bloodnames/bloodnames.xml");
 		FileInputStream fis = null;
 		try {
 			fis = new FileInputStream(f);
@@ -586,7 +586,7 @@ class Clan {
 
 	public static void loadClanData() {
 		allClans = new HashMap<String, Clan>();
-		File f = new File("data/names/bloodnames/clans.xml");
+		File f = new File(MekHQ.getPreference(MekHQ.DATA_DIR) + "/names/bloodnames/clans.xml");
 		FileInputStream fis = null;
 		try {
 			fis = new FileInputStream(f);

@@ -38,6 +38,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import megamek.client.Client;
+import megamek.common.Configuration;
 import megamek.common.event.GameBoardChangeEvent;
 import megamek.common.event.GameBoardNewEvent;
 import megamek.common.event.GameCFREvent;
@@ -79,10 +80,14 @@ public class MekHQ implements GameListener {
 	// So it should be backed down to 1 for releases...
 	// It's intended for 1 to be critical, 3 to be typical, and 5 to be debug/informational.
 	public static int VERBOSITY_LEVEL = 5;
-	public static String CAMPAIGN_DIRECTORY = "./campaigns/";
 	public static String PROPERTIES_FILE = "mmconf/mekhq.properties";
 	public static String PRESET_DIR = "./mmconf/mhqPresets/";
 
+	// Properties
+	public static String DATA_DIR = "data";
+	public static String CAMPAIGN_DIR= "campaign";
+	 
+	private static MekHQ instance;
 
 	//stuff related to MM games
     private Server myServer = null;
@@ -130,9 +135,13 @@ public class MekHQ implements GameListener {
 	}
 
 	protected static MekHQ getInstance() {
-		return new MekHQ();
+		return null != instance ? instance : (instance = new MekHQ());
 	}
 
+	public static String getPreference(String preference) {
+		return getInstance().preferences.getProperty(preference);
+	}
+	
     /**
      * At startup create and show the main frame of the application.
      */
@@ -182,6 +191,8 @@ public class MekHQ implements GameListener {
     protected static Properties setDefaultPreferences() {
     	Properties defaults = new Properties();
     	defaults.setProperty("laf", UIManager.getSystemLookAndFeelClassName());
+    	defaults.setProperty(DATA_DIR, "data");
+    	defaults.setProperty(CAMPAIGN_DIR, "campaigns");
     	return defaults;
     }
 
@@ -195,6 +206,8 @@ public class MekHQ implements GameListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        // Set MegaMek data dir from the prefs
+        Configuration.setDataDir(new File(preferences.getProperty(DATA_DIR)));
     }
 
     protected void savePreferences() {

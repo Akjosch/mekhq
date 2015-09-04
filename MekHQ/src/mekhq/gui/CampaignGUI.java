@@ -4182,7 +4182,7 @@ public class CampaignGUI extends JPanel {
     }
 
     private File selectSaveCampaignFile() {
-        JFileChooser saveCpgn = new JFileChooser("./campaigns/");
+        JFileChooser saveCpgn = new JFileChooser(MekHQ.getPreference(MekHQ.CAMPAIGN_DIR));
         saveCpgn.setDialogTitle("Save Campaign");
         saveCpgn.setFileFilter(new CampaignFileFilter());
         saveCpgn.setSelectedFile(new File(getCampaign().getName()
@@ -4219,7 +4219,7 @@ public class CampaignGUI extends JPanel {
     }
 
     private File selectLoadCampaignFile() {
-        JFileChooser loadCpgn = new JFileChooser("./campaigns/");
+        JFileChooser loadCpgn = new JFileChooser(MekHQ.getPreference(MekHQ.CAMPAIGN_DIR));
         loadCpgn.setDialogTitle("Load Campaign");
         loadCpgn.setFileFilter(new CampaignFileFilter());
         int returnVal = loadCpgn.showOpenDialog(mainPanel);

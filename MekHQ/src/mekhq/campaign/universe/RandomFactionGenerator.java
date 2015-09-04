@@ -203,7 +203,7 @@ public class RandomFactionGenerator implements Serializable {
 		Document xmlDoc = null;
 		
 		try {
-			FileInputStream fis = new FileInputStream("data/universe/factionhints.xml");
+			FileInputStream fis = new FileInputStream(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/factionhints.xml");
 			DocumentBuilder db = dbf.newDocumentBuilder();
 	
 			xmlDoc = db.parse(fis);

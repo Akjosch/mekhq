@@ -9,6 +9,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 import mekhq.IconPackage;
+import mekhq.MekHQ;
 import mekhq.campaign.work.IAcquisitionWork;
 import mekhq.gui.BasicInfo;
 
@@ -47,7 +48,7 @@ public class AcquisitionTableModel extends DataTableModel {
                 int row, int column) {
             Component c = this;
             //MissingPart task = getAcquisitionAt(row);
-            Image imgTool = getToolkit().getImage("data/images/misc/tools.png"); //$NON-NLS-1$
+            Image imgTool = getToolkit().getImage(MekHQ.getPreference(MekHQ.DATA_DIR) + "/images/misc/tools.png"); //$NON-NLS-1$
             this.setImage(imgTool);
             setOpaque(true);
             setText(getValueAt(row, column).toString(), "black");

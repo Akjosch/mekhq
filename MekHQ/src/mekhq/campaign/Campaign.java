@@ -4298,7 +4298,7 @@ public class Campaign implements Serializable {
     }
 
     private static void processCustom(Campaign retVal, Node wn) {
-        String sCustomsDir = "data" + File.separator + "mechfiles"
+        String sCustomsDir = MekHQ.getPreference(MekHQ.DATA_DIR) + File.separator + "mechfiles"
                              + File.separator + "customs";
         String sCustomsDirCampaign = sCustomsDir + File.separator + retVal.getName();
         File customsDir = new File(sCustomsDir);
@@ -6298,7 +6298,7 @@ public class Campaign implements Serializable {
         DirectoryItems portraits;
         try {
             portraits = new DirectoryItems(
-                    new File("data/images/portraits"), "", //$NON-NLS-1$ //$NON-NLS-2$
+                    new File(MekHQ.getPreference(MekHQ.DATA_DIR) + "/images/portraits"), "", //$NON-NLS-1$ //$NON-NLS-2$
                     PortraitFileFactory.getInstance());
         } catch (Exception e) {
             return;

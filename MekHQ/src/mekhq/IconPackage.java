@@ -29,7 +29,7 @@ public class IconPackage {
     public void loadDirectories() {
         if(null == portraits) {
             try {
-                portraits = new DirectoryItems(new File("data/images/portraits"), "", //$NON-NLS-1$ //$NON-NLS-2$
+                portraits = new DirectoryItems(new File(MekHQ.getPreference(MekHQ.DATA_DIR) + "/images/portraits"), "", //$NON-NLS-1$ //$NON-NLS-2$
                         PortraitFileFactory.getInstance());
             } catch (Exception e) {
                 portraits = null;
@@ -37,7 +37,7 @@ public class IconPackage {
         }
         if(null == camos) {
             try {
-                camos = new DirectoryItems(new File("data/images/camo"), "", //$NON-NLS-1$ //$NON-NLS-2$
+                camos = new DirectoryItems(new File(MekHQ.getPreference(MekHQ.DATA_DIR) + "/images/camo"), "", //$NON-NLS-1$ //$NON-NLS-2$
                         ImageFileFactory.getInstance());
             } catch (Exception e) {
                 camos = null;
@@ -45,7 +45,7 @@ public class IconPackage {
         }
         if(null == forceIcons) {
             try {
-                forceIcons = new DirectoryItems(new File("data/images/force"), "", //$NON-NLS-1$ //$NON-NLS-2$
+                forceIcons = new DirectoryItems(new File(MekHQ.getPreference(MekHQ.DATA_DIR) + "/images/force"), "", //$NON-NLS-1$ //$NON-NLS-2$
                         PortraitFileFactory.getInstance());
             } catch (Exception e) {
                 forceIcons = null;

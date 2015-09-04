@@ -315,7 +315,7 @@ public class UnitTableData implements Serializable, ActionListener {
 	public synchronized void populateTables() {
 		ratTree = new TreeMap<String, Map<Integer, Map<String, FactionTables>>>();
 		altTables = new HashMap<String, ArrayList<String>>();
-		loadTableDataFromFile(new File("data/universe/ratinfo.xml"));
+		loadTableDataFromFile(new File(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/ratinfo.xml"));
 		if (RandomUnitGenerator.getInstance().isInitialized()) {
 			validate();
 		} else {
@@ -520,7 +520,7 @@ public class UnitTableData implements Serializable, ActionListener {
 		HashMap<String, Integer> earliest = new HashMap<String, Integer>();
 		HashMap<String, Integer> latest = new HashMap<String, Integer>();
 		
-		File f = new File("data/universe/ratinfo.xml");
+		File f = new File(MekHQ.getPreference(MekHQ.DATA_DIR)+ "/universe/ratinfo.xml");
 		FileInputStream fis = null;
 
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

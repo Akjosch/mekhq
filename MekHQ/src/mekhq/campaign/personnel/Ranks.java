@@ -128,7 +128,7 @@ public class Ranks {
     
         
         try {
-            FileInputStream fis = new FileInputStream("data/universe/ranks.xml");
+            FileInputStream fis = new FileInputStream(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/ranks.xml");
             // Using factory get an instance of document builder
             DocumentBuilder db = dbf.newDocumentBuilder();
     

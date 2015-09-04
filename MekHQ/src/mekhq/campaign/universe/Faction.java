@@ -352,7 +352,7 @@ public class Faction {
 
 
 		try {
-			FileInputStream fis = new FileInputStream("data/universe/factions.xml");
+			FileInputStream fis = new FileInputStream(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/factions.xml");
 			// Using factory get an instance of document builder
 			DocumentBuilder db = dbf.newDocumentBuilder();
 

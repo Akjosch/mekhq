@@ -57,7 +57,7 @@ public class News {
     
         
         try {
-            FileInputStream fis = new FileInputStream("data/universe/news.xml");
+            FileInputStream fis = new FileInputStream(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/news.xml");
             // Using factory get an instance of document builder
             DocumentBuilder db = dbf.newDocumentBuilder();
     
