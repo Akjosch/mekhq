@@ -1,6 +1,12 @@
 package mekhq.campaign.universe;
 
 import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 public class Star implements Serializable {
 	public static final int SPECTRAL_O = 0;
@@ -21,18 +27,47 @@ public class Star implements Serializable {
 	public static final String LUM_VI  = "VI";
 	public static final String LUM_VII = "VII";
 
+	private static Map<String, Star> knownStars = new HashMap<String, Star>();
+	
 	private double x = 0;
 	private double y = 0;
 
-	private String id;
-	private String name;
+	private String id = null;
+	private String name = null;
 	
 	//star type
 	private int spectralClass = SPECTRAL_G;
 	private int subtype = 2;
 	private String luminosity = LUM_V;
+	
+	// Amount of planets. -1 = unknown
+	private int numPlanets = -1;
+	// planets and moons - map of orbital designation to Planet instance
+	private Map<String, Planet> planets = new HashMap<String, Planet>();
+	
 	private boolean nadirCharge = false;
 	private boolean zenithCharge = false;
+	
+	/**
+	 * @return a star with the given ID.<br>
+	 * If the ID is not known yet, returns a new star.<br>
+	 * If the ID is <i>null</i>, return a new star with a random ID.
+	 */
+	public static Star getStar(String id) {
+		Star result = null;
+		if( null == id ) {
+			result = new Star();
+			result.id = UUID.randomUUID().toString();
+			knownStars.put(result.id, result);
+		} else if( !knownStars.containsKey(id) ) {
+			result = new Star();
+			result.id = id;
+			knownStars.put(id, result);
+		} else {
+			result = knownStars.get(id);
+		}
+		return result;
+	}
 	
 	public double getX() {
 		return x;
@@ -74,12 +109,62 @@ public class Star implements Serializable {
 		this.luminosity = luminosity;
 	}
 
-	public String getId() {
-		return id;
+	public int getNumPlanets() {
+		return numPlanets;
 	}
 
-	public void setId(String id) {
-		this.id = id;
+	public void setNumPlanets(int numPlanets) {
+		this.numPlanets = numPlanets;
+	}
+	
+	public Planet getPlanet(String orbitalDesignation) {
+		return planets.get(orbitalDesignation);
+	}
+	
+	public Planet getPlanet(int mainOrbit, int ... subOrbits) {
+		if( mainOrbit <= 0 ) {
+			return null;
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.append(mainOrbit);
+		for( int orbit : subOrbits ) {
+			sb.append("/").append(orbit);
+		}
+		return getPlanet(sb.toString());
+	}
+
+	public void setPlanet(Planet planet, String orbitalDesignation) {
+		if( null != planet ) {
+			// Put the planet or moon where it belongs
+			planets.put(orbitalDesignation, planet);
+		} else {
+			// planet == null -> Remove planet or moon if there
+			planets.remove(orbitalDesignation);
+		}
+	}
+	
+	public void setPlanet(Planet planet, int mainOrbit, int ... subOrbits) {
+		if( mainOrbit <= 0 ) {
+			return;
+		}
+		StringBuilder sb = new StringBuilder();
+		sb.append(mainOrbit);
+		for( int orbit : subOrbits ) {
+			sb.append("/").append(orbit);
+		}
+		setPlanet(planet, sb.toString());
+	}
+	
+	public Collection<Planet> getPlanets() {
+		return Collections.unmodifiableCollection(planets.values());
+	}
+	
+	public Set<String> getOrbits() {
+		return Collections.unmodifiableSet(planets.keySet());
+	}
+	
+	public String getId() {
+		return id;
 	}
 
 	public String getName() {
@@ -140,6 +225,20 @@ public class Star implements Serializable {
 			return Math.min(176, 141 + 10*spectralClass + subtype);
 		} else {
 			return 141 + 10*spectralClass + subtype;
+		}
+	}
+	
+	/**
+	 * Copy data (but not the planets, space stations or id) from another star.
+	 */
+	public void copyFrom(Star other) {
+		if( null != other ) {
+			name = other.name;
+			x = other.x;
+			y = other.y;
+			spectralClass = other.spectralClass;
+			subtype = other.subtype;
+			luminosity = other.luminosity;
 		}
 	}
 
@@ -392,4 +491,23 @@ public class Star implements Serializable {
 		}
 	}
 
+	@Override public int hashCode() {
+		return 31 + ((id == null) ? 0 : id.hashCode());
+	}
+
+	@Override public boolean equals(Object obj) {
+		if( this == obj ) {
+			return true;
+		}
+		if( obj instanceof Star ) {
+			Star other = (Star)obj;
+			if( null == id ) {
+				return null == other.id;
+			}
+			return id.equals(other.id);
+		}
+		return false;
+	}
+	
+	
 }

@@ -154,8 +154,11 @@ public class Planet implements Serializable {
 		this.factionHistory = new TreeMap<Date,ArrayList<String>>();
 	}
 
+	public Star getStar() {
+		return star;
+	}
+
 	/**
-	 * @return the spectralClass
 	 * @deprecated Use {@link mekhq.campaign.universe.Star#getSpectralClass()} instead
 	 */
 	public int getSpectralClass() {
@@ -163,7 +166,6 @@ public class Planet implements Serializable {
 	}
 
     /**
-	 * @param spectralClass the spectralClass to set
 	 * @deprecated Use {@link mekhq.campaign.universe.Star#setSpectralClass(mekhq.campaign.universe.Planet,int)} instead
 	 */
 	public void setSpectralClass(int spectralClass) {
@@ -171,7 +173,6 @@ public class Planet implements Serializable {
 	}
 
     /**
-	 * @return the subtype
 	 * @deprecated Use {@link mekhq.campaign.universe.Star#getSubtype()} instead
 	 */
 	public int getSubtype() {
@@ -179,7 +180,6 @@ public class Planet implements Serializable {
 	}
 
     /**
-	 * @param subtype the subtype to set
 	 * @deprecated Use {@link mekhq.campaign.universe.Star#setSubtype(mekhq.campaign.universe.Planet,int)} instead
 	 */
 	public void setSubtype(int subtype) {
@@ -440,6 +440,7 @@ public class Planet implements Serializable {
 
 	public static Planet getPlanetFromXML(Node wn) throws DOMException, ParseException {
 		Planet retVal = new Planet();
+		String starID = null;
 		NodeList nl = wn.getChildNodes();
 
 		for (int x=0; x<nl.getLength(); x++) {
@@ -447,6 +448,9 @@ public class Planet implements Serializable {
 			if (wn2.getNodeName().equalsIgnoreCase("name")) {
 				retVal.name = wn2.getTextContent();
 				retVal.shortName = retVal.name;
+				retVal.star.setName(retVal.name);
+			} else if (wn2.getNodeName().equalsIgnoreCase("id")) {
+				starID = wn2.getTextContent();
 			} else if (wn2.getNodeName().equalsIgnoreCase("xcood")) {
 				retVal.star.setX(Double.parseDouble(wn2.getTextContent()));
 			} else if (wn2.getNodeName().equalsIgnoreCase("ycood")) {
@@ -511,6 +515,13 @@ public class Planet implements Serializable {
 				retVal.desc = wn2.getTextContent();
 			}
 		}
+		// Replace our star with an actual one
+		Star actualStar = Star.getStar(starID);
+		actualStar.copyFrom(retVal.star);
+		actualStar.setNadirCharge(retVal.star.isNadirCharge());
+		actualStar.setZenithCharge(retVal.star.isZenithCharge());
+		actualStar.setPlanet(retVal, retVal.sysPos);
+		retVal.star = actualStar;
 		return retVal;
 	}
 
