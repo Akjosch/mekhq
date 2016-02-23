@@ -1,13 +1,20 @@
 package mekhq.campaign.universe;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Locale;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 import mekhq.MekHQ;
 
@@ -106,7 +113,7 @@ public class Planets {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		Document xmlDoc = null;
 
-
+		// Step 1: Load the default planets.xml
 		try {
 			FileInputStream fis = new FileInputStream(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/planets.xml");
 			// Using factory get an instance of document builder
@@ -163,6 +170,53 @@ public class Planets {
 				}
 			}
 		}
+		
+		// Step 2: Load all the xml files within the planets subdirectory, if it exists
+		File planetDir = new File(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/planets");
+		if( planetDir.isDirectory() ) {
+			File[] planetFiles = planetDir.listFiles(new FilenameFilter() {
+				@Override
+				public boolean accept(File dir, String name) {
+					return name.toLowerCase(Locale.ROOT).endsWith(".xml");
+				}
+			});
+			if( null != planetFiles && planetFiles.length > 0 ) {
+				// Case-insensitive sorting. Yes, even on Windows. Deal with it.
+				Arrays.sort(planetFiles, new Comparator<File>() {
+					@Override
+					public int compare(File f1, File f2) {
+						return f1.getPath().compareTo(f2.getPath());
+					}
+				});
+				// Try parsing and updating the main list, one by one
+				for( File planetFile : planetFiles ) {
+					try {
+						FileInputStream fis = new FileInputStream(planetFile);
+						DocumentBuilder db = dbf.newDocumentBuilder();
+						xmlDoc = db.parse(fis);
+						planetEle = xmlDoc.getDocumentElement();
+						nl = planetEle.getChildNodes();
+						planetEle.normalize();
+						for (int x = 0; x < nl.getLength(); x++) {
+							Node wn = nl.item(x);
+							if (wn.getParentNode() != planetEle) {
+								continue;
+							}
+	
+							int xc = wn.getNodeType();
+							if (xc == Node.ELEMENT_NODE) {
+								// TODO: Read the star and planet data here and update if the ids match
+							}
+						}
+					} catch(Exception ex) {
+						// Ignore this file then
+						MekHQ.logError("Exception trying to parse " + planetFile.getPath() + " - ignoring.");
+						MekHQ.logError(ex);
+					}
+				}
+			}
+		}
+		
 		for (Planet p : retVal.values()) {
 			int x = (int)(p.getX()/30.0);
 			int y = (int)(p.getY()/30.0);
