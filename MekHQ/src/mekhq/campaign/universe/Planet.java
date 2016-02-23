@@ -57,14 +57,6 @@ public class Planet implements Serializable {
 	 */
 	private static final long serialVersionUID = -8699502165157515099L;
 
-	private static final int SPECTRAL_O = 0;
-	private static final int SPECTRAL_B = 1;
-	private static final int SPECTRAL_A = 2;
-	private static final int SPECTRAL_F = 3;
-	private static final int SPECTRAL_G = 4;
-	private static final int SPECTRAL_K = 5;
-	private static final int SPECTRAL_M = 6;
-
 	private static final int TYPE_EMPTY			= 0;
 	private static final int TYPE_ASTEROID		= 1;
 	private static final int TYPE_DWARF			= 2;
@@ -72,16 +64,6 @@ public class Planet implements Serializable {
 	private static final int TYPE_GIANT 		= 4;
 	private static final int TYPE_GAS_GIANT		= 5;
 	private static final int TYPE_ICE_GIANT		= 6;
-
-	public static final String LUM_0   = "0";
-	public static final String LUM_IA  = "Ia";
-	public static final String LUM_IB  = "Ib";
-	public static final String LUM_II  = "II";
-	public static final String LUM_III = "III";
-	public static final String LUM_IV  = "IV";
-	public static final String LUM_V   = "V";
-	public static final String LUM_VI  = "VI";
-	public static final String LUM_VII = "VII";
 
 	private static final int LIFE_NONE    = 0;
 	private static final int LIFE_MICROBE = 1;
@@ -100,9 +82,8 @@ public class Planet implements Serializable {
 	private static final int CLIMATE_ARID     = 4;
 	private static final int CLIMATE_TROPICAL = 5;
 
-	private double x;
-	private double y;
-
+	private Star star = new Star();
+	
 	/**
 	 * This is the base faction which the program will fall back on if
 	 * no better faction is found in the faction history given the date
@@ -112,17 +93,10 @@ public class Planet implements Serializable {
 	private String name;
 	private String shortName;
 
-	//star type
-	private int spectralClass;
-	private int subtype;
-	private String luminosity;
 	private int sysPos;
 
 	private int pressure;
 	private double gravity;
-	private boolean nadirCharge;
-	private boolean zenithCharge;
-
 	//fluff
 	private int lifeForm;
 	private int climate;
@@ -149,23 +123,16 @@ public class Planet implements Serializable {
 	TreeMap<Date,ArrayList<String>> garrisonHistory;
 
 	public Planet() {
-		this.x = 0;
-		this.y = 0;
 		this.factionCodes = new ArrayList<String>();
 		this.factionCodes.add("CS");
 		this.garrisonUnits = new ArrayList<String>();
 		this.name = "Terra";
 		this.shortName = "Terra";
 
-		this.setSpectralClass(SPECTRAL_G);
-		this.setSubtype(2);
-		this.luminosity = LUM_V;
 		this.sysPos = 1;
 
 		this.pressure = PlanetaryConditions.ATMO_STANDARD;
 		this.gravity = 1.0;
-		this.nadirCharge = false;
-		this.zenithCharge = false;
 
 		this.lifeForm = LIFE_NONE;
 		this.climate = CLIMATE_WARMTEM;
@@ -188,32 +155,36 @@ public class Planet implements Serializable {
 	}
 
 	/**
-     * @return the spectralClass
-     */
-    public int getSpectralClass() {
-        return spectralClass;
-    }
+	 * @return the spectralClass
+	 * @deprecated Use {@link mekhq.campaign.universe.Star#getSpectralClass()} instead
+	 */
+	public int getSpectralClass() {
+		return star.getSpectralClass();
+	}
 
     /**
-     * @param spectralClass the spectralClass to set
-     */
-    public void setSpectralClass(int spectralClass) {
-        this.spectralClass = spectralClass;
-    }
+	 * @param spectralClass the spectralClass to set
+	 * @deprecated Use {@link mekhq.campaign.universe.Star#setSpectralClass(mekhq.campaign.universe.Planet,int)} instead
+	 */
+	public void setSpectralClass(int spectralClass) {
+		star.setSpectralClass(spectralClass);
+	}
 
     /**
-     * @return the subtype
-     */
-    public int getSubtype() {
-        return subtype;
-    }
+	 * @return the subtype
+	 * @deprecated Use {@link mekhq.campaign.universe.Star#getSubtype()} instead
+	 */
+	public int getSubtype() {
+		return star.getSubtype();
+	}
 
     /**
-     * @param subtype the subtype to set
-     */
-    public void setSubtype(int subtype) {
-        this.subtype = subtype;
-    }
+	 * @param subtype the subtype to set
+	 * @deprecated Use {@link mekhq.campaign.universe.Star#setSubtype(mekhq.campaign.universe.Planet,int)} instead
+	 */
+	public void setSubtype(int subtype) {
+		star.setSubtype(subtype);
+	}
 
     public static String getLifeFormName(int life) {
 		switch(life) {
@@ -237,27 +208,6 @@ public class Planet implements Serializable {
 			return "Insects";
 		default:
 			return "Unknown";
-		}
-	}
-
-	public static String getSpectralClassName(int spectral) {
-		switch(spectral) {
-		case SPECTRAL_O:
-			return "O";
-		case SPECTRAL_B:
-			return "B";
-		case SPECTRAL_A:
-			return "A";
-		case SPECTRAL_F:
-			return "F";
-		case SPECTRAL_G:
-			return "G";
-		case SPECTRAL_K:
-			return "K";
-		case SPECTRAL_M:
-			return "M";
-		default:
-			return "?";
 		}
 	}
 
@@ -288,36 +238,12 @@ public class Planet implements Serializable {
 		return EquipmentType.getRatingName(hpg);
 	}
 
-	public static int getSpectralClassFrom(String spectral) {
-		if(spectral.trim().equalsIgnoreCase("B")) {
-			return SPECTRAL_B;
-		}
-		else if(spectral.trim().equalsIgnoreCase("A")) {
-			return SPECTRAL_A;
-		}
-		else if(spectral.trim().equalsIgnoreCase("F")) {
-			return SPECTRAL_F;
-		}
-		else if(spectral.trim().equalsIgnoreCase("G")) {
-			return SPECTRAL_G;
-		}
-		else if(spectral.trim().equalsIgnoreCase("M")) {
-			return SPECTRAL_M;
-		}
-		else if(spectral.trim().equalsIgnoreCase("K")) {
-			return SPECTRAL_K;
-		}
-		else {
-			return SPECTRAL_O;
-		}
-	}
-
 	public double getX() {
-		return x;
+		return star.getX();
 	}
 
 	public double getY() {
-		return y;
+		return star.getY();
 	}
 
 	public ArrayList<String> getGarrisonUnits() {
@@ -421,8 +347,11 @@ public class Planet implements Serializable {
 		return temperature;
 	}
 
+	/**
+	 * @deprecated Use {@link mekhq.campaign.universe.Star#getStarType(mekhq.campaign.universe.Planet)} instead
+	 */
 	public String getStarType() {
-		return getSpectralClassName(getSpectralClass()) + getSubtype() + luminosity;
+		return star.getStarType();
 	}
 
 	public String getSatelliteDescription() {
@@ -452,241 +381,35 @@ public class Planet implements Serializable {
 		return toReturn;
 	}
 
+	/**
+	 * @deprecated Use {@link mekhq.campaign.universe.Star#getRechargeStations()} instead
+	 */
 	public String getRechargeStations() {
-		if(zenithCharge && nadirCharge) {
-			return "Zenith, Nadir";
-		} else if(zenithCharge) {
-			return "Zenith";
-		} else if(nadirCharge) {
-			return "Nadir";
-		} else {
-			return "None";
-		}
+		return star.getRechargeStations();
 	}
 
+	/**
+	 * @deprecated Use {@link mekhq.campaign.universe.Star#getRechargeTime(mekhq.campaign.universe.Planet)} instead
+	 */
 	public int getRechargeTime() {
-		if(zenithCharge || nadirCharge) {
-			return Math.min(176, 141 + 10*getSpectralClass() + getSubtype());
-		} else {
-			return 141 + 10*getSpectralClass() + getSubtype();
-		}
+		return star.getRechargeTime();
 	}
 
+	/** @return the average travel time from low orbit to the jump point at 1g, in Terran days */
 	public double getTimeToJumpPoint(double acceleration) {
 		//based on the formula in StratOps
 		return Math.sqrt((getDistanceToJumpPoint()*1000)/(9.8*acceleration))/43200;
 	}
 
+	/** @return the average distance to the system's jump point in km */
 	public float getDistanceToJumpPoint() {
-		return getDistanceToJumpPoint(getSpectralClass(), getSubtype());
+		// TODO: Orbital distance
+		return star.getDistanceToJumpPoint();
 	}
 
-	/**
-	 * Distance to jump point given a spectral class and subtype
-	 * measured in kilometers
-	 * @param spectral
-	 * @param subtype
-	 * @return
-	 */
-	public static float getDistanceToJumpPoint(int spectral, int subtype) {
-
-		//taken from Dropships and Jumpships sourcebook, pg. 17
-		switch(spectral) {
-		case SPECTRAL_M:
-			if(subtype == 0) {
-				return 179915179f;
-			}
-			else if(subtype == 1) {
-				return 162301133f;
-			}
-			else if(subtype == 2) {
-				return 146630374f;
-			}
-			else if(subtype == 3) {
-				return 132668292f;
-			}
-			else if(subtype == 4) {
-				return 120210786f;
-			}
-			else if(subtype == 5) {
-				return 109080037f;
-			}
-			else if(subtype == 6) {
-				return 99120895f;
-			}
-			else if(subtype == 7) {
-				return 90197803f;
-			}
-			else if(subtype == 8) {
-				return 82192147f;
-			}
-			else if(subtype > 8) {
-				return 75000000f;
-			}
-		case SPECTRAL_K:
-			if(subtype == 0) {
-				return 549582283f;
-			}
-			else if(subtype == 1) {
-				return 487907078f;
-			}
-			else if(subtype == 2) {
-				return 433886958f;
-			}
-			else if(subtype == 3) {
-				return 386493164f;
-			}
-			else if(subtype == 4) {
-				return 344844735f;
-			}
-			else if(subtype == 5) {
-				return 308186014f;
-			}
-			else if(subtype == 6) {
-				return 275867748f;
-			}
-			else if(subtype == 7) {
-				return 247331200f;
-			}
-			else if(subtype == 8) {
-				return 222094749f;
-			}
-			else if(subtype > 8) {
-				return 199742590f;
-			}
-		case SPECTRAL_G:
-			if(subtype == 0) {
-				return 1993403717f;
-			}
-			else if(subtype == 1) {
-				return 1737789950f;
-			}
-			else if(subtype == 2) {
-				return 1517879732f;
-			}
-			else if(subtype == 3) {
-				return 1328325100f;
-			}
-			else if(subtype == 4) {
-				return 1164628460f;
-			}
-			else if(subtype == 5) {
-				return 1023000099f;
-			}
-			else if(subtype == 6) {
-				return 900240718f;
-			}
-			else if(subtype == 7) {
-				return 793644393f;
-			}
-			else if(subtype == 8) {
-				return 700918272f;
-			}
-			else if(subtype > 8) {
-				return 620115976f;
-			}
-		case SPECTRAL_F:
-			if(subtype == 0) {
-				return 8795520975f;
-			}
-			else if(subtype == 1) {
-				return 7509758447f;
-			}
-			else if(subtype == 2) {
-				return 6426154651f;
-			}
-			else if(subtype == 3) {
-				return 5510915132f;
-			}
-			else if(subtype == 4) {
-				return 4736208289f;
-			}
-			else if(subtype == 5) {
-				return 4079054583f;
-			}
-			else if(subtype == 6) {
-				return 3520442982f;
-			}
-			else if(subtype == 7) {
-				return 3044611112f;
-			}
-			else if(subtype == 8) {
-				return 2638462416f;
-			}
-			else if(subtype > 8) {
-				return 2291092549f;
-			}
-		case SPECTRAL_A:
-			if(subtype == 0) {
-				return 48590182199f;
-			}
-			else if(subtype == 1) {
-				return 40506291619f;
-			}
-			else if(subtype == 2) {
-				return 33853487850f;
-			}
-			else if(subtype == 3) {
-				return 28364525294f;
-			}
-			else if(subtype == 4) {
-				return 23824470101f;
-			}
-			else if(subtype == 5) {
-				return 20060019532f;
-			}
-			else if(subtype == 6) {
-				return 16931086050f;
-			}
-			else if(subtype == 7) {
-				return 14324152109f;
-			}
-			else if(subtype == 8) {
-				return 12147004515f;
-			}
-			else if(subtype > 8) {
-				return 10324556364f;
-			}
-		case SPECTRAL_B:
-			if(subtype == 0) {
-				return 347840509855f;
-			}
-			else if(subtype == 1) {
-				return 282065439915f;
-			}
-			else if(subtype == 2) {
-				return 229404075188f;
-			}
-			else if(subtype == 3) {
-				return 187117766777f;
-			}
-			else if(subtype == 4) {
-				return 153063985045f;
-			}
-			else if(subtype == 5) {
-				return 12556160986f;
-			}
-			else if(subtype == 6) {
-				return 103287722257f;
-			}
-			else if(subtype == 7) {
-				return 85198295036f;
-			}
-			else if(subtype == 8) {
-				return 70467069133f;
-			}
-			else if(subtype > 8) {
-				return 58438309136f;
-			}
-		default:
-			return 0;
-		}
-
-
-	}
-
+	/** @return the distance to another planet in light years (0 if both are in the same system) */
 	public double getDistanceTo(Planet anotherPlanet) {
-		return Math.sqrt(Math.pow(x - anotherPlanet.getX(), 2) + Math.pow(y - anotherPlanet.getY(), 2));
+		return Math.sqrt(Math.pow(getX() - anotherPlanet.getX(), 2) + Math.pow(getY() - anotherPlanet.getY(), 2));
 	}
 
 	public String getDescription() {
@@ -725,9 +448,9 @@ public class Planet implements Serializable {
 				retVal.name = wn2.getTextContent();
 				retVal.shortName = retVal.name;
 			} else if (wn2.getNodeName().equalsIgnoreCase("xcood")) {
-				retVal.x = Double.parseDouble(wn2.getTextContent());
+				retVal.star.setX(Double.parseDouble(wn2.getTextContent()));
 			} else if (wn2.getNodeName().equalsIgnoreCase("ycood")) {
-				retVal.y = Double.parseDouble(wn2.getTextContent());
+				retVal.star.setY(Double.parseDouble(wn2.getTextContent()));
 			} else if (wn2.getNodeName().equalsIgnoreCase("faction")) {
 				try {
 					retVal.factionCodes = processFactionCodes(wn2.getTextContent());
@@ -745,14 +468,14 @@ public class Planet implements Serializable {
 				retVal.sysPos = Integer.parseInt(wn2.getTextContent());
 			} else if (wn2.getNodeName().equalsIgnoreCase("nadirCharge")) {
 				if (wn2.getTextContent().equalsIgnoreCase("true"))
-					retVal.nadirCharge = true;
+					retVal.star.setNadirCharge(true);
 				else
-					retVal.nadirCharge = false;
+					retVal.star.setNadirCharge(false);
 			} else if (wn2.getNodeName().equalsIgnoreCase("zenithCharge")) {
 				if (wn2.getTextContent().equalsIgnoreCase("true"))
-					retVal.zenithCharge = true;
+					retVal.star.setZenithCharge(true);
 				else
-					retVal.zenithCharge = false;
+					retVal.star.setZenithCharge(false);
 			} else if (wn2.getNodeName().equalsIgnoreCase("lifeForm")) {
 				retVal.lifeForm = Integer.parseInt(wn2.getTextContent());
 			} else if (wn2.getNodeName().equalsIgnoreCase("climate")) {
@@ -762,11 +485,11 @@ public class Planet implements Serializable {
 			} else if (wn2.getNodeName().equalsIgnoreCase("temperature")) {
 				retVal.temperature = Integer.parseInt(wn2.getTextContent());
 			} else if (wn2.getNodeName().equalsIgnoreCase("spectralClass")) {
-				retVal.setSpectralClass(getSpectralClassFrom(wn2.getTextContent()));
+				retVal.star.setSpectralClass(Star.getSpectralClassFrom(wn2.getTextContent()));
 			} else if (wn2.getNodeName().equalsIgnoreCase("subtype")) {
-				retVal.setSubtype(Integer.parseInt(wn2.getTextContent()));
+				retVal.star.setSubtype(Integer.parseInt(wn2.getTextContent()));
 			} else if (wn2.getNodeName().equalsIgnoreCase("luminosity")) {
-				retVal.luminosity = wn2.getTextContent();
+				retVal.star.setLuminosity(wn2.getTextContent());
 			} else if (wn2.getNodeName().equalsIgnoreCase("factionChange")) {
 				processFactionChange(retVal, wn2);
 			} else if (wn2.getNodeName().equalsIgnoreCase("satellite")) {
@@ -830,8 +553,9 @@ public class Planet implements Serializable {
 		if(object instanceof Planet) {
 			Planet planet = (Planet)object;
 			if(planet.getName().equalsIgnoreCase(name)
-					&& planet.getX() == x
-					&& planet.getY() == y) {
+					&& planet.getX() == getX()
+					&& planet.getY() == getY()
+					&& planet.getSystemPosition() == sysPos) {
 				return true;
 			}
 		}
@@ -853,25 +577,25 @@ public class Planet implements Serializable {
 	public static int generateStarType() {
 		switch (Compute.d6(2)) {
 			case 2:
-				return SPECTRAL_F;
+				return Star.SPECTRAL_F;
 			case 3:
-				return SPECTRAL_M;
+				return Star.SPECTRAL_M;
 			case 4:
-				return SPECTRAL_G;
+				return Star.SPECTRAL_G;
 			case 5:
-				return SPECTRAL_K;
+				return Star.SPECTRAL_K;
 			case 6:
 			case 7:
 			case 8:
 			case 9:
 			case 10:
 			case 11:
-				return SPECTRAL_M;
+				return Star.SPECTRAL_M;
 			case 12:
 				switch (Compute.d6(2)) {
 					case 2:
 					case 3:
-						return SPECTRAL_B;
+						return Star.SPECTRAL_B;
 					case 4:
 					case 5:
 					case 6:
@@ -879,16 +603,16 @@ public class Planet implements Serializable {
 					case 8:
 					case 9:
 					case 10:
-						return SPECTRAL_A;
+						return Star.SPECTRAL_A;
 					case 11:
-						return SPECTRAL_B;
+						return Star.SPECTRAL_B;
 					case 12:
-						return SPECTRAL_F;
+						return Star.SPECTRAL_F;
 					default:
-						return SPECTRAL_A;
+						return Star.SPECTRAL_A;
 				}
 			default:
-				return SPECTRAL_M;
+				return Star.SPECTRAL_M;
 		}
 	}
 
