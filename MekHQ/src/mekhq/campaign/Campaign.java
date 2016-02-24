@@ -155,6 +155,7 @@ import mekhq.campaign.universe.NewsItem;
 import mekhq.campaign.universe.Planet;
 import mekhq.campaign.universe.Planets;
 import mekhq.campaign.universe.RandomFactionGenerator;
+import mekhq.campaign.universe.SpaceLocation;
 import mekhq.campaign.universe.Star;
 import mekhq.campaign.universe.UnitTableData;
 import mekhq.campaign.work.IAcquisitionWork;
@@ -385,7 +386,7 @@ public class Campaign implements Serializable {
         return location.getCurrentPlanet().getShortName();
     }
 
-    public Planet getCurrentPlanet() {
+    public SpaceLocation getCurrentPlanet() {
         return location.getCurrentPlanet();
     }
 

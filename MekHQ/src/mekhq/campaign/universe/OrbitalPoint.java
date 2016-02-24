@@ -20,7 +20,7 @@ public class OrbitalPoint extends SpaceLocation {
 	}
 	
 	@Override
-	public double travelTimeTo(SpaceLocation other) {
+	public double getTravelTimeTo(SpaceLocation other) {
 		if( this == other ) {
 			return 0;
 		}
@@ -35,7 +35,7 @@ public class OrbitalPoint extends SpaceLocation {
 		}
 		if( other instanceof ConstantPoint ) {
 			// Travel times are symmetrical, no need to replicate the code
-			return other.travelTimeTo(this);
+			return other.getTravelTimeTo(this);
 		}
 		return Double.POSITIVE_INFINITY;
 	}
@@ -48,7 +48,7 @@ public class OrbitalPoint extends SpaceLocation {
 	}
 
 	@Override
-	public double rechargeTime() {
+	public double getRechargeTime() {
 		// No recharge at orbital positions (for now)
 		return Double.POSITIVE_INFINITY;
 	}

@@ -30,6 +30,7 @@ import mekhq.campaign.Campaign;
 import mekhq.campaign.JumpPath;
 import mekhq.campaign.universe.Faction;
 import mekhq.campaign.universe.Planet;
+import mekhq.campaign.universe.Star;
 
 
 /**
@@ -326,7 +327,7 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
 
       //draw a jump path
 		for(int i = 0; i < jumpPath.size(); i++) {
-			Planet planetB = jumpPath.get(i);
+			Star planetB = jumpPath.get(i).getStar();
 			double x = map2scrX(planetB.getX());
 			double y = map2scrY(planetB.getY());
 			//lest try rings
@@ -343,7 +344,7 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
 			arc.setArcByCenter(x, y, size * 1.2, 0, 360, Arc2D.OPEN);
 			g2.fill(arc);
 			if(i > 0) {
-				Planet planetA = jumpPath.get(i-1);
+				Star planetA = jumpPath.get(i-1).getStar();
 				g2.setPaint(Color.WHITE);
 				g2.draw(new Line2D.Double(map2scrX(planetA.getX()), map2scrY(planetA.getY()), map2scrX(planetB.getX()), map2scrY(planetB.getY())));
 			}
@@ -353,7 +354,7 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
 		//draw this one too, in a different color
 		if(null != campaign.getLocation().getJumpPath()) {
 			for(int i = 0; i < campaign.getLocation().getJumpPath().size(); i++) {
-				Planet planetB = campaign.getLocation().getJumpPath().get(i);
+				Star planetB = campaign.getLocation().getJumpPath().get(i).getStar();
 				double x = map2scrX(planetB.getX());
 				double y = map2scrY(planetB.getY());
 				//lest try rings
@@ -370,7 +371,7 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
 				arc.setArcByCenter(x, y, size * 1.2, 0, 360, Arc2D.OPEN);
 				g2.fill(arc);
 				if(i > 0) {
-					Planet planetA = campaign.getLocation().getJumpPath().get(i-1);
+					Star planetA = campaign.getLocation().getJumpPath().get(i-1).getStar();
 					g2.setPaint(Color.YELLOW);
 					g2.draw(new Line2D.Double(map2scrX(planetA.getX()), map2scrY(planetA.getY()), map2scrX(planetB.getX()), map2scrY(planetB.getY())));
 				}

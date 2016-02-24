@@ -29,6 +29,7 @@ import mekhq.MekHQ;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.finances.Transaction;
 import mekhq.campaign.universe.Planet;
+import mekhq.campaign.universe.SpaceLocation;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -50,7 +51,7 @@ public class CurrentLocation implements Serializable {
 	 */
 	private static final long serialVersionUID = -4337642922571022697L;
 	
-	private Planet currentPlanet;
+	private SpaceLocation currentPlanet;
 	//keep track of jump path
 	private JumpPath jumpPath;
 	private double rechargeTime;
@@ -61,14 +62,14 @@ public class CurrentLocation implements Serializable {
 		this(null,0);
 	}
 	
-	public CurrentLocation(Planet planet, double time) {
+	public CurrentLocation(SpaceLocation planet, double time) {
 		this.currentPlanet = planet;
 		this.transitTime = time;
 		this.rechargeTime = 0.0;
 		this.transitTime = 0.0;
 	}
 	
-	public void setCurrentPlanet(Planet p) {
+	public void setCurrentPlanet(SpaceLocation p) {
 		currentPlanet = p;
 	}
 	
@@ -88,7 +89,7 @@ public class CurrentLocation implements Serializable {
 		return !isOnPlanet() && !isAtJumpPoint();
 	}
 	
-	public Planet getCurrentPlanet() {
+	public SpaceLocation getCurrentPlanet() {
 		return currentPlanet;
 	}
 	
@@ -100,7 +101,7 @@ public class CurrentLocation implements Serializable {
 		String toReturn = "<b>Current Location</b><br>";
 		toReturn += currentPlanet.getShortDesc(date) + "<br> ";
 		if(null != jumpPath && !jumpPath.isEmpty()) {
-			toReturn += "In transit to " + jumpPath.getLastPlanet().getShortName() + " ";
+			toReturn += "In transit to " + jumpPath.getLastPlanet().getDesc() + " ";
 		}
 		if(isOnPlanet()) {
 			toReturn += "<i>On Planet</i>";
@@ -161,7 +162,7 @@ public class CurrentLocation implements Serializable {
 					    return;
 					}
 				}
-                campaign.addReport("Jumping to " + jumpPath.get(1).getShortName());
+                campaign.addReport("Jumping to " + jumpPath.get(1).getStar().getName());
 				currentPlanet = jumpPath.get(1);
 				jumpPath.removeFirstPlanet();
 				//reduce remaining hours by usedRechargeTime or usedTransitTime, whichever is greater
@@ -185,7 +186,7 @@ public class CurrentLocation implements Serializable {
 			campaign.addReport("Dropships spent " + Math.round(100.0 * usedTransitTime)/100.0 + " hours transiting into system");
 			transitTime -= usedTransitTime/24.0;
 			if(transitTime <= 0) {
-				campaign.addReport(jumpPath.getLastPlanet().getShortName() + " reached.");
+				campaign.addReport(jumpPath.getLastPlanet().getDesc() + " reached.");
 				//we are here!
 				transitTime = 0;
 				jumpPath = null;

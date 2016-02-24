@@ -107,7 +107,7 @@ public class JumpPath implements Serializable {
 			SpaceLocation loc = path.get(i);
 			// If we can jump to the next location, we will
 			if( loc.canJumpTo(path.get(i + 1)) ) {
-				rechargeTime += loc.rechargeTime();
+				rechargeTime += loc.getRechargeTime();
 			}
 			// Else we're using in-system transfer
 		}
@@ -125,10 +125,10 @@ public class JumpPath implements Serializable {
 			if( loc.canJumpTo(path.get(i + 1)) ) {
 				// Jumping - recharge time + 1 hour for the jump
 				// TODO - make the jump time dependent on the skill level of the crew
-				totalTime += loc.rechargeTime() + 1;
+				totalTime += loc.getRechargeTime() + 1;
 			} else {
 				// In-system transit
-				totalTime += loc.travelTimeTo(path.get(i + 1));
+				totalTime += loc.getTravelTimeTo(path.get(i + 1));
 			}
 		}
 		return totalTime / 24.0;

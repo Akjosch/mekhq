@@ -27,7 +27,7 @@ public abstract class ConstantPoint extends SpaceLocation {
 	public abstract double getDistance();
 	
 	@Override
-	public double travelTimeTo(SpaceLocation other) {
+	public double getTravelTimeTo(SpaceLocation other) {
 		if( this == other ) {
 			return 0;
 		}

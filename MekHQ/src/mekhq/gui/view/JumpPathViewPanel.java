@@ -15,6 +15,7 @@ import javax.swing.BorderFactory;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.JumpPath;
 import mekhq.campaign.universe.Planet;
+import mekhq.campaign.universe.SpaceLocation;
 
 /**
  * A custom panel that gets filled in with goodies from a JumpPath record
@@ -97,8 +98,12 @@ public class JumpPathViewPanel extends javax.swing.JPanel {
 		pnlPath.setLayout(new java.awt.GridBagLayout());
 		int i = 0;
 		javax.swing.JLabel lblPlanet;
-		for(Planet planet : path.getPlanets()) {
-			lblPlanet = new javax.swing.JLabel(planet.getShortName() + " (" + planet.getRechargeTime() + " hours)");
+		for(SpaceLocation planet : path.getPlanets()) {
+			if( Double.isInfinite(planet.getRechargeTime()) ) {
+				lblPlanet = new javax.swing.JLabel(planet.getDesc());
+			} else {
+				lblPlanet = new javax.swing.JLabel(planet.getDesc() + " (" + planet.getRechargeTime() + " hours)");
+			}
 			gridBagConstraints = new java.awt.GridBagConstraints();
 			gridBagConstraints.gridx = 0;
 			gridBagConstraints.gridy = i;
@@ -133,8 +138,8 @@ public class JumpPathViewPanel extends javax.swing.JPanel {
     	lblCost = new javax.swing.JLabel();
     	txtCost = new javax.swing.JTextArea();
     	
-    	String startName = (path.getFirstPlanet() == null) ? "?":path.getFirstPlanet().getShortName();
-    	String endName = (path.getLastPlanet() == null) ? "?":path.getLastPlanet().getShortName();
+    	String startName = (path.getFirstPlanet() == null) ? "?":path.getFirstPlanet().getDesc();
+    	String endName = (path.getLastPlanet() == null) ? "?":path.getLastPlanet().getDesc();
     	
     	java.awt.GridBagConstraints gridBagConstraints;
 		pnlStats.setLayout(new java.awt.GridBagLayout());

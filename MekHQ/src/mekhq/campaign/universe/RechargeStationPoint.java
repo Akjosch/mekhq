@@ -22,7 +22,7 @@ public class RechargeStationPoint extends ConstantPoint {
 	}
 
 	@Override
-	public double rechargeTime() {
+	public double getRechargeTime() {
 		// Constant time
 		return 176;
 	}

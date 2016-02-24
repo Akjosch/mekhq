@@ -44,7 +44,7 @@ public abstract class SpaceLocation {
 	 * If there's no way to travel between the two space locations directly, the function
 	 * should return Double.POSITIVE_INFINITY
 	 */
-	public abstract double travelTimeTo(SpaceLocation other);
+	public abstract double getTravelTimeTo(SpaceLocation other);
 	
 	/**
 	 * A function returning "true" if you can jump from this space location to the other one.
@@ -58,7 +58,7 @@ public abstract class SpaceLocation {
 	 * This should return Double.POSITIVE_INFINITY if recharging is not possible here (typically anywhere
 	 * outside jump points and recharge stations).
 	 */
-	public abstract double rechargeTime();
+	public abstract double getRechargeTime();
 
 	/**
 	 * @return a machine-readable name allowing to reconstruct this location later on
