@@ -1175,7 +1175,7 @@ public class CampaignGUI extends JPanel {
 
         panMap = new InterstellarMapPanel(getCampaign(), this);
         // lets go ahead and zoom in on the current location
-        panMap.setSelectedPlanet(getCampaign().getLocation().getCurrentPlanet());
+        panMap.setSelectedPlanet(getCampaign().getLocation().getCurrentLocation());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -3415,10 +3415,10 @@ public class CampaignGUI extends JPanel {
     }
 
     private void calculateJumpPath() {
-        if (null != panMap.getSelectedPlanet()) {
+        if (null != panMap.getSelectedStar()) {
             panMap.setJumpPath(getCampaign().calculateJumpPath(
                     getCampaign().getCurrentPlanetName(),
-                    panMap.getSelectedPlanet().getName()));
+                    panMap.getSelectedStar().getName()));
             refreshPlanetView();
         }
     }
@@ -5018,7 +5018,7 @@ public class CampaignGUI extends JPanel {
                     getCampaign()));
             return;
         }
-        Planet planet = panMap.getSelectedPlanet();
+        Planet planet = panMap.getSelectedStar();
         if (null != planet) {
             scrollPlanetView.setViewportView(new PlanetViewPanel(planet,
                     getCampaign()));

@@ -20,6 +20,7 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JMenu;
@@ -30,6 +31,7 @@ import mekhq.campaign.Campaign;
 import mekhq.campaign.JumpPath;
 import mekhq.campaign.universe.Faction;
 import mekhq.campaign.universe.Planet;
+import mekhq.campaign.universe.SpaceLocation;
 import mekhq.campaign.universe.Star;
 
 
@@ -45,18 +47,19 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
 	 */
 	private static final long serialVersionUID = -1110105822399704646L;
 
-	private ArrayList<Planet> planets;
+	private List<Star> stars;
 	private JumpPath jumpPath;
 	private Campaign campaign;
 	InnerStellarMapConfig conf = new InnerStellarMapConfig();
 	CampaignGUI hqview;
+	private Star selectedStar = null;
 	private Planet selectedPlanet = null;
 	Point lastMousePos = null;
     int mouseMod = 0;
 
 	public InterstellarMapPanel(Campaign c, CampaignGUI view) {
 		campaign = c;
-		planets = campaign.getPlanets();
+		stars = campaign.getStars();
 		hqview = view;
 		jumpPath = new JumpPath();
 
@@ -128,11 +131,11 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
                 	popup.add(item);
                 	JMenu centerM = new JMenu("Center Map");
                     item = new JMenuItem("On Selected Planet");
-                    item.setEnabled(selectedPlanet != null);
-                    if (selectedPlanet != null) {// only add if there is a planet to center on
+                    item.setEnabled(selectedStar != null);
+                    if (selectedStar != null) {// only add if there is a planet to center on
                         item.addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent ae) {
-                                center(selectedPlanet);
+                                center(selectedStar);
                             }
                         });
                     }
@@ -142,7 +145,7 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
                     if (campaign.getCurrentPlanet() != null) {// only add if there is a planet to center on
                         item.addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent ae) {
-                            	selectedPlanet = campaign.getCurrentPlanet();
+                            	selectedStar = campaign.getCurrentPlanet().getStar();
                                 center(campaign.getCurrentPlanet());
                             }
                         });
@@ -168,15 +171,15 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
                 	popup.add(item);
                     JMenu menuGM = new JMenu("GM Mode");
                     item = new JMenuItem("Move to selected planet");
-                    item.setEnabled(selectedPlanet != null && campaign.isGM());
-                    if (selectedPlanet != null) {// only add if there is a planet to center on
+                    item.setEnabled(selectedStar != null && campaign.isGM());
+                    if (selectedStar != null) {// only add if there is a planet to center on
                         item.addActionListener(new ActionListener() {
                             public void actionPerformed(ActionEvent ae) {
-                                campaign.getLocation().setCurrentPlanet(selectedPlanet);
+                                campaign.getLocation().setCurrentLocation(selectedStar.getDefaultPlanet().getPointOnSurface());
                                 campaign.getLocation().setTransitTime(0.0);
                                 campaign.getLocation().setJumpPath(null);
                                 jumpPath = new JumpPath();
-                                center(selectedPlanet);
+                                center(selectedStar);
                                 hqview.refreshLocation();
                             }
                         });
@@ -192,11 +195,11 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
 
             		if (e.getClickCount() >= 2) {
             			//center and zoom
-            			changeSelectedPlanet(nearestNeighbour(scr2mapX(e.getX()), scr2mapY(e.getY())));
+            			changeSelection(nearestNeighbour(scr2mapX(e.getX()), scr2mapY(e.getY())));
             			if(conf.scale < 4.0) {
             				conf.scale = 4.0;
             			}
-            			center(selectedPlanet);
+            			center(selectedStar);
             		} else {
             			Planet target = nearestNeighbour(scr2mapX(e.getX()), scr2mapY(e.getY()));
                         if(null == target) {
@@ -205,7 +208,7 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
                         if(e.isAltDown()) {
                         	//calculate a new jump path from the current location
                         	jumpPath = campaign.calculateJumpPath(campaign.getCurrentPlanetName(), target.getName());
-                        	selectedPlanet = target;
+                        	selectedStar = target;
                     		repaint();
                     		hqview.refreshPlanetView();
                     		return;
@@ -222,12 +225,12 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
                   				addPath.removeFirstPlanet();
                   			}
                         	jumpPath.addPlanets(addPath.getPlanets());
-                  			selectedPlanet = target;
+                  			selectedStar = target;
                   			repaint();
                   			hqview.refreshPlanetView();
                   			return;
                         }
-                    	changeSelectedPlanet(target);
+                    	changeSelection(target);
                     	repaint();
             		}
             	}
@@ -269,7 +272,7 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
 
 	public void setCampaign(Campaign c) {
 		this.campaign = c;
-		this.planets = campaign.getPlanets();
+		this.stars = campaign.getStars();
 		repaint();
 	}
 
@@ -298,14 +301,14 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
     }
 
     public void setSelectedPlanet(Planet p) {
+    	selectedStar = p.getStar();
     	selectedPlanet = p;
     	if(conf.scale < 4.0) {
 			conf.scale = 4.0;
 		}
-		center(selectedPlanet);
+		center(selectedStar);
     	repaint();
     }
-
 
 	protected void paintComponent(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
@@ -315,10 +318,10 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
         size = Math.max(Math.min(size, conf.maxdotSize), conf.minDotSize);
         Arc2D.Double arc = new Arc2D.Double();
         //first get the jump diameter for selected planet
-        if(null != selectedPlanet && conf.scale > conf.showPlanetNamesThreshold) {
-        	double x = map2scrX(selectedPlanet.getX());
-			double y = map2scrY(selectedPlanet.getY());
-			double z = map2scrX(selectedPlanet.getX() + 30);
+        if(null != selectedStar && conf.scale > conf.showPlanetNamesThreshold) {
+        	double x = map2scrX(selectedStar.getX());
+			double y = map2scrY(selectedStar.getY());
+			double z = map2scrX(selectedStar.getX() + 30);
 			double jumpRadius = (z - x);
 			g2.setPaint(Color.DARK_GRAY);
 			arc.setArcByCenter(x, y, jumpRadius, 0, 360, Arc2D.OPEN);
@@ -378,7 +381,7 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
 			}
 		}
 
-		for(Planet planet : planets) {
+		for(Planet planet : stars) {
 			double x = map2scrX(planet.getX());
 			double y = map2scrY(planet.getY());
 			if(planet.equals(campaign.getCurrentPlanet())) {
@@ -396,7 +399,7 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
 				arc.setArcByCenter(x, y, size * 1.2, 0, 360, Arc2D.OPEN);
 				g2.fill(arc);
 			}
-			if(null != selectedPlanet && selectedPlanet.equals(planet)) {
+			if(null != selectedStar && selectedStar.equals(planet)) {
 				//lest try rings
 				g2.setPaint(Color.WHITE);
 				arc.setArcByCenter(x, y, size * 1.8, 0, 360, Arc2D.OPEN);
@@ -423,7 +426,7 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
 		}
 
 		//cycle through planets again and assign names - to make sure names go on outside
-		for(Planet planet : planets) {
+		for(Star planet : stars) {
 			double x = map2scrX(planet.getX());
 			double y = map2scrY(planet.getY());
 			if (conf.showPlanetNamesThreshold == 0 || conf.scale > conf.showPlanetNamesThreshold
@@ -439,11 +442,11 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
 	 /**
      * Calculate the nearest neighbour for the given point If anyone has a better algorithm than this stupid kind of shit, please, feel free to exchange my brute force thing... An good idea would be an voronoi diagram and the sweep algorithm from Steven Fortune.
      */
-    private Planet nearestNeighbour(double x, double y) {
+    private Star nearestNeighbour(double x, double y) {
         double minDiff = Double.MAX_VALUE;
         double diff = 0.0;
-        Planet minPlanet = null;
-        for(Planet p : planets) {
+        Star minPlanet = null;
+        for(Star p : stars) {
             diff = Math.sqrt(Math.pow(x - p.getX(), 2) + Math.pow(y - p.getY(), 2));
             if (diff < minDiff) {
                 minDiff = diff;
@@ -453,38 +456,52 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
         return minPlanet;
     }
 
+    private void center(Planet p, int x) {
+    	center(p.getStar());
+    }
+    
+    private void center(SpaceLocation l) {
+    	center(l.getStar());
+    }
+    
     /**
      * Activate and Center
      */
-    private void center(Planet p) {
+    private void center(Star s) {
 
-        if (p == null) {
+        if (s == null) {
             return;
         }
-        conf.offset.setLocation(-p.getX() * conf.scale, p.getY() * conf.scale);
+        conf.offset.setLocation(-s.getX() * conf.scale, s.getY() * conf.scale);
         repaint();
     }
 
     private void zoom(double percent) {
     	conf.scale *= percent;
-        if (selectedPlanet != null) {
-            conf.offset.setLocation(-selectedPlanet.getX() * conf.scale, selectedPlanet.getY() * conf.scale);
+        if (selectedStar != null) {
+            conf.offset.setLocation(-selectedStar.getX() * conf.scale, selectedStar.getY() * conf.scale);
         }
         repaint();
     }
 
-    public Planet getSelectedPlanet() {
-    	return selectedPlanet;
+    public Star getSelectedStar() {
+    	return selectedStar;
     }
 
     public JumpPath getJumpPath() {
     	return jumpPath;
     }
 
-    private void changeSelectedPlanet(Planet p) {
-    	selectedPlanet = p;
+    private void changeSelection(Star s) {
+    	selectedStar = s;
+    	selectedPlanet = s.getDefaultPlanet();
     	jumpPath = new JumpPath();
     	hqview.refreshPlanetView();
+    }
+    
+    private void changeSelection(Planet p) {
+    	changeSelection(p.getStar());
+    	selectedPlanet = p;
     }
 
     /**

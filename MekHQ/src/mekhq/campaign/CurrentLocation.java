@@ -51,7 +51,7 @@ public class CurrentLocation implements Serializable {
 	 */
 	private static final long serialVersionUID = -4337642922571022697L;
 	
-	private SpaceLocation currentPlanet;
+	private SpaceLocation currentLocation;
 	//keep track of jump path
 	private JumpPath jumpPath;
 	private double rechargeTime;
@@ -59,18 +59,21 @@ public class CurrentLocation implements Serializable {
 	private double transitTime;
 	
 	public CurrentLocation() {
-		this(null,0);
+		this((SpaceLocation)null, 0);
+	}
+	
+	public CurrentLocation(Planet p, double time) {
+		this(p.getPointOnSurface(), time);
 	}
 	
 	public CurrentLocation(SpaceLocation planet, double time) {
-		this.currentPlanet = planet;
+		this.currentLocation = planet;
 		this.transitTime = time;
 		this.rechargeTime = 0.0;
-		this.transitTime = 0.0;
 	}
 	
-	public void setCurrentPlanet(SpaceLocation p) {
-		currentPlanet = p;
+	public void setCurrentLocation(SpaceLocation p) {
+		currentLocation = p;
 	}
 	
 	public void setTransitTime(double time) {
@@ -78,19 +81,19 @@ public class CurrentLocation implements Serializable {
 	}
 	
 	public boolean isOnPlanet() {
-		return transitTime <= 0;
+		return currentLocation.isOnSurface();
 	}
 	
 	public boolean isAtJumpPoint() {
-		return transitTime >= currentPlanet.getTimeToJumpPoint(1.0);
+		return currentLocation.isJumpPoint();
 	}
 	
 	public boolean isInTransit() {
 		return !isOnPlanet() && !isAtJumpPoint();
 	}
 	
-	public SpaceLocation getCurrentPlanet() {
-		return currentPlanet;
+	public SpaceLocation getCurrentLocation() {
+		return currentLocation;
 	}
 	
 	public double getTransitTime() {
@@ -99,7 +102,7 @@ public class CurrentLocation implements Serializable {
 	
 	public String getReport(Date date) {
 		String toReturn = "<b>Current Location</b><br>";
-		toReturn += currentPlanet.getShortDesc(date) + "<br> ";
+		toReturn += currentLocation.getShortDesc(date) + "<br> ";
 		if(null != jumpPath && !jumpPath.isEmpty()) {
 			toReturn += "In transit to " + jumpPath.getLastPlanet().getDesc() + " ";
 		}
@@ -111,7 +114,7 @@ public class CurrentLocation implements Serializable {
 		} else {
 			toReturn += "<i>" + Math.round(100.0*getTransitTime())/100.0 + " days out </i>";
 		}
-		toReturn += ", <i>" + Math.round(100.0*rechargeTime/currentPlanet.getRechargeTime()) + "% charged</i>";
+		toReturn += ", <i>" + Math.round(100.0*rechargeTime/currentLocation.getRechargeTime()) + "% charged</i>";
 		return "<html>" + toReturn + "</html>";
 	}
 	
@@ -131,11 +134,11 @@ public class CurrentLocation implements Serializable {
 		//recharge even if there is no jump path
 		//because jumpships don't go anywhere
 		double hours = 24.0;
-		double usedRechargeTime = Math.min(hours, currentPlanet.getRechargeTime() - rechargeTime);
+		double usedRechargeTime = Math.min(hours, currentLocation.getRechargeTime() - rechargeTime);
 		if(usedRechargeTime > 0) {
 			campaign.addReport("Jumpships spent " + Math.round(100.0 * usedRechargeTime)/100.0 + " hours recharging drives");
 			rechargeTime += usedRechargeTime;
-			if(rechargeTime >= currentPlanet.getRechargeTime()) {
+			if(rechargeTime >= currentLocation.getRechargeTime()) {
 				campaign.addReport("Jumpship drives full charged");
 			}
 		}
@@ -146,7 +149,7 @@ public class CurrentLocation implements Serializable {
 		//or if we can jump
 		if(jumpPath.size() > 1) {
 			//first check to see if we are transiting
-			double usedTransitTime = Math.min(hours, 24.0 * (currentPlanet.getTimeToJumpPoint(1.0) - transitTime));
+			double usedTransitTime = Math.min(hours, 24.0 * (currentLocation.getTimeToJumpPoint(1.0) - transitTime));
 			if(usedTransitTime > 0) {
 				transitTime += usedTransitTime/24.0;
 				campaign.addReport("Dropships spent " + Math.round(100.0 * usedTransitTime)/100.0 + " hours in transit to jump point");
@@ -154,27 +157,27 @@ public class CurrentLocation implements Serializable {
 					campaign.addReport("Jump point reached");
 				}
 			}
-			if(isAtJumpPoint() && rechargeTime >= currentPlanet.getRechargeTime()) {
+			if(isAtJumpPoint() && rechargeTime >= currentLocation.getRechargeTime()) {
 				//jump
 				if(campaign.getCampaignOptions().payForTransport()) {				    
-					if(!campaign.getFinances().debit(campaign.calculateCostPerJump(true), Transaction.C_TRANSPORT, "jump from " + currentPlanet.getName() + " to " + jumpPath.get(1).getName(), campaign.getCalendar().getTime())) {
+					if(!campaign.getFinances().debit(campaign.calculateCostPerJump(true), Transaction.C_TRANSPORT, "jump from " + currentLocation.getName() + " to " + jumpPath.get(1).getName(), campaign.getCalendar().getTime())) {
 					    campaign.addReport("<font color='red'><b>You cannot afford to make the jump!</b></font>");
 					    return;
 					}
 				}
                 campaign.addReport("Jumping to " + jumpPath.get(1).getStar().getName());
-				currentPlanet = jumpPath.get(1);
+				currentLocation = jumpPath.get(1);
 				jumpPath.removeFirstPlanet();
 				//reduce remaining hours by usedRechargeTime or usedTransitTime, whichever is greater
 				hours -= Math.max(usedRechargeTime, usedTransitTime);
-				transitTime = currentPlanet.getTimeToJumpPoint(1.0);
+				transitTime = currentLocation.getTimeToJumpPoint(1.0);
 				rechargeTime = 0;
 				//if there are hours remaining, then begin recharging jump drive
-				usedRechargeTime = Math.min(hours, currentPlanet.getRechargeTime() - rechargeTime);
+				usedRechargeTime = Math.min(hours, currentLocation.getRechargeTime() - rechargeTime);
 				if(usedRechargeTime > 0) {
 					campaign.addReport("Jumpships spent " + Math.round(100.0 * usedRechargeTime)/100.0 + " hours recharging drives");
 					rechargeTime += usedRechargeTime;
-					if(rechargeTime >= currentPlanet.getRechargeTime()) {
+					if(rechargeTime >= currentLocation.getRechargeTime()) {
 						campaign.addReport("Jumpship drives full charged");
 					}
 				}
@@ -198,7 +201,7 @@ public class CurrentLocation implements Serializable {
 		pw1.println(MekHqXmlUtil.indentStr(indent) + "<location>");
 		pw1.println(MekHqXmlUtil.indentStr(indent+1)
 				+"<currentPlanetName>"
-				+MekHqXmlUtil.escape(currentPlanet.getName())
+				+MekHqXmlUtil.escape(currentLocation.getName())
 				+"</currentPlanetName>");
 		pw1.println(MekHqXmlUtil.indentStr(indent+1)
 				+"<transitTime>"
@@ -235,7 +238,7 @@ public class CurrentLocation implements Serializable {
 							p = c.getPlanets().get(0);
 						}
 					}
-					retVal.currentPlanet = p;
+					retVal.currentLocation = p;
 				} else if (wn2.getNodeName().equalsIgnoreCase("transitTime")) {
 					retVal.transitTime = Double.parseDouble(wn2.getTextContent());
 				} else if (wn2.getNodeName().equalsIgnoreCase("rechargeTime")) {

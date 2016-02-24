@@ -383,11 +383,11 @@ public class Campaign implements Serializable {
     }
 
     public String getCurrentPlanetName() {
-        return location.getCurrentPlanet().getShortName();
+        return location.getCurrentLocation().getShortName();
     }
 
     public SpaceLocation getCurrentPlanet() {
-        return location.getCurrentPlanet();
+        return location.getCurrentLocation();
     }
 
     public long getFunds() {
@@ -2002,7 +2002,7 @@ public class Campaign implements Serializable {
             	 */
 
             	RandomFactionGenerator.getInstance().updateTables(calendar.getTime(),
-            			location.getCurrentPlanet(), campaignOptions);
+            			location.getCurrentLocation(), campaignOptions);
                 IUnitRating rating = UnitRatingFactory.getUnitRating(this);
                 rating.reInitialize();
 
@@ -2888,7 +2888,7 @@ public class Campaign implements Serializable {
             }
             RandomNameGenerator.getInstance();
 			RandomFactionGenerator.getInstance().updateTables(getDate(),
-					location.getCurrentPlanet(), getCampaignOptions());
+					location.getCurrentLocation(), getCampaignOptions());
 		}
     }
 
@@ -4774,6 +4774,10 @@ public class Campaign implements Serializable {
         }
     }
 
+	public List<Star> getStars() {
+		return new ArrayList<Star>(Planets.getInstance().getStars().values());
+	}
+	
     public ArrayList<Planet> getPlanets() {
         ArrayList<Planet> plnts = new ArrayList<Planet>();
         for (String key : Planets.getInstance().getPlanets().keySet()) {
@@ -8019,7 +8023,7 @@ public class Campaign implements Serializable {
     	addAllLances(this.forces);
     	atbConfig = AtBConfiguration.loadFromXml();
     	RandomFactionGenerator.getInstance().updateTables(calendar.getTime(),
-    			location.getCurrentPlanet(), campaignOptions);
+    			location.getCurrentLocation(), campaignOptions);
     }
 
     public boolean checkOverDueLoans() {

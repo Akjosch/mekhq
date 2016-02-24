@@ -170,11 +170,14 @@ public class JumpPath implements Serializable {
 		}
 	}
 	
-	/*
-	public boolean contains(Planet planet) {
-		return path.contains(planet);
+	public boolean contains(Star star) {
+		for( int i = 0; i < path.size(); ++ i ) {
+			if( path.get(i).getStar().equals(star) ) {
+				return true;
+			}
+		}
+		return false;
 	}
-	*/
 	
 	public void writeToXml(PrintWriter pw1, int indent) {
 		pw1.println(MekHqXmlUtil.indentStr(indent) + "<jumpPath>");

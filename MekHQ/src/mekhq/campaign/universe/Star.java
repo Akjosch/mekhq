@@ -41,6 +41,7 @@ public class Star implements Serializable {
 	// planets - list of planets in a given orbit; can (and often is) partially empty
 	// This list is by the planet's ID, not instance, to help the GC and not create circular references
 	private List<String> planets = new ArrayList<String>();
+	private String defaultPlanetId = null;
 	
 	private boolean nadirCharge = false;
 	private boolean zenithCharge = false;
@@ -123,6 +124,9 @@ public class Star implements Serializable {
 		if( null != planet ) {
 			// Put the planet or moon where it belongs
 			planets.set(orbit - 1, planet.getId());
+			if( null == defaultPlanetId ) {
+				defaultPlanetId = planet.getId();
+			}
 		} else {
 			// planet == null -> Remove planet or moon if there
 			planets.set(orbit - 1, null);
@@ -634,6 +638,11 @@ public class Star implements Serializable {
 	/** @return a space location corresponding to one of the jump points */
 	public SpaceLocation getJumpPoint(boolean nadir) {
 		return new JumpPoint(this, nadir);
+	}
+
+	/** @return the default (default: first defined) planet around this star */
+	public Planet getDefaultPlanet() {
+		return Planets.getInstance().getPlanetById(defaultPlanetId);
 	}
 
 }

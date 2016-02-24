@@ -51,6 +51,16 @@ public abstract class SpaceLocation {
 	 */
 	public abstract boolean canJumpTo(SpaceLocation other);
 	
+	/** @return true if this is a valid jump point */
+	public boolean isJumpPoint() {
+		return false;
+	}
+	
+	/** @return true if this is on the surface of a planetary body */
+	public boolean isOnSurface() {
+		return false;
+	}
+
 	/**
 	 * A function returning how much time it takes to recharge a normal K-F jump drive from
 	 * empty to full assuming all relevant components work fully, in hours.
@@ -71,4 +81,5 @@ public abstract class SpaceLocation {
 	public String getDesc() {
 		return "Lost in space";
 	}
+
 }

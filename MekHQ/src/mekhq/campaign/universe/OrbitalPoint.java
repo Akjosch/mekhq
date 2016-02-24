@@ -48,6 +48,12 @@ public class OrbitalPoint extends SpaceLocation {
 	}
 
 	@Override
+	public boolean isOnSurface() {
+		// TODO: Only return true out of a surface point (subclass)
+		return true;
+	}
+	
+	@Override
 	public double getRechargeTime() {
 		// No recharge at orbital positions (for now)
 		return Double.POSITIVE_INFINITY;

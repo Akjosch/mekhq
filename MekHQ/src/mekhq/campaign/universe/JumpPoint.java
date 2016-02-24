@@ -27,6 +27,11 @@ public class JumpPoint extends ConstantPoint {
 	}
 	
 	@Override
+	public boolean isJumpPoint() {
+		return true;
+	}
+	
+	@Override
 	public double getRechargeTime() {
 		// Standard recharge time
 		return 141 + 10 * getStar().getSpectralClass() + getStar().getSubtype();
