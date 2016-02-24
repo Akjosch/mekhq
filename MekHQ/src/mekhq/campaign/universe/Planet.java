@@ -34,13 +34,13 @@ import java.util.TreeMap;
 
 import javax.swing.JOptionPane;
 
-import megamek.common.Compute;
-import megamek.common.EquipmentType;
-import megamek.common.PlanetaryConditions;
-
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import megamek.common.Compute;
+import megamek.common.EquipmentType;
+import megamek.common.PlanetaryConditions;
 
 
 /**
@@ -90,6 +90,8 @@ public class Planet implements Serializable {
 	 */
 	private ArrayList<String> factionCodes;
 	private ArrayList<String> garrisonUnits;
+	
+	private String id;
 	private String name;
 	private String shortName;
 
@@ -104,6 +106,9 @@ public class Planet implements Serializable {
 	private int temperature;
 	private int hpg;
 	private String desc;
+	
+	// Orbital data
+	private double orbitSemimajorAxis = 0.0;
 
 	//socioindustrial levels
 	private int tech;
@@ -126,6 +131,7 @@ public class Planet implements Serializable {
 		this.factionCodes = new ArrayList<String>();
 		this.factionCodes.add("CS");
 		this.garrisonUnits = new ArrayList<String>();
+		this.id = null;
 		this.name = "Terra";
 		this.shortName = "Terra";
 
@@ -238,10 +244,12 @@ public class Planet implements Serializable {
 		return EquipmentType.getRatingName(hpg);
 	}
 
+	@Deprecated
 	public double getX() {
 		return star.getX();
 	}
 
+	@Deprecated
 	public double getY() {
 		return star.getY();
 	}
@@ -280,6 +288,10 @@ public class Planet implements Serializable {
 			}
 		}
 		return getFactionsFrom(currentFactionCode);
+	}
+
+	public String getId() {
+		return id;
 	}
 
 	public String getName() {
@@ -347,6 +359,11 @@ public class Planet implements Serializable {
 		return temperature;
 	}
 
+	/** @return a point representing a not exactly defined point on the surface of this planet */
+	public SpaceLocation getPointOnSurface() {
+		return new OrbitalPoint(getStar(), orbitSemimajorAxis);
+	}
+	
 	/**
 	 * @deprecated Use {@link mekhq.campaign.universe.Star#getStarType(mekhq.campaign.universe.Planet)} instead
 	 */
@@ -440,7 +457,6 @@ public class Planet implements Serializable {
 
 	public static Planet getPlanetFromXML(Node wn) throws DOMException, ParseException {
 		Planet retVal = new Planet();
-		String starID = null;
 		NodeList nl = wn.getChildNodes();
 
 		for (int x=0; x<nl.getLength(); x++) {
@@ -448,9 +464,12 @@ public class Planet implements Serializable {
 			if (wn2.getNodeName().equalsIgnoreCase("name")) {
 				retVal.name = wn2.getTextContent();
 				retVal.shortName = retVal.name;
+				if( null == retVal.id ) {
+					retVal.id = retVal.name;
+				}
 				retVal.star.setName(retVal.name);
 			} else if (wn2.getNodeName().equalsIgnoreCase("id")) {
-				starID = wn2.getTextContent();
+				retVal.id = wn2.getTextContent();
 			} else if (wn2.getNodeName().equalsIgnoreCase("xcood")) {
 				retVal.star.setX(Double.parseDouble(wn2.getTextContent()));
 			} else if (wn2.getNodeName().equalsIgnoreCase("ycood")) {
@@ -513,15 +532,15 @@ public class Planet implements Serializable {
 				}
 			} else if (wn2.getNodeName().equalsIgnoreCase("desc")) {
 				retVal.desc = wn2.getTextContent();
+			} else if (wn2.getNodeName().equalsIgnoreCase("orbitradius")) {
+				retVal.orbitSemimajorAxis = Double.parseDouble(wn2.getTextContent());
 			}
 		}
-		// Replace our star with an actual one
-		Star actualStar = Star.getStar(starID);
-		actualStar.copyFrom(retVal.star);
-		actualStar.setNadirCharge(retVal.star.isNadirCharge());
-		actualStar.setZenithCharge(retVal.star.isZenithCharge());
-		actualStar.setPlanet(retVal, retVal.sysPos);
-		retVal.star = actualStar;
+		retVal.star.setPlanet(retVal.sysPos, retVal);
+		if( retVal.orbitSemimajorAxis <= 0 ) {
+			// Set a default value in the middle of the habitable zone for the star
+			retVal.orbitSemimajorAxis = retVal.star.getAverageLifeZone();
+		}
 		return retVal;
 	}
 

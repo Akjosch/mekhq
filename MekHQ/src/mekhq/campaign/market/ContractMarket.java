@@ -183,7 +183,7 @@ public class ContractMarket implements Serializable {
 				if (currentFactions.size() > 1) {
 					inBackwater = false;
 				} else {
-					for (String key : Planets.getNearbyPlanets(campaign.getCurrentPlanet(), 30)) {
+					for (String key : Planets.getNearbyStars(campaign.getCurrentPlanet(), 30)) {
 						for (Faction f : Planets.getInstance().getPlanets().get(key).getCurrentFactions(campaign.getDate())) {
 							if (!f.getShortName().equals(currentFactions.get(0).getShortName())) {
 								inBackwater = false;
@@ -432,7 +432,7 @@ public class ContractMarket implements Serializable {
         if (!contract.getEnemyCode().equals("REB") &&
         		!contract.getEnemyCode().equals("PIR")) {
         	boolean factionValid = false;
-        	for (String p : Planets.getNearbyPlanets(campaign.getCurrentPlanet(), 30)) {
+        	for (String p : Planets.getNearbyStars(campaign.getCurrentPlanet(), 30)) {
         		if (factionValid) break;
         		for (Faction f : Planets.getInstance().getPlanets().get(p).getCurrentFactions(campaign.getDate())) {
         			if (f.getShortName().equals(contract.getEnemyCode())) {

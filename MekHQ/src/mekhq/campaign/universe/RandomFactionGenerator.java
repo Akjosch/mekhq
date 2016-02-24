@@ -474,7 +474,7 @@ public class RandomFactionGenerator implements Serializable {
 		} else if (f.isPeriphery()) {
 			distance = BORDER_RANGE_NEAR_PERIPHERY;
 		}
-		for (String planetKey : Planets.getNearbyPlanets(p, distance)) {
+		for (String planetKey : Planets.getNearbyStars(p, distance)) {
 			for (Faction f2 : Planets.getInstance().getPlanets().
 						get(planetKey).getCurrentFactions(lastUpdate)) {
 				String eName = f2.getShortName();
@@ -714,7 +714,7 @@ public class RandomFactionGenerator implements Serializable {
 		}
 		if (border != null) {
 			for (Planet startingPlanet : border) {
-				for (String planetKey : Planets.getNearbyPlanets(startingPlanet, maxJumps * 30)) {
+				for (String planetKey : Planets.getNearbyStars(startingPlanet, maxJumps * 30)) {
 					Planet p = Planets.getInstance().getPlanets().get(planetKey);
 					for (Faction f : p.getCurrentFactions(date)) {
 						if (f.getShortName().equals(defender) ||

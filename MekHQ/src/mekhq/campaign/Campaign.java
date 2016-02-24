@@ -155,6 +155,7 @@ import mekhq.campaign.universe.NewsItem;
 import mekhq.campaign.universe.Planet;
 import mekhq.campaign.universe.Planets;
 import mekhq.campaign.universe.RandomFactionGenerator;
+import mekhq.campaign.universe.Star;
 import mekhq.campaign.universe.UnitTableData;
 import mekhq.campaign.work.IAcquisitionWork;
 import mekhq.campaign.work.IMedicalWork;
@@ -289,8 +290,7 @@ public class Campaign implements Serializable {
         lastForceId++;
         lances = new Hashtable<Integer, Lance>();
         finances = new Finances();
-        location = new CurrentLocation(Planets.getInstance().getPlanets()
-                                              .get("Outreach"), 0);
+        location = new CurrentLocation(Planets.getInstance().getPlanetById("Outreach"), 0);
         SkillType.initializeTypes();
         SpecialAbility.initializeSPA();
         astechPool = 0;
@@ -4789,8 +4789,8 @@ public class Campaign implements Serializable {
         return plntNames;
     }
 
-    public Planet getPlanet(String name) {
-        return Planets.getInstance().getPlanets().get(name);
+    public Planet getPlanet(String id) {
+        return Planets.getInstance().getPlanetById(id);
     }
 
     /**
@@ -5258,7 +5258,7 @@ public class Campaign implements Serializable {
 
         if (startKey.equals(endKey)) {
             JumpPath jpath = new JumpPath();
-            jpath.addPlanet(getPlanet(startKey));
+            jpath.addLocation(getPlanet(startKey));
             return jpath;
         }
 
@@ -5268,7 +5268,7 @@ public class Campaign implements Serializable {
         boolean found = false;
         int jumps = 0;
 
-        Planet end = Planets.getInstance().getPlanets().get(endKey);
+        Star end = Planets.getInstance().getStarById(endKey);
 
         // we are going to through and set up some hashes that will make our
         // work easier
@@ -5279,11 +5279,8 @@ public class Campaign implements Serializable {
         // hash of G for each planet which might change
         Hashtable<String, Integer> scoreG = new Hashtable<String, Integer>();
 
-        for (String key : Planets.getInstance().getPlanets().keySet()) {
-            scoreH.put(
-                    key,
-                    end.getDistanceTo(Planets.getInstance().getPlanets()
-                                             .get(key)));
+        for (String key : Planets.getInstance().getStars().keySet()) {
+            scoreH.put(key, end.getDistanceTo(Planets.getInstance().getStarById(key)));
         }
         scoreG.put(current, 0);
         closed.add(current);
@@ -5291,8 +5288,7 @@ public class Campaign implements Serializable {
         while (!found && jumps < 10000) {
             jumps++;
             int currentG = scoreG.get(current) + 1;
-            ArrayList<String> neighborKeys = Planets.getNearbyPlanets(Planets
-            		.getInstance().getPlanets().get(current), 30);
+            ArrayList<String> neighborKeys = Planets.getNearbyStars(Planets.getInstance().getStarById(current), 30);
             for (String neighborKey : neighborKeys) {
                 if (closed.contains(neighborKey)) {
                     continue;
@@ -5330,24 +5326,24 @@ public class Campaign implements Serializable {
         }
         // now we just need to back up from the last current by parents until we
         // hit null
-        ArrayList<Planet> path = new ArrayList<Planet>();
+        ArrayList<Star> path = new ArrayList<Star>();
         String nextKey = current;
         while (null != nextKey) {
-            path.add(Planets.getInstance().getPlanets().get(nextKey));
+            path.add(Planets.getInstance().getStarById(nextKey));
             // MekHQApp.logMessage(nextKey);
             nextKey = parent.get(nextKey);
 
         }
-        // now reverse the direaction
+        // now reverse the direction
         JumpPath finalPath = new JumpPath();
         for (int i = (path.size() - 1); i >= 0; i--) {
-            finalPath.addPlanet(path.get(i));
+            finalPath.addLocation(path.get(i));
         }
         return finalPath;
     }
 
     public ArrayList<String> getAllReachablePlanetsFrom(Planet planet) {
-        return Planets.getNearbyPlanets(planet, 30);
+        return Planets.getNearbyStars(planet, 30);
     }
 
     /**
@@ -6269,13 +6265,12 @@ public class Campaign implements Serializable {
     }
 
     public void setStartingPlanet() {
-    	Hashtable<String, Planet> planetList = Planets.getInstance().getPlanets();
-        Planet startingPlanet = planetList.get(getFaction().getStartingPlanet(getEra()));
+    	Planet startingPlanet = Planets.getInstance().getPlanetById(getFaction().getStartingPlanet(getEra()));
 
         if (startingPlanet == null) {
-        	startingPlanet = planetList.get(JOptionPane.showInputDialog("This faction does not have a starting planet for this era. Please choose a planet."));
+        	startingPlanet = Planets.getInstance().getPlanetById(JOptionPane.showInputDialog("This faction does not have a starting planet for this era. Please choose a planet."));
         	while (startingPlanet == null) {
-        		startingPlanet = planetList.get(JOptionPane.showInputDialog("This planet you entered does not exist. Please choose a valid planet."));
+        		startingPlanet = Planets.getInstance().getPlanetById(JOptionPane.showInputDialog("This planet you entered does not exist. Please choose a valid planet."));
         	}
         }
         location = new CurrentLocation(startingPlanet, 0);

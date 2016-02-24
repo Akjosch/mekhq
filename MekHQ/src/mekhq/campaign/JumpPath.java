@@ -28,6 +28,8 @@ import java.util.ArrayList;
 import mekhq.MekHQ;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.universe.Planet;
+import mekhq.campaign.universe.SpaceLocation;
+import mekhq.campaign.universe.Star;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -47,17 +49,17 @@ public class JumpPath implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 708430867050359759L;
-	private ArrayList<Planet> path;
+	private ArrayList<SpaceLocation> path;
 	
 	public JumpPath() {
-		path = new ArrayList<Planet>();
+		path = new ArrayList<SpaceLocation>();
 	}
 	
-	public JumpPath(ArrayList<Planet> p) {
+	public JumpPath(ArrayList<SpaceLocation> p) {
 		path = p;
 	}
 	
-	public ArrayList<Planet> getPlanets() {
+	public ArrayList<SpaceLocation> getPlanets() {
 		return path;
 	}
 	
@@ -65,7 +67,7 @@ public class JumpPath implements Serializable {
 		return path.isEmpty();
 	}
 	
-	public Planet getFirstPlanet() {
+	public SpaceLocation getFirstPlanet() {
 		if(path.isEmpty()) {
 			return null;
 		} else {
@@ -73,7 +75,7 @@ public class JumpPath implements Serializable {
 		}
 	}
 	
-	public Planet getLastPlanet() {
+	public SpaceLocation getLastPlanet() {
 		if(path.isEmpty()) {
 			return null;
 		} else {
@@ -81,6 +83,7 @@ public class JumpPath implements Serializable {
 		}
 	}
 	
+	/*
 	public double getStartTime(double currentTransit) {
 		double startTime = 0.0;
 		if(null != getFirstPlanet()) {
@@ -96,19 +99,19 @@ public class JumpPath implements Serializable {
 		}
 		return endTime;
 	}
+	*/
 	
 	public double getTotalRechargeTime() {
-		int rechargeTime = 0;
-		for(Planet planet : path) {
-			if(planet.equals(getFirstPlanet())) {
-				continue;
+		double rechargeTime = 0;
+		for( int i = 0; i < path.size() - 1; ++ i ) {
+			SpaceLocation loc = path.get(i);
+			// If we can jump to the next location, we will
+			if( loc.canJumpTo(path.get(i + 1)) ) {
+				rechargeTime += loc.rechargeTime();
 			}
-			if(planet.equals(getLastPlanet())) {
-				continue;
-			}
-			rechargeTime += planet.getRechargeTime();
+			// Else we're using in-system transfer
 		}
-		return rechargeTime/24.0;
+		return rechargeTime / 24.0;
 	}
 
 	public int getJumps() {
@@ -116,16 +119,38 @@ public class JumpPath implements Serializable {
 	}
 	
 	public double getTotalTime(double currentTransit) {	
-		return getTotalRechargeTime() + getStartTime(currentTransit) + getEndTime();
+		double totalTime = 0;
+		for( int i = 0; i < path.size() - 1; ++ i ) {
+			SpaceLocation loc = path.get(i);
+			if( loc.canJumpTo(path.get(i + 1)) ) {
+				// Jumping - recharge time + 1 hour for the jump
+				// TODO - make the jump time dependent on the skill level of the crew
+				totalTime += loc.rechargeTime() + 1;
+			} else {
+				// In-system transit
+				totalTime += loc.travelTimeTo(path.get(i + 1));
+			}
+		}
+		return totalTime / 24.0;
 	}
 	
-	public void addPlanet(Planet p) {
-		path.add(p);
+	public void addLocation(Planet p) {
+		path.add(p.getPointOnSurface());
 	}
 	
+	/** Add one of the jump points of the given star */
+	public void addLocation(Star s) {
+		path.add(s.getJumpPoint(true));
+	}
+
+	public void addLocation(SpaceLocation l) {
+		path.add(l);
+	}
+	/*
 	public void addPlanets(ArrayList<Planet> planets) {
 		path.addAll(planets);
 	}
+	*/
 	
 	public void removeFirstPlanet() {
 		if(!path.isEmpty()) {
@@ -137,7 +162,7 @@ public class JumpPath implements Serializable {
 		return path.size();
 	}
 	
-	public Planet get(int i) {
+	public SpaceLocation get(int i) {
 		if(i >= size()) {
 			return null;
 		} else {
@@ -145,17 +170,19 @@ public class JumpPath implements Serializable {
 		}
 	}
 	
+	/*
 	public boolean contains(Planet planet) {
 		return path.contains(planet);
 	}
+	*/
 	
 	public void writeToXml(PrintWriter pw1, int indent) {
 		pw1.println(MekHqXmlUtil.indentStr(indent) + "<jumpPath>");
-		for(Planet p : path) {
+		for(SpaceLocation p : path) {
 		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<planetName>"
+				+"<loc>"
 				+MekHqXmlUtil.escape(p.getName())
-				+"</planetName>");
+				+"</loc>");
 		}
 		pw1.println(MekHqXmlUtil.indentStr(indent) + "</jumpPath>");
 		
@@ -170,12 +197,12 @@ public class JumpPath implements Serializable {
 			
 			for (int x=0; x<nl.getLength(); x++) {
 				Node wn2 = nl.item(x);
-				if (wn2.getNodeName().equalsIgnoreCase("planetName")) {
-					Planet p = c.getPlanet(wn2.getTextContent());
-					if(null != p) {
-						retVal.addPlanet(p);
+				if (wn2.getNodeName().equalsIgnoreCase("loc")) {
+					SpaceLocation loc = SpaceLocation.byName(wn2.getTextContent());
+					if(null != loc) {
+						retVal.addLocation(loc);
 					} else {
-						MekHQ.logError("Couldn't find planet named " + wn2.getTextContent());
+						MekHQ.logError("Couldn't parse location " + wn2.getTextContent());
 					}
 				}
 			}

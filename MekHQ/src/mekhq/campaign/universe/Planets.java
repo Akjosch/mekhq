@@ -3,20 +3,18 @@ package mekhq.campaign.universe;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Hashtable;
+import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import mekhq.MekHQ;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -24,39 +22,51 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import mekhq.MekHQ;
+
 public class Planets {
 
 	private boolean initialized = false;
 	private boolean initializing = false;
 	private static Planets planets;
-	private static Hashtable<String, Planet> planetList = new Hashtable<String, Planet>();
- 	private static HashMap<Integer, HashMap<Integer,ArrayList<Planet>>> planetGrid;
+	private static ConcurrentMap<String, Planet> planetList = new ConcurrentHashMap<String, Planet>();
+	private static ConcurrentMap<String, Star> starList = new ConcurrentHashMap<String, Star>();
+ 	private static HashMap<Integer, HashMap<Integer,ArrayList<Star>>> starGrid;
 	/*organizes systems into a grid of 30lyx30ly squares so we can find
 	 * nearby systems without iterating through the entire planet list*/
     private Thread loader;
 
 
     private Planets() {
-        planetList = new Hashtable<String, Planet>();
-		planetGrid = new HashMap<Integer,HashMap<Integer,ArrayList<Planet>>>();
+        planetList = new ConcurrentHashMap<String, Planet>();
+        starList = new ConcurrentHashMap<String, Star>();
+		starGrid = new HashMap<Integer,HashMap<Integer,ArrayList<Star>>>();
    }
 
-    public static ArrayList<String> getNearbyPlanets(Planet p, int distance) {
+    private static List<Star> getStarGrid(int x, int y) {
+    	if( !starGrid.containsKey(x) ) {
+    		return null;
+    	}
+    	return starGrid.get(x).get(y);
+    }
+    
+    public static ArrayList<String> getNearbyStars(Planet p, int distance) {
+    	return getNearbyStars(p.getStar(), distance);
+    }
+    
+    public static ArrayList<String> getNearbyStars(Star star, int distance) {
     	ArrayList<String> neighbors = new ArrayList<String>();
     	int gridRadius = (int)Math.ceil(distance / 30.0);
-		int gridX = (int)(p.getX() / 30.0);
-		int gridY = (int)(p.getY() / 30.0);
+		int gridX = (int)(star.getX() / 30.0);
+		int gridY = (int)(star.getY() / 30.0);
 		for (int x = gridX - gridRadius; x <= gridX + gridRadius; x++) {
-			if (planetGrid.get(x) == null) {
-				continue;
-			}
 			for (int y = gridY - gridRadius; y <= gridY + gridRadius; y++) {
-				if (planetGrid.get(x).get(y) == null) {
-					continue;
-				}
-				for (Planet p2 : planetGrid.get(x).get(y)) {
-					if (p.getDistanceTo(p2) <= distance) {
-						neighbors.add(p2.getName());
+				List<Star> grid = getStarGrid(x, y);
+				if( null != grid ) {
+					for( Star s : grid ) {
+						if( star.getDistanceTo(s) <= distance ) {
+							neighbors.add(s.getId());
+						}
 					}
 				}
 			}
@@ -84,6 +94,10 @@ public class Planets {
 	private void initialize() {
 		try {
 			planetList = generatePlanets();
+			starList = new ConcurrentHashMap<String,Star>();
+			for( Planet planet : planetList.values() ) {
+				starList.put(planet.getStar().getId(), planet.getStar());
+			}
 		} catch (DOMException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -93,8 +107,20 @@ public class Planets {
 		}
 	}
 
-	public Hashtable<String, Planet> getPlanets() {
+	protected ConcurrentMap<String,Planet> getPlanets() {
 		return planetList;
+	}
+	
+	public Planet getPlanetById(String id) {
+		return( null != id ? planetList.get(id) : null);
+	}
+	
+	public ConcurrentMap<String,Star> getStars() {
+		return starList;
+	}
+	
+	public Star getStarById(String id) {
+		return( null != id ? starList.get(id) : null);
 	}
 
 	private void done() {
@@ -106,10 +132,10 @@ public class Planets {
         return initialized;
     }
 
-	public Hashtable<String,Planet> generatePlanets() throws DOMException, ParseException {
+	public  ConcurrentMap<String,Planet> generatePlanets() throws DOMException, ParseException {
 		MekHQ.logMessage("Starting load of planetary data from XML...");
 		// Initialize variables.
-		Hashtable<String,Planet> retVal = new Hashtable<String,Planet>();
+		ConcurrentMap<String,Planet> retVal = new ConcurrentHashMap<String,Planet>();
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		Document xmlDoc = null;
 
@@ -220,13 +246,15 @@ public class Planets {
 		for (Planet p : retVal.values()) {
 			int x = (int)(p.getX()/30.0);
 			int y = (int)(p.getY()/30.0);
-			if (planetGrid.get(x) == null) {
-				planetGrid.put(x, new HashMap<Integer,ArrayList<Planet>>());
+			if (starGrid.get(x) == null) {
+				starGrid.put(x, new HashMap<Integer,ArrayList<Star>>());
 			}
-			if (planetGrid.get(x).get(y) == null) {
-				planetGrid.get(x).put(y, new ArrayList<Planet>());
+			if (starGrid.get(x).get(y) == null) {
+				starGrid.get(x).put(y, new ArrayList<Star>());
 			}
-			planetGrid.get(x).get(y).add(p);
+			if( !starGrid.get(x).get(y).contains(p.getStar()) ) {
+				starGrid.get(x).get(y).add(p.getStar());
+			}
 		}
 		MekHQ.logMessage("Loaded a total of " + retVal.size() + " planets");
 		done();

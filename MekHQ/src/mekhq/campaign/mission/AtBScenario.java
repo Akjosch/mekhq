@@ -397,7 +397,7 @@ public class AtBScenario extends Scenario {
 
 	public void setPlanetaryConditions(Mission mission) {
 		if (null != mission) {
-			Planet p = Planets.getInstance().getPlanets().get(mission.getPlanetName());
+			Planet p = Planets.getInstance().getPlanetById(mission.getPlanetName());
 			if (null != p) {
 				atmosphere = p.getPressure();
 				gravity = (float)p.getGravity();
