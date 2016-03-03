@@ -1024,7 +1024,7 @@ public class Utilities {
     		return null;
     	}
     	StringBuilder sb = new StringBuilder();
-    	boolean first = false;
+    	boolean first = true;
     	for( String part : vec ) {
     		if( first ) {
     			first = false;

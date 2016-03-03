@@ -14,6 +14,7 @@ import java.util.TreeMap;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import mekhq.MekHQ;
 import mekhq.Utilities;
 import mekhq.adapters.BooleanValueAdapter;
 import mekhq.adapters.DateAdapter;
@@ -242,6 +243,15 @@ public class Star implements Serializable {
 		return result;
 	}
 	
+	/** @return short name if set, else full name, else "unnamed" */
+	public String getPrintableName(Date when) {
+		String result = getShortName(when);
+		if( null == result ) {
+			result = getName(when);
+		}
+		return null != result ? result : "unnamed";
+	}
+	
 	public void setShortName(String shortName, Date when) {
 		if( null == when ) {
 			this.shortName = shortName;
@@ -460,6 +470,11 @@ public class Star implements Serializable {
 		return spectralType;
 	}
 	
+	/** @return normalized spectral type, for display */
+	public String getSpectralTypeNormalized() {
+		return null != spectralType ? getSpectralType(spectralClass, subtype, luminosity) : "?";
+	}
+	
 	protected String validateLuminosity(String lc) {
 		// The order of entries here is important
 		if( lc.startsWith("I/II") ) { return LUM_II_EVOLVED; }
@@ -572,8 +587,11 @@ public class Star implements Serializable {
 		else if( subtypeValue % 10 == 0 ) { subtypeFormat = "%.1f"; }
 		
 		if( luminosity == LUM_VI ) {
-			// subdwarves
+			// subdwarfs
 			return "sd" + getSpectralClassName(spectralClass) + String.format(subtypeFormat, subtypeValue / 100.0);
+		} else if( luminosity == LUM_VI_PLUS ) {
+			// extreme subdwarfs
+			return "esd" + getSpectralClassName(spectralClass) + String.format(subtypeFormat, subtypeValue / 100.0);
 		} else if( luminosity == LUM_VII ) {
 			// white dwarfs
 			return String.format(Locale.ROOT, "D" + subtypeFormat, subtypeValue / 100.0);
@@ -590,6 +608,9 @@ public class Star implements Serializable {
 
 	/** @return the distance from the star to its jump point in km */
 	public double getDistanceToJumpPoint() {
+		if( null == spectralClass || null == subtype ) {
+			return getDistanceToJumpPoint(42);
+		}
 		return getDistanceToJumpPoint(spectralClass, subtype);
 	}
 
@@ -609,6 +630,10 @@ public class Star implements Serializable {
 	
 	/** Recharge time in hours using solar radiation alone (at jump point and 100% efficiency) */
 	public int getSolarRechargeTime() {
+		if( null == spectralClass || null == subtype ) {
+			MekHQ.logError("Star [" + id + "] has no valid spectral type set: " + spectralType);
+			return 183;
+		}
 		if( spectralClass == SPECTRAL_T ) {
 			// months!
 			return rechargeHoursT[subtype.intValue()];
@@ -622,7 +647,10 @@ public class Star implements Serializable {
 	
 	/** @return the rough middle of the habitable zone around this star, in km */
 	public double getAverageLifeZone() {
-		// TODO Calculate from luminosity and the like. For now, using the table in IO.
+		// TODO Calculate from luminosity and the like. For now, using the table in IO Beta.
+		if( null == spectralClass || null == subtype ) {
+			return (getMinLifeZone(42) + getMaxLifeZone(42)) / 2;
+		}
 		return (getMinLifeZone(spectralClass, subtype) + getMaxLifeZone(spectralClass, subtype)) / 2;
 	}	
 

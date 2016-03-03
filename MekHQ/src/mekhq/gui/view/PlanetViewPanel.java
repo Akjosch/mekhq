@@ -138,7 +138,7 @@ public class PlanetViewPanel extends javax.swing.JPanel {
 			if(neighbor.equals(planet)) {
 				continue;
 			}
-			lblNeighbor = new javax.swing.JLabel(neighbor.getShortName(campaign.getDate()) + " (" + neighbor.getFactionDesc(campaign.getDate()) + ")");
+			lblNeighbor = new javax.swing.JLabel(neighbor.getPrintableName(campaign.getDate()) + " (" + neighbor.getFactionDesc(campaign.getDate()) + ")");
 			gridBagConstraints = new java.awt.GridBagConstraints();
 			gridBagConstraints.gridx = 0;
 			gridBagConstraints.gridy = i;
@@ -212,7 +212,7 @@ public class PlanetViewPanel extends javax.swing.JPanel {
 		pnlStats.add(lblStarType, gridBagConstraints);
 		
 		txtStarType.setName("lblStarType2"); // NOI18N
-		txtStarType.setText(planet.getStar().getSpectralType() + " (" + planet.getStar().getRechargeTime() + " hours)");
+		txtStarType.setText(planet.getStar().getSpectralTypeNormalized() + " (" + planet.getStar().getRechargeTime() + " hours)");
 		txtStarType.setEditable(false);
 		txtStarType.setLineWrap(true);
 		txtStarType.setWrapStyleWord(true);
@@ -235,7 +235,7 @@ public class PlanetViewPanel extends javax.swing.JPanel {
 		pnlStats.add(lblPosition, gridBagConstraints);
 		
 		txtPosition.setName("txtPosition"); // NOI18N
-		txtPosition.setText(Integer.toString(planet.getSystemPosition()));
+		txtPosition.setText(planet.getSystemPositionText());
 		txtPosition.setEditable(false);
 		txtPosition.setLineWrap(true);
 		txtPosition.setWrapStyleWord(true);
@@ -304,7 +304,7 @@ public class PlanetViewPanel extends javax.swing.JPanel {
 		pnlStats.add(lblGravity, gridBagConstraints);
 		
 		txtGravity.setName("lblGravity2"); // NOI18N
-		txtGravity.setText(Double.toString(planet.getGravity()));
+		txtGravity.setText(planet.getGravityText());
 		txtGravity.setEditable(false);
 		txtGravity.setLineWrap(true);
 		txtGravity.setWrapStyleWord(true);

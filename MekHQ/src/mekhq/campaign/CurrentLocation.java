@@ -103,7 +103,7 @@ public class CurrentLocation implements Serializable {
 	
 	public String getReport(Date date) {
 		String toReturn = "<b>Current Location</b><br>";
-		toReturn += currentLocation.getStar().getShortName(date) + "<br> ";
+		toReturn += currentLocation.getStar().getPrintableName(date) + "<br> ";
 		if(null != jumpPath && !jumpPath.isEmpty()) {
 			toReturn += "In transit to " + jumpPath.getLastPlanet().getDesc(date) + " ";
 		}

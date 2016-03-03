@@ -19,6 +19,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Arc2D;
 import java.awt.geom.Line2D;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -420,7 +421,10 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
 				arc.setArcByCenter(x, y, size * 1.2, 0, 360, Arc2D.OPEN);
 				g2.fill(arc);
 			}
-			Set<Faction> factions = planet.getDefaultPlanet().getCurrentFactions(campaign.getCalendar().getTime());
+			Planet defaultPlanet = planet.getDefaultPlanet();
+			Set<Faction> factions = null != defaultPlanet ?
+					defaultPlanet.getCurrentFactions(campaign.getDate()) :
+						Collections.<Faction>singleton(Faction.UNDISCOVERED);
 			int i = 0;
 			for( Faction faction : factions ) {
 				g2.setPaint(faction.getColor());
@@ -440,7 +444,7 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
 					|| jumpPath.contains(planet)
 					|| (null != campaign.getLocation().getJumpPath() && campaign.getLocation().getJumpPath().contains(planet))) {
 				g2.setPaint(Color.WHITE);
-	            g2.drawString(planet.getShortName(campaign.getDate()), (float)(x+size * 1.8), (float)y);
+	            g2.drawString(planet.getPrintableName(campaign.getDate()), (float)(x+size * 1.8), (float)y);
 	        }
 		}
 

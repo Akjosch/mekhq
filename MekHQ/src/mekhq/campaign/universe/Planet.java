@@ -128,6 +128,10 @@ public class Planet implements Serializable {
 	public Integer getSystemPosition() {
 		return sysPos;
 	}
+	
+	public String getSystemPositionText() {
+		return null != sysPos ? sysPos.toString() : "?";
+	}
 
 	public String getId() {
 		return id;
@@ -136,17 +140,26 @@ public class Planet implements Serializable {
 	public Double getGravity() {
 		return gravity;
 	}
+	
+	public String getGravityText() {
+		return null != gravity ? gravity.toString() + "g" : "fit for humans";
+	}
 
 	public Integer getPressure() {
 		return pressure;
 	}
-
+	
 	public String getPressureName() {
-		return PlanetaryConditions.getAtmosphereDisplayableName(pressure);
+		return null != pressure ? PlanetaryConditions.getAtmosphereDisplayableName(pressure) : "fit for humans";
 	}
 
 	public Double getOrbitSemimajorAxis() {
 		return orbitSemimajorAxis;
+	}
+	
+	/** @return orbital semimajor axis in km; in the middle of the star's life zone if not set */
+	public double getOrbitSemimajorAxisKm() {
+		return null != orbitSemimajorAxis ? orbitSemimajorAxis * Utilities.AU : getStar().getAverageLifeZone();
 	}
 
 	public List<String> getSatellites() {
@@ -352,8 +365,8 @@ public class Planet implements Serializable {
 	}
 
 	public Map<String, Integer> getFactions(Date when) {
-		if( null == factionCodes ) {
-			return null;
+		if( null == when || null == events ) {
+			return factionCodes;
 		}
 		Map<String, Integer> result = factionCodes;
 		for( Date date : events.navigableKeySet() ) {
@@ -409,7 +422,7 @@ public class Planet implements Serializable {
 
 	/** @return a point representing a not exactly defined point on the surface of this planet */
 	public SpaceLocation getPointOnSurface() {
-		return new OrbitalPoint(getStar(), orbitSemimajorAxis * Utilities.AU);
+		return new OrbitalPoint(getStar(), getOrbitSemimajorAxisKm());
 	}
 	
 	/** @return all the available in-system space locations */
@@ -418,30 +431,14 @@ public class Planet implements Serializable {
 	}
 
 	public String getSatelliteDescription() {
-		if(satellites.isEmpty()) {
+		if(null == satellites || satellites.isEmpty()) {
 			return "0";
 		}
-		String toReturn = satellites.size() + " (";
-		for(int i = 0; i < satellites.size(); i++) {
-			toReturn += satellites.get(i);
-			if(i < (satellites.size() - 1)) {
-				toReturn += ", ";
-			} else {
-				toReturn += ")";
-			}
-		}
-		return toReturn;
+		return satellites.size() + " (" + Utilities.combineString(satellites, ", ") + ")";
 	}
 
 	public String getLandMassDescription() {
-		String toReturn = "";
-		for(int i = 0; i < landMasses.size(); i++) {
-			toReturn += landMasses.get(i);
-			if(i < (landMasses.size() - 1)) {
-				toReturn += ", ";
-			}
-		}
-		return toReturn;
+		return null != landMasses ? Utilities.combineString(landMasses, ", ") : "";
 	}
 
 	/** @return the average travel time from low orbit to the jump point at 1g, in Terran days */
@@ -452,7 +449,7 @@ public class Planet implements Serializable {
 
 	/** @return the average distance to the system's jump point in km */
 	public double getDistanceToJumpPoint() {
-		return Math.sqrt(Math.pow(orbitSemimajorAxis * Utilities.AU, 2) + Math.pow(getStar().getDistanceToJumpPoint(), 2));
+		return Math.sqrt(Math.pow(getOrbitSemimajorAxisKm(), 2) + Math.pow(getStar().getDistanceToJumpPoint(), 2));
 	}
 
 	/** @return the distance to another planet in light years (0 if both are in the same system) */
