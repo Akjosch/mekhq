@@ -239,7 +239,7 @@ public class NewAtBContractDialog extends NewContractDialog {
         gbc.insets = new java.awt.Insets(5, 5, 5, 5);
         descPanel.add(lblPlanetName, gbc);
         
-        suggestPlanet = new JSuggestField(this, campaign.getPlanetNames());       
+        suggestPlanet = new JSuggestField(this, campaign.getStarIds());       
         gbc.gridx = 1;
         gbc.gridy = y++;
         gbc.gridwidth = 2;
@@ -480,7 +480,7 @@ public class NewAtBContractDialog extends NewContractDialog {
 			for (Planet p : RandomFactionGenerator.getInstance().
 					getMissionTargetList(getCurrentEmployerCode(), getCurrentEnemyCode(),
 							campaign.getDate())) {
-				planets.add(p.getName());
+				planets.add(p.getName(campaign.getDate()));
 			}
 		}
 		if ((contract.getMissionType() < AtBContract.MT_PLANETARYASSAULT ||
@@ -489,7 +489,7 @@ public class NewAtBContractDialog extends NewContractDialog {
 			for (Planet p : RandomFactionGenerator.getInstance().
 					getMissionTargetList(getCurrentEnemyCode(), getCurrentEmployerCode(),
 							campaign.getDate())) {
-				planets.add(p.getName());
+				planets.add(p.getName(campaign.getDate()));
 			}
 		}
 		cbPlanets.removeAllItems();

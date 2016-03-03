@@ -221,7 +221,7 @@ public class NewContractDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         descPanel.add(lblPlanetName, gridBagConstraints);
         
-        suggestPlanet = new JSuggestField(this, campaign.getPlanetNames());
+        suggestPlanet = new JSuggestField(this, campaign.getStarIds());
         /*suggestPlanet.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(java.awt.event.ActionEvent evt) {
 				contract.setPlanetName(suggestPlanet.getText());

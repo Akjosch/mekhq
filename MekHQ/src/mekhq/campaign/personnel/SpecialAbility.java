@@ -389,7 +389,7 @@ public class SpecialAbility implements MekHqXmlSerializable {
 
 
         try {
-            FileInputStream fis = new FileInputStream("data/universe/defaultspa.xml");
+            FileInputStream fis = new FileInputStream(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/defaultspa.xml");
             // Using factory get an instance of document builder
             DocumentBuilder db = dbf.newDocumentBuilder();
 

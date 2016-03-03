@@ -369,7 +369,7 @@ public class Contract extends Mission implements Serializable, MekHqXmlSerializa
 		profit -= c.getMaintenanceCosts() * getLength();
 		profit -= c.getPayRoll() * getLength();
 		if(null != c.getPlanet(planetName)) {
-			profit -= 2 * c.calculateCostPerJump(true) * c.calculateJumpPath(c.getCurrentPlanetName(), planetName).getJumps();
+			profit -= 2 * c.calculateCostPerJump(true) * c.calculateJumpPath(c.getCurrentPlanet(), c.getPlanet(planetName).getPointOnSurface()).getJumps();
 		}
 		return profit;
 	}
@@ -423,7 +423,7 @@ public class Contract extends Mission implements Serializable, MekHqXmlSerializa
 
 		//calculate transportation costs
 		if(null != c.getPlanet(planetName)) {
-			transportAmount = (long)((transportComp/100.0) * 2 * c.calculateCostPerJump(false) * c.calculateJumpPath(c.getCurrentPlanetName(), planetName).getJumps());
+			transportAmount = (long)((transportComp/100.0) * 2 * c.calculateCostPerJump(false) * c.calculateJumpPath(c.getCurrentPlanet(), c.getPlanet(planetName).getPointOnSurface()).getJumps());
 		}
 
 		signingAmount = (long)((signBonus/100.0) * (baseAmount + overheadAmount + transportAmount + supportAmount));
@@ -445,7 +445,7 @@ public class Contract extends Mission implements Serializable, MekHqXmlSerializa
 		GregorianCalendar cal = new GregorianCalendar();
 		cal.setTime(startDate);
 		if(adjustStartDate && null != c.getPlanet(planetName)) {
-		    int days = (int)Math.ceil(c.calculateJumpPath(c.getCurrentPlanetName(), planetName).getTotalTime(c.getLocation().getTransitTime()));
+		    int days = (int)Math.ceil(c.calculateJumpPath(c.getCurrentPlanet(), c.getPlanet(planetName).getPointOnSurface()).getTotalTime(c.getLocation().getTransitTime()));
 		    while(days > 0) {
 		        cal.add(Calendar.DAY_OF_YEAR, 1);
 		        days--;

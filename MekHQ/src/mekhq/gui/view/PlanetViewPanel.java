@@ -13,6 +13,7 @@ import javax.swing.BorderFactory;
 
 import mekhq.campaign.Campaign;
 import mekhq.campaign.universe.Planet;
+import mekhq.campaign.universe.Star;
 
 /**
  * A custom panel that gets filled in with goodies from a Planet record
@@ -79,7 +80,7 @@ public class PlanetViewPanel extends javax.swing.JPanel {
 		setBackground(Color.WHITE);
 
 		pnlStats.setName("pnlStats");
-		pnlStats.setBorder(BorderFactory.createTitledBorder(planet.getShortName()));
+		pnlStats.setBorder(BorderFactory.createTitledBorder(planet.getShortName(campaign.getDate())));
 		pnlStats.setBackground(Color.WHITE);
 		fillStats();
 		gridBagConstraints = new java.awt.GridBagConstraints();
@@ -133,12 +134,11 @@ public class PlanetViewPanel extends javax.swing.JPanel {
 		pnlNeighbors.setLayout(new java.awt.GridBagLayout());
 		int i = 0;
 		javax.swing.JLabel lblNeighbor;
-		for(String neighborKey : campaign.getAllReachablePlanetsFrom(planet)) {
-			Planet neighbor = campaign.getPlanet(neighborKey);
+		for(Star neighbor : campaign.getAllReachableStarsFrom(planet)) {
 			if(neighbor.equals(planet)) {
 				continue;
 			}
-			lblNeighbor = new javax.swing.JLabel(neighbor.getShortName() + " (" + neighbor.getFactionDesc(campaign.getCalendar().getTime()) + ")");
+			lblNeighbor = new javax.swing.JLabel(neighbor.getShortName(campaign.getDate()) + " (" + neighbor.getFactionDesc(campaign.getDate()) + ")");
 			gridBagConstraints = new java.awt.GridBagConstraints();
 			gridBagConstraints.gridx = 0;
 			gridBagConstraints.gridy = i;
@@ -212,7 +212,7 @@ public class PlanetViewPanel extends javax.swing.JPanel {
 		pnlStats.add(lblStarType, gridBagConstraints);
 		
 		txtStarType.setName("lblStarType2"); // NOI18N
-		txtStarType.setText(planet.getStarType() + " (" + planet.getRechargeTime() + " hours)");
+		txtStarType.setText(planet.getStar().getSpectralType() + " (" + planet.getStar().getRechargeTime() + " hours)");
 		txtStarType.setEditable(false);
 		txtStarType.setLineWrap(true);
 		txtStarType.setWrapStyleWord(true);
@@ -350,7 +350,7 @@ public class PlanetViewPanel extends javax.swing.JPanel {
 		pnlStats.add(lblTemp, gridBagConstraints);
 		
 		txtTemp.setName("lblTemp2"); // NOI18N
-		txtTemp.setText(planet.getTemperature() + "C (" + planet.getClimateName() + ")");
+		txtTemp.setText(planet.getTemperature(campaign.getDate()) + "C (" + planet.getClimateName(campaign.getDate()) + ")");
 		txtTemp.setEditable(false);
 		txtTemp.setLineWrap(true);
 		txtTemp.setWrapStyleWord(true);
@@ -373,7 +373,7 @@ public class PlanetViewPanel extends javax.swing.JPanel {
 		pnlStats.add(lblWater, gridBagConstraints);
 		
 		txtWater.setName("lblWater2"); // NOI18N
-		txtWater.setText(planet.getPercentWater() + " percent");
+		txtWater.setText(planet.getPercentWater(campaign.getDate()) + " percent");
 		txtWater.setEditable(false);
 		txtWater.setLineWrap(true);
 		txtWater.setWrapStyleWord(true);
@@ -396,7 +396,7 @@ public class PlanetViewPanel extends javax.swing.JPanel {
 		pnlStats.add(lblRecharge, gridBagConstraints);
 		
 		txtRecharge.setName("lblRecharge2"); // NOI18N
-		txtRecharge.setText(planet.getRechargeStations());
+		txtRecharge.setText(planet.getStar().getRechargeStations(campaign.getDate()));
 		txtRecharge.setEditable(false);
 		txtRecharge.setLineWrap(true);
 		txtRecharge.setWrapStyleWord(true);
@@ -419,7 +419,7 @@ public class PlanetViewPanel extends javax.swing.JPanel {
 		pnlStats.add(lblHPG, gridBagConstraints);
 		
 		txtHPG.setName("lblHPG2"); // NOI18N
-		txtHPG.setText(planet.getHPGClass());
+		txtHPG.setText(planet.getHPGClass(campaign.getDate()));
 		txtHPG.setEditable(false);
 		txtHPG.setLineWrap(true);
 		txtHPG.setWrapStyleWord(true);
@@ -442,7 +442,7 @@ public class PlanetViewPanel extends javax.swing.JPanel {
 		pnlStats.add(lblAnimal, gridBagConstraints);
 		
 		txtAnimal.setName("lblAnimal2"); // NOI18N
-		txtAnimal.setText(planet.getLifeFormName());
+		txtAnimal.setText(planet.getLifeFormName(campaign.getDate()));
 		txtAnimal.setEditable(false);
 		txtAnimal.setLineWrap(true);
 		txtAnimal.setWrapStyleWord(true);
@@ -465,7 +465,7 @@ public class PlanetViewPanel extends javax.swing.JPanel {
 		pnlStats.add(lblSocioIndustrial, gridBagConstraints);
 		
 		txtSocioIndustrial.setName("lblSocioIndustrial2"); // NOI18N
-		txtSocioIndustrial.setText(planet.getSocioIndustrialLevel());
+		txtSocioIndustrial.setText(planet.getSocioIndustrialLevel(campaign.getDate()));
 		txtSocioIndustrial.setEditable(false);
 		txtSocioIndustrial.setLineWrap(true);
 		txtSocioIndustrial.setWrapStyleWord(true);

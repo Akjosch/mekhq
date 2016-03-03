@@ -176,6 +176,7 @@ import mekhq.campaign.unit.Unit;
 import mekhq.campaign.universe.NewsItem;
 import mekhq.campaign.universe.Planet;
 import mekhq.campaign.universe.RandomFactionGenerator;
+import mekhq.campaign.universe.Star;
 import mekhq.campaign.universe.UnitTableData;
 import mekhq.campaign.work.IAcquisitionWork;
 import mekhq.campaign.work.Modes;
@@ -1117,13 +1118,12 @@ public class CampaignGUI extends JPanel {
         panMapView.add(new JLabel(resourceMap.getString("lblFindPlanet.text")),
                 gridBagConstraints);
 
-        suggestPlanet = new JSuggestField(getFrame(), getCampaign()
-                .getPlanetNames());
+        suggestPlanet = new JSuggestField(getFrame(), getCampaign().getStarIds());
         suggestPlanet.addActionListener(new ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Planet p = getCampaign().getPlanet(suggestPlanet.getText());
                 if (null != p) {
-                    panMap.setSelectedPlanet(p);
+                    panMap.setSelection(p);
                     refreshPlanetView();
                 }
             }
@@ -1175,7 +1175,7 @@ public class CampaignGUI extends JPanel {
 
         panMap = new InterstellarMapPanel(getCampaign(), this);
         // lets go ahead and zoom in on the current location
-        panMap.setSelectedPlanet(getCampaign().getLocation().getCurrentPlanet());
+        panMap.setSelection(getCampaign().getLocation().getCurrentLocation().getStar());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
@@ -3415,10 +3415,10 @@ public class CampaignGUI extends JPanel {
     }
 
     private void calculateJumpPath() {
-        if (null != panMap.getSelectedPlanet()) {
+        if (null != panMap.getSelectedStar()) {
             panMap.setJumpPath(getCampaign().calculateJumpPath(
-                    getCampaign().getCurrentPlanetName(),
-                    panMap.getSelectedPlanet().getName()));
+                    getCampaign().getCurrentPlanet(),
+                    panMap.getSelectedStar().getDefaultPlanet().getPointOnSurface()));
             refreshPlanetView();
         }
     }
@@ -4182,7 +4182,7 @@ public class CampaignGUI extends JPanel {
     }
 
     private File selectSaveCampaignFile() {
-        JFileChooser saveCpgn = new JFileChooser("./campaigns/");
+        JFileChooser saveCpgn = new JFileChooser(MekHQ.getPreference(MekHQ.CAMPAIGN_DIR));
         saveCpgn.setDialogTitle("Save Campaign");
         saveCpgn.setFileFilter(new CampaignFileFilter());
         saveCpgn.setSelectedFile(new File(getCampaign().getName()
@@ -4219,7 +4219,7 @@ public class CampaignGUI extends JPanel {
     }
 
     private File selectLoadCampaignFile() {
-        JFileChooser loadCpgn = new JFileChooser("./campaigns/");
+        JFileChooser loadCpgn = new JFileChooser(MekHQ.getPreference(MekHQ.CAMPAIGN_DIR));
         loadCpgn.setDialogTitle("Load Campaign");
         loadCpgn.setFileFilter(new CampaignFileFilter());
         int returnVal = loadCpgn.showOpenDialog(mainPanel);
@@ -5018,10 +5018,9 @@ public class CampaignGUI extends JPanel {
                     getCampaign()));
             return;
         }
-        Planet planet = panMap.getSelectedPlanet();
+        Star planet = panMap.getSelectedStar();
         if (null != planet) {
-            scrollPlanetView.setViewportView(new PlanetViewPanel(planet,
-                    getCampaign()));
+            scrollPlanetView.setViewportView(new PlanetViewPanel(planet.getDefaultPlanet(), getCampaign()));
         }
     }
 

@@ -1,55 +1,79 @@
 package mekhq.campaign.universe;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FilenameFilter;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Hashtable;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import mekhq.MekHQ;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 
 import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+
+import mekhq.MekHQ;
+import mekhq.adapters.PlanetAdapter;
+import mekhq.adapters.StarAdapter;
 
 public class Planets {
-
+	private final static Object LOADING_LOCK = new Object[0];
+	
 	private boolean initialized = false;
 	private boolean initializing = false;
 	private static Planets planets;
-	private static Hashtable<String, Planet> planetList = new Hashtable<String, Planet>();
- 	private static HashMap<Integer, HashMap<Integer,ArrayList<Planet>>> planetGrid;
-	/*organizes systems into a grid of 30lyx30ly squares so we can find
-	 * nearby systems without iterating through the entire planet list*/
+	private static ConcurrentMap<String, Planet> planetList = new ConcurrentHashMap<String, Planet>();
+	private static ConcurrentMap<String, Star> starList = new ConcurrentHashMap<String, Star>();
+	/**
+	 * organizes systems into a grid of 30lyx30ly squares so we can find
+	 * nearby systems without iterating through the entire planet list
+	 */
+ 	private static HashMap<Integer, Map<Integer, Set<Star>>> starGrid;
     private Thread loader;
 
 
     private Planets() {
-        planetList = new Hashtable<String, Planet>();
-		planetGrid = new HashMap<Integer,HashMap<Integer,ArrayList<Planet>>>();
+        planetList = new ConcurrentHashMap<String, Planet>();
+        starList = new ConcurrentHashMap<String, Star>();
+		starGrid = new HashMap<Integer, Map<Integer, Set<Star>>>();
    }
 
-    public static ArrayList<String> getNearbyPlanets(Planet p, int distance) {
-    	ArrayList<String> neighbors = new ArrayList<String>();
+    private static Set<Star> getStarGrid(int x, int y) {
+    	if( !starGrid.containsKey(x) ) {
+    		return null;
+    	}
+    	return starGrid.get(x).get(y);
+    }
+    
+    public static ArrayList<Star> getNearbyStars(Planet p, int distance) {
+    	return getNearbyStars(p.getStar(), distance);
+    }
+    
+    public static ArrayList<Star> getNearbyStars(Star star, int distance) {
+    	ArrayList<Star> neighbors = new ArrayList<Star>();
     	int gridRadius = (int)Math.ceil(distance / 30.0);
-		int gridX = (int)(p.getX() / 30.0);
-		int gridY = (int)(p.getY() / 30.0);
+		int gridX = (int)(star.getX() / 30.0);
+		int gridY = (int)(star.getY() / 30.0);
 		for (int x = gridX - gridRadius; x <= gridX + gridRadius; x++) {
-			if (planetGrid.get(x) == null) {
-				continue;
-			}
 			for (int y = gridY - gridRadius; y <= gridY + gridRadius; y++) {
-				if (planetGrid.get(x).get(y) == null) {
-					continue;
-				}
-				for (Planet p2 : planetGrid.get(x).get(y)) {
-					if (p.getDistanceTo(p2) <= distance) {
-						neighbors.add(p2.getName());
+				Set<Star> grid = getStarGrid(x, y);
+				if( null != grid ) {
+					for( Star s : grid ) {
+						if( star.getDistanceTo(s) <= distance ) {
+							neighbors.add(s);
+						}
 					}
 				}
 			}
@@ -76,18 +100,27 @@ public class Planets {
 
 	private void initialize() {
 		try {
-			planetList = generatePlanets();
-		} catch (DOMException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			generatePlanets();
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
-	public Hashtable<String, Planet> getPlanets() {
+	protected ConcurrentMap<String,Planet> getPlanets() {
 		return planetList;
+	}
+	
+	public Planet getPlanetById(String id) {
+		return( null != id ? planetList.get(id) : null);
+	}
+	
+	public ConcurrentMap<String,Star> getStars() {
+		return starList;
+	}
+	
+	public Star getStarById(String id) {
+		return( null != id ? starList.get(id) : null);
 	}
 
 	private void done() {
@@ -99,86 +132,207 @@ public class Planets {
         return initialized;
     }
 
-	public Hashtable<String,Planet> generatePlanets() throws DOMException, ParseException {
-		MekHQ.logMessage("Starting load of planetary data from XML...");
-		// Initialize variables.
-		Hashtable<String,Planet> retVal = new Hashtable<String,Planet>();
-		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-		Document xmlDoc = null;
-
-
+	private void updatePlanets(InputStream source) {
 		try {
-			FileInputStream fis = new FileInputStream("data/universe/planets.xml");
-			// Using factory get an instance of document builder
-			DocumentBuilder db = dbf.newDocumentBuilder();
-
-			// Parse using builder to get DOM representation of the XML file
-			xmlDoc = db.parse(fis);
-		} catch (Exception ex) {
-			MekHQ.logError(ex);
-		}
-
-		Element planetEle = xmlDoc.getDocumentElement();
-		NodeList nl = planetEle.getChildNodes();
-
-		// Get rid of empty text nodes and adjacent text nodes...
-		// Stupid weird parsing of XML.  At least this cleans it up.
-		planetEle.normalize();
-
-		// Okay, lets iterate through the children, eh?
-		for (int x = 0; x < nl.getLength(); x++) {
-			Node wn = nl.item(x);
-
-			if (wn.getParentNode() != planetEle)
-				continue;
-
-			int xc = wn.getNodeType();
-
-			if (xc == Node.ELEMENT_NODE) {
-				// This is what we really care about.
-				// All the meat of our document is in this node type, at this
-				// level.
-				// Okay, so what element is it?
-				String xn = wn.getNodeName();
-
-				if (xn.equalsIgnoreCase("planet")) {
-					Planet p = Planet.getPlanetFromXML(wn);
-					if(null == p.getBaseFactions().get(0)) {
-						MekHQ.logMessage("The base factions are null for planet " + p.getName());
-					}
-					String name = p.getName();
-					if(null == retVal.get(name)) {
-						retVal.put(name, p);
+			JAXBContext jaxbContext = JAXBContext.newInstance(PlanetListXMLData.class, StarXMLData.class, PlanetXMLData.class);
+			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+			PlanetListXMLData list = (PlanetListXMLData)jaxbUnmarshaller.unmarshal(source);
+			
+			// Run through the explicitly defined stars first
+			for( Object obj : list.objects ) {
+				if( obj instanceof StarXMLData ) {
+					Star star = Star.getStarFromXMLData((StarXMLData)obj);
+					// Get the previous version if there is any
+					Star oldStar = starList.get(star.getId());
+					if( null == oldStar ) {
+						starList.put(star.getId(), star);
 					} else {
-						//for duplicate planets, put a faction name behind them
-						//There could still be duplicates in theory, but I don't think there are in practice
-						Planet oldPlanet = retVal.get(name);
-						retVal.remove(name);
-						oldPlanet.resetName(oldPlanet.getName() + " (" + oldPlanet.getBaseFactions().get(0).getFullName(Era.E_AOW) + ")");
-						retVal.put(oldPlanet.getName(), oldPlanet);
-						p.resetName(p.getName() + " (" + p.getBaseFactions().get(0).getFullName(Era.E_AOW) + ")");
-						retVal.put(p.getName(), p);
+						// Update with new data
+						oldStar.copyDataFrom(star);
 					}
-
 				}
 			}
-		}
-		for (Planet p : retVal.values()) {
-			int x = (int)(p.getX()/30.0);
-			int y = (int)(p.getY()/30.0);
-			if (planetGrid.get(x) == null) {
-				planetGrid.put(x, new HashMap<Integer,ArrayList<Planet>>());
+			
+			// Run through the list again, this time creating and updating planets as we go
+			for( Object obj : list.objects ) {
+				if( obj instanceof PlanetXMLData ) {
+					Planet planet = Planet.getPlanetFromXMLData((PlanetXMLData)obj);
+
+					// First check if we aren't supposed to delete this one
+					Boolean deleteThisPlanet = ((PlanetXMLData)obj).delete;
+					if( null != deleteThisPlanet && deleteThisPlanet ) {
+						planetList.remove(planet.getId());
+						continue;
+					}
+
+					Planet oldPlanet = planetList.get(planet.getId());
+					if( null == oldPlanet ) {
+						planetList.put(planet.getId(), planet);
+					} else {
+						// Update with new data
+						oldPlanet.copyDataFrom(planet);
+						planet = oldPlanet;
+					}
+					// If the planet (after merging) still has a null starId, it's an "old style"
+					// entry and we need to use its id for the starId too.
+					if( null == planet.getStarId() ) {
+						planet.setStarId(planet.getId());
+					}
+					// Check if we need to create a star from the planet data (old-style planetary info)
+					if( !starList.containsKey(planet.getStarId()) ) {
+						Star star = Star.getStarFromXMLData((PlanetXMLData)obj);
+						starList.put(star.getId(), star);
+					}
+				}
 			}
-			if (planetGrid.get(x).get(y) == null) {
-				planetGrid.get(x).put(y, new ArrayList<Planet>());
+			
+			// Cleanup task: Make sure the planets are in the correct stars,
+			// then that stars don't have wrong planets recorded
+			for( Planet planet : planetList.values() ) {
+				Star star = starList.get(planet.getStarId());
+				if( !star.hasPlanet(planet.getId()) ) {
+					star.addPlanet(planet);
+				}
 			}
-			planetGrid.get(x).get(y).add(p);
+			for( Star star : starList.values() ) {
+				for( String planetId : star.getPlanetIds() ) {
+					Planet planet = planetList.get(planetId);
+					if( null == planet || !planet.getStarId().equals(star.getId()) ) {
+						// This planet moved to a different star somehow ...
+						star.removePlanet(planetId);
+					}
+				}
+			}
+			
+			// TODO Populate the orbits, issue warnings if it's not consistently possible
+			
+			// We could do some validation here, like if every planet is on a proper orbit or something,
+			// but right now that'd be just too much work for too little reward.
+			// In the future, this could be reported as data consistency error.
+		} catch (JAXBException e) {
+			MekHQ.logError(e);
 		}
-		MekHQ.logMessage("Loaded a total of " + retVal.size() + " planets");
-		done();
-		return retVal;
+	}
+	
+	public void generatePlanets() throws DOMException, ParseException {
+		MekHQ.logMessage("Starting load of planetary data from XML...");
+		synchronized (LOADING_LOCK) {
+			// Step 1: Initialize variables.
+			if( null == planetList ) {
+				planetList = new ConcurrentHashMap<String, Planet>();
+			}
+			planetList.clear();
+			if( null == starList ) {
+				starList = new ConcurrentHashMap<String, Star>();
+			}
+			starList.clear();
+			if( null == starGrid ) {
+				starGrid = new HashMap<Integer, Map<Integer, Set<Star>>>();
+			}
+			for( Map.Entry<Integer, Map<Integer, Set<Star>>> starGridColumn : starGrid.entrySet() ) {
+				for( Map.Entry<Integer, Set<Star>> starGridElement : starGridColumn.getValue().entrySet() ) {
+					if( null != starGridElement.getValue() ) {
+						starGridElement.getValue().clear();
+					}
+				}
+				if( null != starGridColumn.getValue() ) {
+					starGridColumn.getValue().clear();
+				}
+			}
+			starGrid.clear();
+			
+			// Step 2: Read the default file
+			try {
+				FileInputStream fis = new FileInputStream(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/planets.xml");
+				updatePlanets(fis);
+				fis.close();
+			} catch (Exception ex) {
+				MekHQ.logError(ex);
+			}
+			
+			// Step 3: Load all the xml files within the planets subdirectory, if it exists
+			File planetDir = new File(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/planets");
+			if( planetDir.isDirectory() ) {
+				File[] planetFiles = planetDir.listFiles(new FilenameFilter() {
+					@Override
+					public boolean accept(File dir, String name) {
+						return name.toLowerCase(Locale.ROOT).endsWith(".xml");
+					}
+				});
+				if( null != planetFiles && planetFiles.length > 0 ) {
+					// Case-insensitive sorting. Yes, even on Windows. Deal with it.
+					Arrays.sort(planetFiles, new Comparator<File>() {
+						@Override
+						public int compare(File f1, File f2) {
+							return f1.getPath().compareTo(f2.getPath());
+						}
+					});
+					// Try parsing and updating the main list, one by one
+					for( File planetFile : planetFiles ) {
+						try {
+							FileInputStream fis = new FileInputStream(planetFile);
+							updatePlanets(fis);
+						} catch(Exception ex) {
+							// Ignore this file then
+							MekHQ.logError("Exception trying to parse " + planetFile.getPath() + " - ignoring.");
+							MekHQ.logError(ex);
+						}
+					}
+				}
+			}
+			
+			for (Star s : starList.values()) {
+				int x = (int)(s.getX()/30.0);
+				int y = (int)(s.getY()/30.0);
+				if (starGrid.get(x) == null) {
+					starGrid.put(x, new HashMap<Integer, Set<Star>>());
+				}
+				if (starGrid.get(x).get(y) == null) {
+					starGrid.get(x).put(y, new HashSet<Star>());
+				}
+				if( !starGrid.get(x).get(y).contains(s) ) {
+					starGrid.get(x).get(y).add(s);
+				}
+			}
+			done();
+		}
+		MekHQ.logMessage("Loaded a total of " + starList.size() + " stars and " + planetList.size() + " planets");
+	}
+	
+	public void writeStar(OutputStream out, Star star) {
+		writeStar(out, star, false);
 	}
 
+	public void writeStar(OutputStream out, Star star, boolean includePlanets) {
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(PlanetListXMLData.class, StarXMLData.class, PlanetXMLData.class, Planet.class, Star.class);
+			Marshaller marshaller = jaxbContext.createMarshaller();
+			marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
+			marshaller.marshal(new StarAdapter().marshal(star), out);
+			if( includePlanets ) {
+				for( Planet planet : star.getPlanets() ) {
+					marshaller.marshal(new PlanetAdapter().marshal(planet), out);
+				}
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	public void writePlanet(OutputStream out, Planet planet) {
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(PlanetListXMLData.class, StarXMLData.class, PlanetXMLData.class, Planet.class, Star.class);
+			Marshaller marshaller = jaxbContext.createMarshaller();
+			marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
+			marshaller.marshal(new PlanetAdapter().marshal(planet), out);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/*
 	public static Planet createNewSystem() {
 	    Planet planet = new Planet();
 	    planet.setSpectralClass(Planet.generateStarType());
@@ -188,4 +342,5 @@ public class Planets {
 	    }
 	    return planet;
 	}
+	*/
 }

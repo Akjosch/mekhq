@@ -993,7 +993,7 @@ public class Refit extends Part implements IPartWork, IAcquisitionWork {
 	    //UnitUtil.reIndexCrits(newEntity); Method is gone?
 
 		String fileName = MhqFileUtil.escapeReservedCharacters(newEntity.getChassis() + " " + newEntity.getModel());
-	    String sCustomsDir = "data"+File.separator+"mechfiles"+File.separator+"customs";
+	    String sCustomsDir = MekHQ.getPreference(MekHQ.DATA_DIR)+File.separator+"mechfiles"+File.separator+"customs";
 		String sCustomsDirCampaign = sCustomsDir+File.separator+oldUnit.campaign.getName();
 	    File customsDir = new File(sCustomsDir);
 	    if(!customsDir.exists()) {

@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Set;
 
 import megamek.client.RandomSkillsGenerator;
 import megamek.common.Compute;
@@ -43,6 +44,7 @@ import mekhq.campaign.rating.IUnitRating;
 import mekhq.campaign.universe.Faction;
 import mekhq.campaign.universe.Planets;
 import mekhq.campaign.universe.RandomFactionGenerator;
+import mekhq.campaign.universe.Star;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -164,8 +166,8 @@ public class ContractMarket implements Serializable {
 
 			int numContracts = Compute.d6() - 4 + unitRatingMod;
 
-			ArrayList<Faction> currentFactions =
-					campaign.getCurrentPlanet().getCurrentFactions(campaign.getDate());
+			Set<Faction> currentFactions =
+					campaign.getCurrentPlanet().getStar().getCurrentFactions(campaign.getDate());
 			boolean inMinorFaction = true;
 			for (Faction f : currentFactions) {
 				if (RandomFactionGenerator.getInstance().isMajorPower(f) ||
@@ -183,8 +185,8 @@ public class ContractMarket implements Serializable {
 				if (currentFactions.size() > 1) {
 					inBackwater = false;
 				} else {
-					for (String key : Planets.getNearbyPlanets(campaign.getCurrentPlanet(), 30)) {
-						for (Faction f : Planets.getInstance().getPlanets().get(key).getCurrentFactions(campaign.getDate())) {
+					for (Star key : Planets.getNearbyStars(campaign.getCurrentPlanet().getStar(), 30)) {
+						for (Faction f : key.getCurrentFactions(campaign.getDate())) {
 							if (!f.getShortName().equals(currentFactions.get(0).getShortName())) {
 								inBackwater = false;
 								break;
@@ -218,7 +220,7 @@ public class ContractMarket implements Serializable {
 			/* If located on a faction's capital (interpreted as the starting planet for that faction),
 			 * generate one contract offer for that faction.
 			 */
-			for (Faction f : campaign.getCurrentPlanet().getCurrentFactions(campaign.getDate())) {
+			for (Faction f : campaign.getCurrentPlanet().getStar().getCurrentFactions(campaign.getDate())) {
 				try {
 					if (f.getStartingPlanet(campaign.getEra()).equals(campaign.getCurrentPlanet().getName())
 							&& RandomFactionGenerator.getInstance().getEmployerSet().contains(f.getShortName())) {
@@ -364,7 +366,7 @@ public class ContractMarket implements Serializable {
 		}
 		JumpPath jp = null;
 		try {
-			jp = campaign.calculateJumpPath(campaign.getCurrentPlanetName(), contract.getPlanetName());
+			jp = campaign.calculateJumpPath(campaign.getCurrentPlanet(), contract.getPlanet().getPointOnSurface());
 		} catch (NullPointerException ex) {
 			// could not calculate jump path; leave jp null
 		}
@@ -432,9 +434,9 @@ public class ContractMarket implements Serializable {
         if (!contract.getEnemyCode().equals("REB") &&
         		!contract.getEnemyCode().equals("PIR")) {
         	boolean factionValid = false;
-        	for (String p : Planets.getNearbyPlanets(campaign.getCurrentPlanet(), 30)) {
+        	for (Star p : Planets.getNearbyStars(campaign.getCurrentPlanet().getStar(), 30)) {
         		if (factionValid) break;
-        		for (Faction f : Planets.getInstance().getPlanets().get(p).getCurrentFactions(campaign.getDate())) {
+        		for (Faction f : p.getDefaultPlanet().getCurrentFactions(campaign.getDate())) {
         			if (f.getShortName().equals(contract.getEnemyCode())) {
         				factionValid = true;
         				break;

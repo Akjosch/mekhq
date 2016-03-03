@@ -270,7 +270,7 @@ public class CustomizeAtBContractDialog extends JDialog {
         gbc.insets = new java.awt.Insets(5, 5, 5, 5);
         leftPanel.add(lblPlanetName, gbc);
         
-        suggestPlanet = new JSuggestField(this, campaign.getPlanetNames());       
+        suggestPlanet = new JSuggestField(this, campaign.getStarIds());       
         suggestPlanet.setText(contract.getPlanetName());
         gbc.gridx = 1;
         gbc.gridy = y++;

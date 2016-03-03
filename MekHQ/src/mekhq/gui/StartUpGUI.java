@@ -41,7 +41,7 @@ public class StartUpGUI extends javax.swing.JPanel {
     
 	public StartUpGUI(MekHQ app) {
         this.app = app;
-        lastSave = Utilities.lastFileModified(MekHQ.CAMPAIGN_DIRECTORY, new FilenameFilter() {
+        lastSave = Utilities.lastFileModified(MekHQ.getPreference(MekHQ.CAMPAIGN_DIR), new FilenameFilter() {
             public boolean accept(File dir, String name) {
                 return name.toLowerCase().endsWith(".cpnx") || name.toLowerCase().endsWith(".xml");
             }
@@ -99,7 +99,7 @@ public class StartUpGUI extends javax.swing.JPanel {
         });
         
         // initialize splash image
-        imgSplash = getToolkit().getImage("data/images/misc/mekhq-splash.png"); //$NON-NLS-1$
+        imgSplash = getToolkit().getImage(MekHQ.getPreference(MekHQ.DATA_DIR) + "/images/misc/mekhq-splash.png"); //$NON-NLS-1$
 
         // wait for splash image to load completely
         MediaTracker tracker = new MediaTracker(frame);
@@ -163,7 +163,7 @@ public class StartUpGUI extends javax.swing.JPanel {
     }
     
     private File selectLoadCampaignFile() {
-		JFileChooser loadCpgn = new JFileChooser(MekHQ.CAMPAIGN_DIRECTORY);
+		JFileChooser loadCpgn = new JFileChooser(MekHQ.getPreference(MekHQ.CAMPAIGN_DIR));
 		loadCpgn.setDialogTitle("Load Campaign");
 		loadCpgn.setFileFilter(new CampaignFileFilter());
 		int returnVal = loadCpgn.showOpenDialog(frame);

@@ -19,6 +19,7 @@ import megamek.common.Tank;
 import megamek.common.UnitType;
 import megamek.common.options.PilotOptions;
 import mekhq.IconPackage;
+import mekhq.MekHQ;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.force.Force;
 import mekhq.campaign.personnel.Person;
@@ -728,17 +729,17 @@ import mekhq.gui.BasicInfo;
             private Image getHitsImage(int hits) {
                 switch(hits) {
                 case 1:
-                    return Toolkit.getDefaultToolkit().getImage("data/images/misc/hits/onehit.png");
+                    return Toolkit.getDefaultToolkit().getImage(MekHQ.getPreference(MekHQ.DATA_DIR) + "/images/misc/hits/onehit.png");
                 case 2:
-                    return Toolkit.getDefaultToolkit().getImage("data/images/misc/hits/twohits.png");
+                    return Toolkit.getDefaultToolkit().getImage(MekHQ.getPreference(MekHQ.DATA_DIR) + "/images/misc/hits/twohits.png");
                 case 3:
-                    return Toolkit.getDefaultToolkit().getImage("data/images/misc/hits/threehits.png");
+                    return Toolkit.getDefaultToolkit().getImage(MekHQ.getPreference(MekHQ.DATA_DIR) + "/images/misc/hits/threehits.png");
                 case 4:
-                    return Toolkit.getDefaultToolkit().getImage("data/images/misc/hits/fourhits.png");
+                    return Toolkit.getDefaultToolkit().getImage(MekHQ.getPreference(MekHQ.DATA_DIR)+ "/images/misc/hits/fourhits.png");
                 case 5:
-                    return Toolkit.getDefaultToolkit().getImage("data/images/misc/hits/fivehits.png");
+                    return Toolkit.getDefaultToolkit().getImage(MekHQ.getPreference(MekHQ.DATA_DIR) + "/images/misc/hits/fivehits.png");
                 case 6:
-                    return Toolkit.getDefaultToolkit().getImage("data/images/misc/hits/sixhits.png");
+                    return Toolkit.getDefaultToolkit().getImage(MekHQ.getPreference(MekHQ.DATA_DIR) + "/images/misc/hits/sixhits.png");
                 }
                 return null;
             }

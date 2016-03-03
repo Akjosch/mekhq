@@ -25,16 +25,14 @@ import java.awt.Color;
 import java.io.FileInputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Hashtable;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
-import megamek.common.EquipmentType;
-import mekhq.MekHQ;
-import mekhq.campaign.Campaign;
-import mekhq.campaign.parts.Part;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -42,48 +40,25 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import megamek.common.EquipmentType;
+import mekhq.MekHQ;
+import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.Part;
+
 /**
  *
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class Faction {
-
-	public static Hashtable<String, Faction> factions;
+	// TODO: Add a possibility to create custom factions in game (and have their XML representation printed)
+	public static ConcurrentMap<String, Faction> factions;
 	public static String[] choosableFactionCodes = {"MERC","CC","DC","FS","FWL","LA","FC","ROS","CS","WOB","FRR","SIC","MOC","MH","OA","TC","CDS","CGB","CHH","CJF","CNC","CSJ","CSV","CW","TH","RWR"};
-
-	//I am no longer using ints to define factions, but I am keeping
-	//this stuff for reference
-	public static final int F_MERC      = 0;
-	public static final int F_CAPCON    = 1;
-	public static final int F_DRAC      = 2;
-	public static final int F_FEDSUN    = 3;
-	public static final int F_FWL       = 4;
-	public static final int F_LYRAN     = 5;
-	public static final int F_FEDCOM    = 6;
-	public static final int F_ROS       = 7;
-	public static final int F_COMSTAR   = 8;
-	public static final int F_WOB       = 9;
-	public static final int F_FRR       = 10;
-	public static final int F_SIC       = 11;
-	public static final int F_CANOPUS   = 12;
-	public static final int F_OA        = 13;
-	public static final int F_TC        = 14;
-	public static final int F_MH        = 15;
-	public static final int F_CHAOS     = 16;
-	public static final int F_ARDC      = 17;
-	public static final int F_TERRAN    = 18;
-	public static final int F_RWR       = 19;
-	public static final int F_PERIPHERY = 20;
-	public static final int F_C_WOLF    = 21;
-	public static final int F_C_JF      = 22;
-	public static final int F_C_GB      = 23;
-	public static final int F_C_SJ      = 24;
-	public static final int F_C_NC      = 25;
-	public static final int F_C_DS      = 26;
-	public static final int F_C_SV      = 27;
-	public static final int F_C_HH      = 28;
-	public static final int F_C_OTHER   = 29;
-	public static final int F_NUM       = 30;
+	
+	// Special factions
+	public static Faction UNDISCOVERED;
+	public static Faction UNEXPLORED;
+	public static Faction PIRATE;
+	public static Faction REBELS;
 
 	private String shortname;
 	private String fullname;
@@ -106,9 +81,11 @@ public class Faction {
 		clan = false;
 		periphery = false;
 		color = Color.LIGHT_GRAY;
-		startingPlanet = new String[]{"Terra","Terra","Terra","Terra","Terra","Terra","Terra","Terra","Terra"};
-		altNames = new String[]{"","","","","","","","",""};
-		eraMods = new int[]{0,0,0,0,0,0,0,0,0};
+		startingPlanet = new String[Era.E_NUM];
+		Arrays.fill(startingPlanet, "Terra");
+		altNames = new String[Era.E_NUM];
+		Arrays.fill(altNames, "");
+		eraMods = new int[Era.E_NUM];
 	}
 
 	public String getShortName() {
@@ -117,7 +94,7 @@ public class Faction {
 
 	public String getFullName(int era) {
 		String alt = "";
-		if(altNames.length > era) {
+		if(era >= 0 && altNames.length > era) {
 			alt = altNames[era];
 		}
 		if(alt.trim().length() == 0) {
@@ -138,13 +115,21 @@ public class Faction {
 	public boolean isPeriphery() {
 		return periphery;
 	}
+	
+	/** @return true if this faction represents a lack of civilisation */
+	public boolean isEmpty() {
+		return shortname.equals("ABN") // Abandoned
+				|| shortname.equals("UND") // Undiscovered
+				|| shortname.equals("NONE") // Unexplored
+				|| shortname.equals("???"); // Default short name for a not initialized faction
+	}
 
 	public String getNameGenerator() {
 		return nameGenerator;
 	}
 
 	public String getStartingPlanet(int era) {
-		if(startingPlanet.length > era) {
+		if(era >= 0 && startingPlanet.length > era) {
 			return startingPlanet[era];
 		} else if(startingPlanet.length > 0) {
 			return startingPlanet[startingPlanet.length-1];
@@ -153,7 +138,7 @@ public class Faction {
 	}
 
 	public int getEraMod(int era) {
-		if(eraMods.length > era) {
+		if(era >= 0 && eraMods.length > era) {
 			return eraMods[era];
 		}
 		return 0;
@@ -195,8 +180,35 @@ public class Faction {
         return factionMod;
 	}
 
-	public static ArrayList<String> getFactionList() {
-		ArrayList<String> flist = new ArrayList<String>();
+	@Override
+	public int hashCode() {
+		return 31 + ((shortname == null) ? 0 : shortname.hashCode());
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if( this == obj ) {
+			return true;
+		}
+		if( obj == null ) {
+			return false;
+		}
+		if( getClass() != obj.getClass() ) {
+			return false;
+		}
+		Faction other = (Faction) obj;
+		if( shortname == null ) {
+			if( other.shortname != null ) {
+				return false;
+			}
+		} else if( !shortname.equals(other.shortname) ) {
+			return false;
+		}
+		return true;
+	}
+
+	public static List<String> getFactionList() {
+		List<String> flist = new ArrayList<String>();
 		for(String sname : factions.keySet()) {
 			flist.add(sname);
 		}
@@ -204,7 +216,7 @@ public class Faction {
 	}
 
 	public static Faction getFaction(String sname) {
-		return factions.get(sname);
+		return null != factions ? factions.get(sname) : null;
 	}
 
 	public static Faction getFactionFromFullName(String fname, int year) {
@@ -221,72 +233,6 @@ public class Faction {
 		}
 		return faction;
 	}
-
-    public static String getFactionCode(int faction) {
-        switch(faction) {
-            case F_MERC:
-                return "MERC";
-            case F_CAPCON:
-                return "CC";
-            case F_DRAC:
-                return "DC";
-            case F_FEDSUN:
-                return "FS";
-            case F_FWL:
-                return "FWL";
-            case F_LYRAN:
-                return "LA";
-            case F_FEDCOM:
-                return "FC";
-            case F_ROS:
-            	return "ROS";
-            case F_COMSTAR:
-                return "CS";
-            case F_WOB:
-                return "WOB";
-            case F_FRR:
-                return "FRR";
-            case F_SIC:
-                return "SIC";
-            case F_CANOPUS:
-                return "MOC";
-            case F_OA:
-                return "OA";
-            case F_TC:
-                return "TC";
-            case F_MH:
-                return "MH";
-            case F_PERIPHERY:
-                return "PIND";
-            case F_ARDC:
-                return "ARDC";
-            case F_CHAOS:
-                return "IND";
-            case F_TERRAN:
-                return "TH";
-            case F_RWR:
-                return "RWR";
-            case F_C_WOLF:
-                return "CW";
-            case F_C_JF:
-                return "CJF";
-            case F_C_GB:
-            	return "CGB";
-            case F_C_SJ:
-            	return "CSJ";
-            case F_C_NC:
-                return "CNC";
-            case F_C_DS:
-                return "CDS";
-            case F_C_SV:
-                return "CSV";
-            case F_C_HH:
-                return "CHH";
-            case F_C_OTHER:
-            default:
-                return "IND";
-        }
-    }
 
     public static Faction getFactionFromXML(Node wn) throws DOMException, ParseException {
 		Faction retVal = new Faction();
@@ -346,13 +292,13 @@ public class Faction {
     public static void generateFactions() throws DOMException, ParseException {
 		MekHQ.logMessage("Starting load of faction data from XML...");
 		// Initialize variables.
-		factions = new Hashtable<String, Faction>();
+		factions = new ConcurrentHashMap<String, Faction>();
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 		Document xmlDoc = null;
 
 
 		try {
-			FileInputStream fis = new FileInputStream("data/universe/factions.xml");
+			FileInputStream fis = new FileInputStream(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/factions.xml");
 			// Using factory get an instance of document builder
 			DocumentBuilder db = dbf.newDocumentBuilder();
 
@@ -393,8 +339,13 @@ public class Faction {
 				}
 			}
 		}
+		
+		// Populate default factions
+		UNDISCOVERED = getFaction("UND");
+		UNEXPLORED = getFaction("NONE");
+		PIRATE = getFaction("PIR");
+		REBELS = getFaction("REB");
+		
 		MekHQ.logMessage("Loaded a total of " + factions.keySet().size() + " factions");
 	}
-
-
 }

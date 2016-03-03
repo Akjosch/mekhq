@@ -135,7 +135,7 @@ public class CustomizeMissionDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         getContentPane().add(lblPlanetName, gridBagConstraints);
 
-        suggestPlanet = new JSuggestField(this, campaign.getPlanetNames());
+        suggestPlanet = new JSuggestField(this, campaign.getStarIds());
         if(!newMission) {
         	suggestPlanet.setText(mission.getPlanetName());
         }

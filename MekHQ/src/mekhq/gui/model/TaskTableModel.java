@@ -8,6 +8,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 
 import mekhq.IconPackage;
+import mekhq.MekHQ;
 import mekhq.campaign.parts.Part;
 import mekhq.gui.BasicInfo;
 
@@ -57,7 +58,7 @@ public class TaskTableModel extends DataTableModel {
             Component c = this;
             int actualCol = table.convertColumnIndexToModel(column);
             int actualRow = table.convertRowIndexToModel(row);
-            Image imgTool = getToolkit().getImage("data/images/misc/tools.png"); //$NON-NLS-1$
+            Image imgTool = getToolkit().getImage(MekHQ.getPreference(MekHQ.DATA_DIR) + "/images/misc/tools.png"); //$NON-NLS-1$
             this.setImage(imgTool);
             setOpaque(true);
             setText("<html>" + getValueAt(actualRow, actualCol).toString() + "</html>", "black");

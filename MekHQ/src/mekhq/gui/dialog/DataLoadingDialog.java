@@ -84,7 +84,7 @@ public class DataLoadingDialog extends JDialog implements PropertyChangeListener
         progressBar.setString(resourceMap.getString("loadPlanet.text"));
 
         // initialize splash image
-        Image imgSplash = getToolkit().getImage("data/images/misc/mekhq-load.png"); //$NON-NLS-1$
+        Image imgSplash = getToolkit().getImage(MekHQ.getPreference(MekHQ.DATA_DIR) + "/images/misc/mekhq-load.png"); //$NON-NLS-1$
 
         // wait for splash image to load completely
         MediaTracker tracker = new MediaTracker(frame);
@@ -254,7 +254,7 @@ public class DataLoadingDialog extends JDialog implements PropertyChangeListener
         			campaign.addReport("<b>" + campaign.getDateAsString() + "</b>");
         			if (campaign.getCampaignOptions().getUseAtB()) {
         				RandomFactionGenerator.getInstance().updateTables(campaign.getDate(),
-        						campaign.getLocation().getCurrentPlanet(),
+        						campaign.getLocation().getCurrentLocation(),
         						campaign.getCampaignOptions());
         				campaign.getContractMarket().generateContractOffers(campaign, true);
         				campaign.getUnitMarket().generateUnitOffers(campaign);

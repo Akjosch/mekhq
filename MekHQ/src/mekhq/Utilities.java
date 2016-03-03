@@ -34,10 +34,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -87,6 +87,27 @@ import mekhq.campaign.unit.Unit;
  */
 public class Utilities {
 	private static final int MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
+	
+	// A bunch of important astronomical constants
+	/** Speed of light in a vacuum in km/s (only really important for non-hyperspace comms and sensors) */
+	public static final double C = 299792.458;
+	/** Julian year length in seconds (IAU standard astronomical year) */
+	public static final double Y_JULIAN = 365.25 * 86400;
+	/**
+	 * Light year in km (IAU standard as the speed of light times 365.25-day Julian Year,
+	 * also ISO 80000-3 Annex C
+	 */
+	public static final double LY = C * Y_JULIAN;
+	/** Astronomical unit in km (IAU standard, also ISO 80000-3 Annex C) */
+	public static final double AU = 149597870.7;
+	/** Standard gravity in m/s^2 (ISO 80000-3) */
+	public static final double G = 9.80665;
+	/** Solar luminosity in W */
+	public static final double SOLAR_LUM = 3.846e26;
+	/** Solar mass in kg */
+	public static final double SOLAR_MASS = 1.98855e30;
+	/** Solar radius in km */
+	public static final double SOLAR_RADIUS = 695700.0;
 
 	// A couple of arrays for use in the getLevelName() method
     private static int[]    arabicNumbers = { 1000,  900,  500,  400,  100,   90,
@@ -103,7 +124,7 @@ public class Utilities {
         return (rolls.elementAt(0) + rolls.elementAt(1));
     }
 
-    /*
+    /**
      * Roll a certain number of dice with a certain number of faces
      */
     public static int dice(int num, int faces) {
@@ -117,6 +138,21 @@ public class Utilities {
     	return result;
     }
 
+    /**
+     * Get a random element out of a collection, with equal probability
+     */
+    public static <T> T getRandomItem(Collection<? extends T> collection) {
+    	if( null == collection || collection.isEmpty() ) {
+    		return null;
+    	}
+    	int index = Compute.randomInt(collection.size());
+    	Iterator<? extends T> iterator = collection.iterator();
+    	for( int i = 0; i < index; ++ i ) {
+    		iterator.next();
+    	}
+    	return iterator.next();
+    }
+    
     public static ArrayList<AmmoType> getMunitionsFor(Entity entity, AmmoType cur_atype, int techLvl) {
         ArrayList<AmmoType> atypes = new ArrayList<AmmoType>();
         for(AmmoType atype : AmmoType.getMunitionsFor(cur_atype.getAmmoType())) {
@@ -983,16 +1019,21 @@ public class Utilities {
         return output;
     }
 
-    public static String combineString(Vector<String> vec, String sep) {
-        String output = "";
-        Enumeration<String> eVec = vec.elements();
-        while(eVec.hasMoreElements()) {
-            output += eVec.nextElement();
-            if(eVec.hasMoreElements()) {
-                output += sep;
-            }
-        }
-        return output;
+    public static String combineString(Collection<String> vec, String sep) {
+    	if( null == vec || null == sep ) {
+    		return null;
+    	}
+    	StringBuilder sb = new StringBuilder();
+    	boolean first = false;
+    	for( String part : vec ) {
+    		if( first ) {
+    			first = false;
+    		} else {
+    			sb.append(sep);
+    		}
+    		sb.append(part);
+    	}
+        return sb.toString();
     }
 
     public static String getRomanNumeralsFromArabicNumber(int level, boolean checkZero) {
@@ -1087,4 +1128,13 @@ public class Utilities {
     	        || en.isStuck();
     }
 
+    /** @return linear interpolation value between min and max */
+	public static double lerp(double min, double max, double f) {
+		return min * (1.0 - f) + max * f;
+	}
+
+    /** @return linear interpolation value between min and max */
+	public static int lerp(int min, int max, double f) {
+		return (int)Math.round(min * (1.0 - f) + max * f);
+	}
 }

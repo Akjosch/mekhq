@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<planets>
+	<star>
+		<name>Aquagea</name>
+		<xcood>-56.903</xcood>
+		<ycood>-402.982</ycood>
+		<faction>UND</faction>
+		<spectralType>G6V</spectralType>
+		<mass>0.923</mass>
+		<lum>0.714459</lum>
+		<temperature>5380</temperature>
+		<planets>8</planets>
+		<radius>0.9748</radius>
+		<minorPlanets>27</minorPlanets>
+	</star>
+	<planet>
+		<name>Aquagea</name>
+		<delete>true</delete>
+	</planet>
+	<planet>
+		<name>Aquagea I</name>
+		<starId>Aquagea</starId>
+		<sysPos>1</sysPos>
+		<temperature>432</temperature>
+		<orbitRadius>0.132</orbitRadius>
+	</planet>
+	<planet>
+		<name>Aquagea II</name>
+		<starId>Aquagea</starId>
+		<sysPos>2</sysPos>
+		<temperature>218</temperature>
+		<orbitRadius>0.272</orbitRadius>
+	</planet>
+	<planet>
+		<name>Aquagea III</name>
+		<starId>Aquagea</starId>
+		<sysPos>3</sysPos>
+		<temperature>119</temperature>
+		<orbitRadius>0.428</orbitRadius>
+	</planet>
+	<planet>
+		<name>Aquagea IV</name>
+		<starId>Aquagea</starId>
+		<sysPos>4</sysPos>
+		<temperature>34</temperature>
+		<orbitRadius>0.696</orbitRadius>
+		<event>
+			<date>2750-01-01</date>
+			<faction>CC</faction>
+			<socioIndustrial>C-C-C-C-C</socioIndustrial>
+		</event>
+		<event>
+			<date>2864-01-01</date>
+			<faction>FWL</faction>
+			<socioIndustrial>C-C-C-C-D</socioIndustrial>
+		</event>
+		<event>
+			<date>2920-01-01</date>
+			<socioIndustrial>C-D-D-C-D</socioIndustrial>
+			<faction>ABN</faction>
+		</event>
+	</planet>
+	<planet>
+		<name>Aquagea V</name>
+		<starId>Aquagea</starId>
+		<sysPos>5</sysPos>
+		<temperature>9</temperature>
+		<orbitRadius>0.826</orbitRadius>
+		<event>
+			<date>2750-01-01</date>
+			<faction>CC</faction>
+			<socioIndustrial>C-C-C-B-B</socioIndustrial>
+		</event>
+		<event>
+			<date>2864-01-01</date>
+			<socioIndustrial>E-E-D-B-B</socioIndustrial>
+			<faction>FWL</faction>
+		</event>
+		<event>
+			<date>2920-01-01</date>
+			<socioIndustrial>F-F-F-B-B</socioIndustrial>
+			<faction>ABN</faction>
+		</event>
+	</planet>
+	<planet>
+		<name>Aquagea VI</name>
+		<starId>Aquagea</starId>
+		<sysPos>6</sysPos>
+		<temperature>-47</temperature>
+		<orbitRadius>1.290</orbitRadius>
+	</planet>
+	<planet>
+		<name>Aquagea VII</name>
+		<starId>Aquagea</starId>
+		<sysPos>7</sysPos>
+		<temperature>-190</temperature>
+		<orbitRadius>9.500</orbitRadius>
+	</planet>
+	<planet>
+		<name>Aquagea VIII</name>
+		<starId>Aquagea</starId>
+		<sysPos>8</sysPos>
+		<temperature>-224</temperature>
+		<orbitRadius>27.874</orbitRadius>
+	</planet>
+</planets>

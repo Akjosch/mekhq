@@ -27,6 +27,7 @@ import megamek.common.Mech;
 import megamek.common.MechSummaryCache;
 import megamek.common.Player;
 import megamek.common.loaders.BLKFile;
+import mekhq.MekHQ;
 import mekhq.Utilities;
 import mekhq.campaign.finances.Transaction;
 import mekhq.campaign.parts.Part;
@@ -225,7 +226,7 @@ public class UnitTableMouseAdapter extends MouseInputAdapter implements
             gui.refreshUnitList();
             gui.refreshOverview();
         } else if (command.equalsIgnoreCase("TAG_CUSTOM")) {
-            String sCustomsDir = "data/mechfiles/customs/";
+            String sCustomsDir = MekHQ.getPreference(MekHQ.DATA_DIR) + "/mechfiles/customs/";
             String sCustomsDirCampaign = sCustomsDir
                     + gui.getCampaign().getName() + "/";
             File customsDir = new File(sCustomsDir);

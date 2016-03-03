@@ -109,9 +109,9 @@ public class AtBGameThread extends GameThread {
                 }
 
                 MapSettings mapSettings = new MapSettings();
-                File mapgenFile = new File("data/mapgen/" + scenario.getMap() + ".xml");
+                File mapgenFile = new File(MekHQ.getPreference(MekHQ.DATA_DIR) + "/mapgen/" + scenario.getMap() + ".xml");
                 if (campaign.getCampaignOptions().getUseAltMapgen()) {
-                	File alt = new File("data/mapgen/" + scenario.getMap() + " - Jazz.xml");
+                	File alt = new File(MekHQ.getPreference(MekHQ.DATA_DIR) + "/mapgen/" + scenario.getMap() + " - Jazz.xml");
                 	if (alt.isFile()) {
                 		mapgenFile = alt;
                 	}

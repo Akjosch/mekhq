@@ -32,20 +32,23 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
-import megamek.common.Compute;
-import mekhq.MekHQ;
-import mekhq.campaign.CampaignOptions;
 
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import megamek.common.Compute;
+import mekhq.MekHQ;
+import mekhq.campaign.CampaignOptions;
 
 /**
  * @author Neoancient
@@ -78,36 +81,36 @@ public class RandomFactionGenerator implements Serializable {
 
 	private static RandomFactionGenerator rfg = null;
 	
-	private TreeSet<String> currentFactions;
-	/* all factions that control at least one system at the current date
-	 */
+	/** all factions that control at least one system at the current date */
+	private Set<String> currentFactions;
 	
-	private ArrayList<String> employers;
-	/* list of potential employers weighted by number of systems controlled
-	 */
-	private HashMap<String, HashMap<String, HashSet<Planet>>> borders;
-	/*List of systems controlled by faction key1 that are within one
+	/** list of potential employers weighted by number of systems controlled */
+	private List<String> employers;
+	
+	/**
+	 * List of systems controlled by faction key1 that are within one
 	 * jump of faction key2
 	 */
+	private Map<String, Map<String, Set<Planet>>> borders;
 	
-	private HashSet<String> deepPeriphery;
-	private HashSet<String> neutralFactions;
-	private HashSet<String> majorPowers;
+	private Set<String> deepPeriphery;
+	private Set<String> neutralFactions;
+	private Set<String> majorPowers;
 	
-	private HashMap<String, HashMap<String, ArrayList<FactionHint>>> wars;
-	private HashMap<String, HashMap<String, ArrayList<FactionHint>>> alliances;
-	private HashMap<String, HashMap<String, ArrayList<FactionHint>>> rivals;
-	private HashMap<String, HashMap<String, ArrayList<FactionHint>>> neutralExceptions;
-	private HashMap<String, HashMap<String, ArrayList<AltLocation>>> containedFactions;
+	private Map<String, Map<String, List<FactionHint>>> wars;
+	private Map<String, Map<String, List<FactionHint>>> alliances;
+	private Map<String, Map<String, List<FactionHint>>> rivals;
+	private Map<String, Map<String, List<FactionHint>>> neutralExceptions;
+	private Map<String, Map<String, List<AltLocation>>> containedFactions;
 	
-	private ArrayList<ActionListener> listeners;
+	private List<ActionListener> listeners;
 	private Thread loader;
 	private static boolean initialized = false;
 	private static boolean initializing = false;
 	
 	/* Track time and location; only update if one of them has changed */
 	private Date lastUpdate = null;
-	private Planet lastLocation = null;
+	private SpaceLocation lastLocation = null;
 	
 	private RandomFactionGenerator() {
 		currentFactions = new TreeSet<String>();
@@ -115,16 +118,16 @@ public class RandomFactionGenerator implements Serializable {
 		deepPeriphery = new HashSet<String>();
 		neutralFactions = new HashSet<String>();
 		majorPowers = new HashSet<String>();
-		borders = new HashMap<String,HashMap<String,HashSet<Planet>>>();
-		wars = new HashMap<String, HashMap<String, ArrayList<FactionHint>>>();
-		alliances = new HashMap<String, HashMap<String, ArrayList<FactionHint>>>();
-		rivals = new HashMap<String, HashMap<String, ArrayList<FactionHint>>>();
-		neutralExceptions = new HashMap<String, HashMap<String, ArrayList<FactionHint>>>();
-		containedFactions = new HashMap<String, HashMap<String, ArrayList<AltLocation>>>();
+		borders = new HashMap<String, Map<String, Set<Planet>>>();
+		wars = new HashMap<String, Map<String, List<FactionHint>>>();
+		alliances = new HashMap<String, Map<String, List<FactionHint>>>();
+		rivals = new HashMap<String, Map<String, List<FactionHint>>>();
+		neutralExceptions = new HashMap<String, Map<String, List<FactionHint>>>();
+		containedFactions = new HashMap<String, Map<String, List<AltLocation>>>();
 		listeners = new ArrayList<ActionListener>();
 		
 		lastUpdate = new Date(0); //initialize 1 Jan 1970
-		lastLocation = Planets.getInstance().getPlanets().get("Terra");
+		lastLocation = Planets.getInstance().getPlanets().get("Terra").getPointOnSurface();
 	}
 	
 	public static RandomFactionGenerator getInstance() {
@@ -203,7 +206,7 @@ public class RandomFactionGenerator implements Serializable {
 		Document xmlDoc = null;
 		
 		try {
-			FileInputStream fis = new FileInputStream("data/universe/factionhints.xml");
+			FileInputStream fis = new FileInputStream(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/factionhints.xml");
 			DocumentBuilder db = dbf.newDocumentBuilder();
 	
 			xmlDoc = db.parse(fis);
@@ -289,7 +292,7 @@ public class RandomFactionGenerator implements Serializable {
 					}
 					if (Faction.getFaction(outer) != null && Faction.getFaction(inner) != null) {
 						if (containedFactions.get(outer) == null) {
-							containedFactions.put(outer, new HashMap<String, ArrayList<AltLocation>>());
+							containedFactions.put(outer, new HashMap<String, List<AltLocation>>());
 						}
 						if (containedFactions.get(outer).get(inner) == null) {
 							containedFactions.get(outer).put(inner, new ArrayList<AltLocation>());
@@ -303,8 +306,7 @@ public class RandomFactionGenerator implements Serializable {
 		}
 	}
 	
-	private void setFactionHint(HashMap<String, HashMap<String, ArrayList<FactionHint>>> hint,
-			Node node) throws DOMException, ParseException {
+	private void setFactionHint(Map<String, Map<String, List<FactionHint>>> hint, Node node) throws DOMException, ParseException {
 		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");
 		final Date epoch_start = df.parse("0001-01-01");
 		final Date epoch_end = df.parse("9999-12-31");
@@ -346,7 +348,7 @@ public class RandomFactionGenerator implements Serializable {
 							continue;
 						}
 						if (hint.get(parties[i]) == null) {
-							hint.put(parties[i], new HashMap<String, ArrayList<FactionHint>>());
+							hint.put(parties[i], new HashMap<String, List<FactionHint>>());
 						}
 						if (hint.get(parties[i]).get(parties[j]) == null) {
 							hint.get(parties[i]).put(parties[j], new ArrayList<FactionHint>());
@@ -388,7 +390,7 @@ public class RandomFactionGenerator implements Serializable {
 						continue;
 					}
 					if (neutralExceptions.get(faction) == null) {
-						neutralExceptions.put(faction, new HashMap<String, ArrayList<FactionHint>>());
+						neutralExceptions.put(faction, new HashMap<String, List<FactionHint>>());
 					}
 					if (neutralExceptions.get(faction).get(parties[i]) == null) {
 						neutralExceptions.get(faction).put(parties[i], new ArrayList<FactionHint>());
@@ -407,8 +409,7 @@ public class RandomFactionGenerator implements Serializable {
 		listeners.remove(l);
 	}
 	
-	public void updateTables(Date date, Planet currentLocation,
-			CampaignOptions options) {
+	public void updateTables(Date date, SpaceLocation currentLocation, CampaignOptions options) {
         final Date FORTRESS_REPUBLIC = new Date (new GregorianCalendar(3135,10,1).getTimeInMillis());
         if (!date.after(lastUpdate) && currentLocation == lastLocation) {
 			return;
@@ -421,17 +422,14 @@ public class RandomFactionGenerator implements Serializable {
 		for (Planet p : Planets.getInstance().getPlanets().values()) {
 			for (Faction f : p.getCurrentFactions(date)) {
 				String fName = f.getShortName();
-				if (fName.equals("ABN") ||
-						fName.equals("UND") ||
-						fName.equals("CLAN") ||
-						fName.equals("NONE")) {
+				if (f.isEmpty() || fName.equals("CLAN")) {
 					continue;
 				}
 				if (fName.equals("ROS") && date.after(FORTRESS_REPUBLIC)) {
 					 continue;
 				}
 				currentFactions.add(fName);
-				if (p.getDistanceTo(currentLocation) <= options.getSearchRadius()) {
+				if (p.getStar().getDistanceTo(currentLocation.getStar()) <= options.getSearchRadius()) {
 					if (!f.isClan()) {
 						employers.add(fName);
 					}
@@ -474,14 +472,10 @@ public class RandomFactionGenerator implements Serializable {
 		} else if (f.isPeriphery()) {
 			distance = BORDER_RANGE_NEAR_PERIPHERY;
 		}
-		for (String planetKey : Planets.getNearbyPlanets(p, distance)) {
-			for (Faction f2 : Planets.getInstance().getPlanets().
-						get(planetKey).getCurrentFactions(lastUpdate)) {
+		for (Star star : Planets.getNearbyStars(p, distance)) {
+			for (Faction f2 : star.getCurrentFactions(lastUpdate)) {
 				String eName = f2.getShortName();
-				if (eName.equals("ABN") ||
-						eName.equals("UND") ||
-						eName.equals("CLAN") ||
-						eName.equals("NONE")) {
+				if (f2.isEmpty() || eName.equals("CLAN")) {
 					continue;
 				}
 				addBorderEnemy(f.getShortName(), p, eName);
@@ -508,7 +502,7 @@ public class RandomFactionGenerator implements Serializable {
 		final Date FORTRESS_REPUBLIC = new Date (new GregorianCalendar(3135,10,1).getTimeInMillis());
 
 		if (borders.get(fName) == null) {
-			borders.put(fName, new HashMap<String, HashSet<Planet>>());
+			borders.put(fName, new HashMap<String, Set<Planet>>());
 			borders.get(fName).put("REB", new HashSet<Planet>());
 			borders.get(fName).put("PIR", new HashSet<Planet>());
 		}
@@ -524,7 +518,7 @@ public class RandomFactionGenerator implements Serializable {
 			/* Locate pirate activity primarily along borders */
 			borders.get(fName).get("PIR").add(p);
 			if (borders.get("PIR") == null) {
-				borders.put("PIR", new HashMap<String, HashSet<Planet>>());
+				borders.put("PIR", new HashMap<String, Set<Planet>>());
 			}
 			if (borders.get("PIR").get(fName) == null) {
 				borders.get("PIR").put(fName, new HashSet<Planet>());
@@ -558,7 +552,7 @@ public class RandomFactionGenerator implements Serializable {
 		}
 	}
 	
-	public TreeSet<String> getCurrentFactions() {
+	public Set<String> getCurrentFactions() {
 		return currentFactions;
 	}
 	
@@ -651,7 +645,7 @@ public class RandomFactionGenerator implements Serializable {
 				(hintApplies(alliances, f, enemy, date) ||
 						(date.before(tukayyid) &&
 								borders.get(f).get(enemy) != null &&
-								borders.get(f).get(enemy).iterator().next().getY() < 600))) {
+								borders.get(f).get(enemy).iterator().next().getStar().getY() < 600))) {
 			/* Treat invading Clans as allies in the Inner Sphere */
 			count /= 4.0;
 		}
@@ -672,20 +666,20 @@ public class RandomFactionGenerator implements Serializable {
 	}
 	
 	public String getMissionTarget(String attacker, String defender, Date date) {
-		ArrayList<Planet> planetList = getMissionTargetList(attacker, defender, date);
+		List<Planet> planetList = getMissionTargetList(attacker, defender, date);
 		if (planetList.size() > 0) {
-			return planetList.get(Compute.randomInt(planetList.size())).getName();
+			return planetList.get(Compute.randomInt(planetList.size())).getName(date);
 		}
 		return null;
 	}
 	
-	public ArrayList<Planet> getMissionTargetList(String attacker, String defender, Date date) {
-		ArrayList<Planet> planetList = new ArrayList<Planet>();
+	public List<Planet> getMissionTargetList(String attacker, String defender, Date date) {
+		List<Planet> planetList = new ArrayList<Planet>();
 		int maxJumps = 3;
 		if (deepPeriphery.contains(attacker) || deepPeriphery.contains(defender)) {
 			maxJumps = 8;
 		}
-		HashSet<Planet> border = null;		
+		Set<Planet> border = null;		
 		if (borders.get(attacker) != null && borders.get(attacker).get(defender) != null) {
 			border = borders.get(attacker).get(defender);
 		} else {
@@ -714,13 +708,14 @@ public class RandomFactionGenerator implements Serializable {
 		}
 		if (border != null) {
 			for (Planet startingPlanet : border) {
-				for (String planetKey : Planets.getNearbyPlanets(startingPlanet, maxJumps * 30)) {
-					Planet p = Planets.getInstance().getPlanets().get(planetKey);
-					for (Faction f : p.getCurrentFactions(date)) {
-						if (f.getShortName().equals(defender) ||
-								defender.equals("PIR") ||
-								(f.getShortName().equals(attacker) && defender.equals("REB"))) {
-							planetList.add(p);
+				for (Star s : Planets.getNearbyStars(startingPlanet, maxJumps * 30)) {
+					for( Planet p : s.getPlanets() ) {
+						for (Faction f : p.getCurrentFactions(date)) {
+							if (f.getShortName().equals(defender) ||
+									defender.equals("PIR") ||
+									(f.getShortName().equals(attacker) && defender.equals("REB"))) {
+								planetList.add(p);
+							}
 						}
 					}
 				}
@@ -764,7 +759,7 @@ public class RandomFactionGenerator implements Serializable {
 		return neutralFactions.contains(faction);
 	}
 	
-	private boolean hintApplies(HashMap<String, HashMap<String, ArrayList<FactionHint>>> hints,
+	private boolean hintApplies(Map<String, Map<String, List<FactionHint>>> hints,
 				String f1, String f2, Date date) {
 		if (hints.get(f1) != null && hints.get(f1).get(f2) != null) {
 			for (FactionHint fh : hints.get(f1).get(f2)) {
@@ -834,11 +829,11 @@ public class RandomFactionGenerator implements Serializable {
 		return false;
 	}
 	
-	class FactionHint {
-		/**
-		 * Each participant in a war or an alliance has one instance
-		 * of this class for each of the other factions involved.
-		 */
+	/**
+	 * Each participant in a war or an alliance has one instance
+	 * of this class for each of the other factions involved.
+	 */
+	static class FactionHint {
 		public String name;
 		public Date start;
 		public Date end;
@@ -850,7 +845,7 @@ public class RandomFactionGenerator implements Serializable {
 		}
 	}
 
-	class AltLocation extends FactionHint {
+	static class AltLocation extends FactionHint {
 		public double fraction;
 		public ArrayList<String> opponents;
 			

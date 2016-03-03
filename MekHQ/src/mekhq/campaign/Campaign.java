@@ -155,6 +155,8 @@ import mekhq.campaign.universe.NewsItem;
 import mekhq.campaign.universe.Planet;
 import mekhq.campaign.universe.Planets;
 import mekhq.campaign.universe.RandomFactionGenerator;
+import mekhq.campaign.universe.SpaceLocation;
+import mekhq.campaign.universe.Star;
 import mekhq.campaign.universe.UnitTableData;
 import mekhq.campaign.work.IAcquisitionWork;
 import mekhq.campaign.work.IMedicalWork;
@@ -289,8 +291,7 @@ public class Campaign implements Serializable {
         lastForceId++;
         lances = new Hashtable<Integer, Lance>();
         finances = new Finances();
-        location = new CurrentLocation(Planets.getInstance().getPlanets()
-                                              .get("Outreach"), 0);
+        location = new CurrentLocation(Planets.getInstance().getPlanetById("Outreach"), 0);
         SkillType.initializeTypes();
         SpecialAbility.initializeSPA();
         astechPool = 0;
@@ -382,11 +383,12 @@ public class Campaign implements Serializable {
     }
 
     public String getCurrentPlanetName() {
-        return location.getCurrentPlanet().getShortName();
+    	return location.isOnPlanet() ?
+    			"TODO: Something something planet name" : location.getCurrentLocation().getDesc(getDate());
     }
 
-    public Planet getCurrentPlanet() {
-        return location.getCurrentPlanet();
+    public SpaceLocation getCurrentPlanet() {
+        return location.getCurrentLocation();
     }
 
     public long getFunds() {
@@ -2001,7 +2003,7 @@ public class Campaign implements Serializable {
             	 */
 
             	RandomFactionGenerator.getInstance().updateTables(calendar.getTime(),
-            			location.getCurrentPlanet(), campaignOptions);
+            			location.getCurrentLocation(), campaignOptions);
                 IUnitRating rating = UnitRatingFactory.getUnitRating(this);
                 rating.reInitialize();
 
@@ -2887,7 +2889,7 @@ public class Campaign implements Serializable {
             }
             RandomNameGenerator.getInstance();
 			RandomFactionGenerator.getInstance().updateTables(getDate(),
-					location.getCurrentPlanet(), getCampaignOptions());
+					location.getCurrentLocation(), getCampaignOptions());
 		}
     }
 
@@ -4298,7 +4300,7 @@ public class Campaign implements Serializable {
     }
 
     private static void processCustom(Campaign retVal, Node wn) {
-        String sCustomsDir = "data" + File.separator + "mechfiles"
+        String sCustomsDir = MekHQ.getPreference(MekHQ.DATA_DIR) + File.separator + "mechfiles"
                              + File.separator + "customs";
         String sCustomsDirCampaign = sCustomsDir + File.separator + retVal.getName();
         File customsDir = new File(sCustomsDir);
@@ -4673,13 +4675,7 @@ public class Campaign implements Serializable {
                         }
                     }
                 } else if (xn.equalsIgnoreCase("faction")) {
-                    if (version.getMajorVersion() == 0
-                        && version.getMinorVersion() < 2
-                        && version.getSnapshot() < 14) {
-                        retVal.factionCode = Faction.getFactionCode(Integer.parseInt(wn.getTextContent()));
-                    } else {
-                        retVal.factionCode = wn.getTextContent();
-                    }
+                    retVal.factionCode = wn.getTextContent();
                 } else if (xn.equalsIgnoreCase("retainerEmployerCode")) {
                 	retVal.retainerEmployerCode = wn.getTextContent();
                 } else if (xn.equalsIgnoreCase("officerCut")) {
@@ -4773,24 +4769,28 @@ public class Campaign implements Serializable {
         }
     }
 
-    public ArrayList<Planet> getPlanets() {
-        ArrayList<Planet> plnts = new ArrayList<Planet>();
-        for (String key : Planets.getInstance().getPlanets().keySet()) {
-            plnts.add(Planets.getInstance().getPlanets().get(key));
+	public List<Star> getStars() {
+		return new ArrayList<Star>(Planets.getInstance().getStars().values());
+	}
+	
+    public List<Planet> getPlanets() {
+    	List<Planet> planets = new ArrayList<Planet>();
+        for (Star star : Planets.getInstance().getStars().values()) {
+            planets.addAll(star.getPlanets());
         }
-        return plnts;
+        return planets;
     }
 
-    public Vector<String> getPlanetNames() {
-        Vector<String> plntNames = new Vector<String>();
-        for (String key : Planets.getInstance().getPlanets().keySet()) {
-            plntNames.add(key);
+    public Vector<String> getStarIds() {
+        Vector<String> starIds = new Vector<String>();
+        for (String id : Planets.getInstance().getStars().keySet()) {
+            starIds.add(id);
         }
-        return plntNames;
+        return starIds;
     }
 
-    public Planet getPlanet(String name) {
-        return Planets.getInstance().getPlanets().get(name);
+    public Planet getPlanet(String id) {
+        return Planets.getInstance().getPlanetById(id);
     }
 
     /**
@@ -5254,68 +5254,115 @@ public class Campaign implements Serializable {
      * @param endKey
      * @return
      */
-    public JumpPath calculateJumpPath(String startKey, String endKey) {
+    public JumpPath calculateJumpPath(SpaceLocation start, SpaceLocation finish) {
 
-        if (startKey.equals(endKey)) {
+        if (start.equals(finish)) {
             JumpPath jpath = new JumpPath();
-            jpath.addPlanet(getPlanet(startKey));
+            jpath.addLocation(start);
             return jpath;
         }
 
-        String current = startKey;
-        ArrayList<String> closed = new ArrayList<String>();
-        ArrayList<String> open = new ArrayList<String>();
+        SpaceLocation current = start;
+        ArrayList<SpaceLocation> closed = new ArrayList<SpaceLocation>();
+        ArrayList<SpaceLocation> open = new ArrayList<SpaceLocation>();
         boolean found = false;
         int jumps = 0;
 
-        Planet end = Planets.getInstance().getPlanets().get(endKey);
+        SpaceLocation end = finish;
 
         // we are going to through and set up some hashes that will make our
         // work easier
         // hash of parent key
-        Hashtable<String, String> parent = new Hashtable<String, String>();
+        Hashtable<SpaceLocation, SpaceLocation> parent = new Hashtable<SpaceLocation, SpaceLocation>();
         // hash of H for each planet which will not change
-        Hashtable<String, Double> scoreH = new Hashtable<String, Double>();
+        Hashtable<Star, Double> scoreH = new Hashtable<Star, Double>();
         // hash of G for each planet which might change
-        Hashtable<String, Integer> scoreG = new Hashtable<String, Integer>();
+        Hashtable<SpaceLocation, Double> scoreG = new Hashtable<SpaceLocation, Double>();
 
-        for (String key : Planets.getInstance().getPlanets().keySet()) {
-            scoreH.put(
-                    key,
-                    end.getDistanceTo(Planets.getInstance().getPlanets()
-                                             .get(key)));
+        for (Star star : Planets.getInstance().getStars().values()) {
+        	// Estimate the number of jumps, then multiply by 176 (minimum safe recharge time + jump time)
+            scoreH.put(star, end.getStar().getDistanceTo(star) / 25.0 * 176);
         }
-        scoreG.put(current, 0);
+        scoreG.put(current, 0.0);
         closed.add(current);
 
         while (!found && jumps < 10000) {
-            jumps++;
-            int currentG = scoreG.get(current) + 1;
-            ArrayList<String> neighborKeys = Planets.getNearbyPlanets(Planets
-            		.getInstance().getPlanets().get(current), 30);
-            for (String neighborKey : neighborKeys) {
-                if (closed.contains(neighborKey)) {
-                    continue;
-                } else if (open.contains(neighborKey)) {
-                    // is the current G better than the existing G
-                    if (currentG < scoreG.get(neighborKey)) {
-                        // then change G and parent
-                        scoreG.put(neighborKey, currentG);
-                        parent.put(neighborKey, current);
-                    }
-                } else {
-                    // put the current G for this one in memory
-                    scoreG.put(neighborKey, currentG);
-                    // put the parent in memory
-                    parent.put(neighborKey, current);
-                    open.add(neighborKey);
+        	if( !current.getStar().equals(finish.getStar()) && current.isJumpPoint() ) {
+        		// Our target is not in the same system - we should try to jump
+                jumps++;
+                // TODO: Factor in paths through recharge stations
+                // and batteries by keeping track of recharge state
+                double rechargeTime = current.getRechargeTime();
+                double currentG = scoreG.get(current) + rechargeTime + 1;
+                ArrayList<Star> neighborKeys = Planets.getNearbyStars(current.getStar(), 30);
+                for (Star neighborKey : neighborKeys) {
+                	SpaceLocation nadirJumpPoint = neighborKey.getJumpPoint(true);
+                	SpaceLocation zenithJumpPoint = neighborKey.getJumpPoint(false);
+                	
+                	if( current.canJumpTo(nadirJumpPoint) ) {
+	                	if( open.contains(nadirJumpPoint) ) {
+	                        // is the current G better than the existing G
+	                        if (currentG < scoreG.get(nadirJumpPoint)) {
+	                            // then change G and parent
+	                            scoreG.put(nadirJumpPoint, currentG);
+	                            parent.put(nadirJumpPoint, current);
+	                        }
+	                	} else if( !closed.contains(nadirJumpPoint) ) {
+	                        // put the current G for this one in memory
+	                        scoreG.put(nadirJumpPoint, currentG);
+	                        // put the parent in memory
+	                        parent.put(nadirJumpPoint, current);
+	                        open.add(nadirJumpPoint);
+	                	}
+                	}
+                	
+                	if( current.canJumpTo(zenithJumpPoint) ) {
+	                	if( open.contains(zenithJumpPoint) ) {
+	                        // is the current G better than the existing G
+	                        if (currentG < scoreG.get(zenithJumpPoint)) {
+	                            // then change G and parent
+	                            scoreG.put(zenithJumpPoint, currentG);
+	                            parent.put(zenithJumpPoint, current);
+	                        }
+	                	} else if( !closed.contains(zenithJumpPoint) ) {
+	                        // put the current G for this one in memory
+	                        scoreG.put(zenithJumpPoint, currentG);
+	                        // put the parent in memory
+	                        parent.put(zenithJumpPoint, current);
+	                        open.add(zenithJumpPoint);
+	                	}
+                	}
                 }
-            }
-            String bestMatch = null;
+        	} else {
+        		// We're in the same system or not at a jump point.
+        		// Add all the available routes within the system.
+        		for( SpaceLocation neighbor : current.getStar().getAllLocations() ) {
+        			if( current.equals(neighbor) || closed.contains(neighbor) ) {
+        				continue;
+        			}
+        			double currentG = scoreG.get(current) + current.getTravelTimeTo(neighbor);
+        			if( open.contains(neighbor) ) {
+                        // is the current G better than the existing G
+                        if (currentG < scoreG.get(neighbor)) {
+                            // then change G and parent
+                            scoreG.put(neighbor, currentG);
+                            parent.put(neighbor, current);
+                        }
+        			} else {
+                        // put the current G for this one in memory
+                        scoreG.put(neighbor, currentG);
+                        // put the parent in memory
+                        parent.put(neighbor, current);
+                        open.add(neighbor);
+        			}
+        		}
+        	}
+            SpaceLocation bestMatch = null;
             double bestF = Integer.MAX_VALUE;
-            for (String possible : open) {
+            for (SpaceLocation possible : open) {
                 // calculate F
-                double currentF = scoreG.get(possible) + scoreH.get(possible);
+            	// (known score to the possible candidate + time cost of jumps from there to finish)
+                double currentF = scoreG.get(possible) + scoreH.get(possible.getStar());
                 if (currentF < bestF) {
                     bestMatch = possible;
                     bestF = currentF;
@@ -5324,30 +5371,30 @@ public class Campaign implements Serializable {
             current = bestMatch;
             closed.add(current);
             open.remove(current);
-            if (current.equals(endKey)) {
+            if (current.equals(finish)) {
                 found = true;
             }
         }
         // now we just need to back up from the last current by parents until we
         // hit null
-        ArrayList<Planet> path = new ArrayList<Planet>();
-        String nextKey = current;
+        ArrayList<SpaceLocation> path = new ArrayList<SpaceLocation>();
+        SpaceLocation nextKey = current;
         while (null != nextKey) {
-            path.add(Planets.getInstance().getPlanets().get(nextKey));
+            path.add(nextKey);
             // MekHQApp.logMessage(nextKey);
             nextKey = parent.get(nextKey);
 
         }
-        // now reverse the direaction
+        // now reverse the direction
         JumpPath finalPath = new JumpPath();
         for (int i = (path.size() - 1); i >= 0; i--) {
-            finalPath.addPlanet(path.get(i));
+            finalPath.addLocation(path.get(i));
         }
         return finalPath;
     }
 
-    public ArrayList<String> getAllReachablePlanetsFrom(Planet planet) {
-        return Planets.getNearbyPlanets(planet, 30);
+    public ArrayList<Star> getAllReachableStarsFrom(Planet planet) {
+        return Planets.getNearbyStars(planet, 30);
     }
 
     /**
@@ -6269,13 +6316,12 @@ public class Campaign implements Serializable {
     }
 
     public void setStartingPlanet() {
-    	Hashtable<String, Planet> planetList = Planets.getInstance().getPlanets();
-        Planet startingPlanet = planetList.get(getFaction().getStartingPlanet(getEra()));
+    	Planet startingPlanet = Planets.getInstance().getPlanetById(getFaction().getStartingPlanet(getEra()));
 
         if (startingPlanet == null) {
-        	startingPlanet = planetList.get(JOptionPane.showInputDialog("This faction does not have a starting planet for this era. Please choose a planet."));
+        	startingPlanet = Planets.getInstance().getPlanetById(JOptionPane.showInputDialog("This faction does not have a starting planet for this era. Please choose a planet."));
         	while (startingPlanet == null) {
-        		startingPlanet = planetList.get(JOptionPane.showInputDialog("This planet you entered does not exist. Please choose a valid planet."));
+        		startingPlanet = Planets.getInstance().getPlanetById(JOptionPane.showInputDialog("This planet you entered does not exist. Please choose a valid planet."));
         	}
         }
         location = new CurrentLocation(startingPlanet, 0);
@@ -6298,7 +6344,7 @@ public class Campaign implements Serializable {
         DirectoryItems portraits;
         try {
             portraits = new DirectoryItems(
-                    new File("data/images/portraits"), "", //$NON-NLS-1$ //$NON-NLS-2$
+                    new File(MekHQ.getPreference(MekHQ.DATA_DIR) + "/images/portraits"), "", //$NON-NLS-1$ //$NON-NLS-2$
                     PortraitFileFactory.getInstance());
         } catch (Exception e) {
             return;
@@ -8023,7 +8069,7 @@ public class Campaign implements Serializable {
     	addAllLances(this.forces);
     	atbConfig = AtBConfiguration.loadFromXml();
     	RandomFactionGenerator.getInstance().updateTables(calendar.getTime(),
-    			location.getCurrentPlanet(), campaignOptions);
+    			location.getCurrentLocation(), campaignOptions);
     }
 
     public boolean checkOverDueLoans() {

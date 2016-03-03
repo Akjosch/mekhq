@@ -14,7 +14,7 @@ import javax.swing.BorderFactory;
 
 import mekhq.campaign.Campaign;
 import mekhq.campaign.JumpPath;
-import mekhq.campaign.universe.Planet;
+import mekhq.campaign.universe.SpaceLocation;
 
 /**
  * A custom panel that gets filled in with goodies from a JumpPath record
@@ -97,8 +97,12 @@ public class JumpPathViewPanel extends javax.swing.JPanel {
 		pnlPath.setLayout(new java.awt.GridBagLayout());
 		int i = 0;
 		javax.swing.JLabel lblPlanet;
-		for(Planet planet : path.getPlanets()) {
-			lblPlanet = new javax.swing.JLabel(planet.getShortName() + " (" + planet.getRechargeTime() + " hours)");
+		for(SpaceLocation planet : path.getPlanets()) {
+			if( Double.isInfinite(planet.getRechargeTime()) ) {
+				lblPlanet = new javax.swing.JLabel(planet.getDesc(campaign.getDate()));
+			} else {
+				lblPlanet = new javax.swing.JLabel(planet.getDesc(campaign.getDate()) + " (" + planet.getRechargeTime() + " hours)");
+			}
 			gridBagConstraints = new java.awt.GridBagConstraints();
 			gridBagConstraints.gridx = 0;
 			gridBagConstraints.gridy = i;
@@ -133,8 +137,8 @@ public class JumpPathViewPanel extends javax.swing.JPanel {
     	lblCost = new javax.swing.JLabel();
     	txtCost = new javax.swing.JTextArea();
     	
-    	String startName = (path.getFirstPlanet() == null) ? "?":path.getFirstPlanet().getShortName();
-    	String endName = (path.getLastPlanet() == null) ? "?":path.getLastPlanet().getShortName();
+    	String startName = (path.getFirstPlanet() == null) ? "?":path.getFirstPlanet().getDesc(campaign.getDate());
+    	String endName = (path.getLastPlanet() == null) ? "?":path.getLastPlanet().getDesc(campaign.getDate());
     	
     	java.awt.GridBagConstraints gridBagConstraints;
 		pnlStats.setLayout(new java.awt.GridBagLayout());
@@ -174,7 +178,7 @@ public class JumpPathViewPanel extends javax.swing.JPanel {
 		pnlStats.add(lblTimeStart, gridBagConstraints);
 		
 		txtTimeStart.setName("lblTimeStart2"); // NOI18N
-		txtTimeStart.setText(Math.round(path.getStartTime(campaign.getLocation().getTransitTime())*100.0)/100.0 + " days from "+ startName + " to jump point");
+		txtTimeStart.setText(Math.round((path.getStartTime() - campaign.getLocation().getTransitTime())*100.0/24.0)/100.0 + " days from "+ startName + " to jump point");
 		txtTimeStart.setEditable(false);
 		txtTimeStart.setLineWrap(true);
 		txtTimeStart.setWrapStyleWord(true);
@@ -197,7 +201,7 @@ public class JumpPathViewPanel extends javax.swing.JPanel {
 		pnlStats.add(lblTimeEnd, gridBagConstraints);
 		
 		txtTimeEnd.setName("lblTimeEnd2"); // NOI18N
-		txtTimeEnd.setText(Math.round(path.getEndTime()*100.0)/100.0 + " days from final jump point to " + endName);
+		txtTimeEnd.setText(Math.round(path.getEndTime()*100.0/24.0)/100.0 + " days from final jump point to " + endName);
 		txtTimeEnd.setEditable(false);
 		txtTimeEnd.setLineWrap(true);
 		txtTimeEnd.setWrapStyleWord(true);

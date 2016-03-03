@@ -322,7 +322,7 @@ public class ContractSummaryPanel extends JPanel {
 		gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
 		mainPanel.add(txtLocation, gridBagConstraints);
 
-		if(Planets.getInstance().getPlanets().get(contract.getPlanetName()) != null) {
+		if(contract.getPlanet() != null) {
 			lblDistance.setName("lblDistance"); // NOI18N
 			lblDistance.setText(resourceMap.getString("lblDistance.text"));
 			gridBagConstraints = new java.awt.GridBagConstraints();
@@ -333,7 +333,7 @@ public class ContractSummaryPanel extends JPanel {
 			mainPanel.add(lblDistance, gridBagConstraints);
 
 			txtDistance.setName("txtDistance"); // NOI18N
-			JumpPath path = campaign.calculateJumpPath(campaign.getCurrentPlanetName(), contract.getPlanetName());
+			JumpPath path = campaign.calculateJumpPath(campaign.getCurrentPlanet(), contract.getPlanet().getPointOnSurface());
 			int days = (int)Math.ceil((path).getTotalTime(campaign.getLocation().getTransitTime()));
 			int jumps = path.getJumps();
 			if (campaign.getCurrentPlanetName().equals(contract.getPlanetName())

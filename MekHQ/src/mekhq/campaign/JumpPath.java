@@ -24,13 +24,23 @@ package mekhq.campaign;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import mekhq.MekHQ;
-import mekhq.MekHqXmlUtil;
-import mekhq.campaign.universe.Planet;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+
+import mekhq.MekHQ;
+import mekhq.adapters.SpaceLocationAdapter;
+import mekhq.campaign.universe.Planet;
+import mekhq.campaign.universe.SpaceLocation;
+import mekhq.campaign.universe.Star;
 
 /**
  * This is an array list of planets for a jump path, from which we can derive
@@ -41,151 +51,371 @@ import org.w3c.dom.NodeList;
  * 
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
+@XmlRootElement(name="jumpPath")
 public class JumpPath implements Serializable {
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 708430867050359759L;
-	private ArrayList<Planet> path;
+	@XmlElement(name="start")
+	@XmlJavaTypeAdapter(SpaceLocationAdapter.class)
+	private SpaceLocation start;
+	@XmlElement(name="loc")
+	private List<Edge> path;
 	
 	public JumpPath() {
-		path = new ArrayList<Planet>();
+		path = new ArrayList<Edge>();
+		start = null;
 	}
 	
-	public JumpPath(ArrayList<Planet> p) {
-		path = p;
+	public JumpPath(List<Edge> p) {
+		path = new ArrayList<Edge>(p);
+		start = !path.isEmpty() ? path.get(0).source : null;
 	}
 	
-	public ArrayList<Planet> getPlanets() {
-		return path;
+	public List<SpaceLocation> getPlanets() {
+		List<SpaceLocation> result = new ArrayList<SpaceLocation>(path.size());
+		if( path.isEmpty() ) {
+			return result;
+		}
+		result.add(start);
+		for( Edge n : path ) {
+			result.add(n.target);
+		}
+		return result;
 	}
 	
 	public boolean isEmpty() {
 		return path.isEmpty();
 	}
 	
-	public Planet getFirstPlanet() {
+	public SpaceLocation getFirstPlanet() {
+		return start;
+	}
+	
+	public SpaceLocation getLastPlanet() {
 		if(path.isEmpty()) {
-			return null;
+			return start;
 		} else {
-			return path.get(0);
+			return path.get(path.size() - 1).target;
 		}
 	}
 	
-	public Planet getLastPlanet() {
-		if(path.isEmpty()) {
-			return null;
-		} else {
-			return path.get(path.size() - 1);
-		}
+	/** @return a copy of the edges specified in this path */
+	public List<Edge> getEdges() {
+		return new ArrayList<Edge>(path);
 	}
 	
-	public double getStartTime(double currentTransit) {
-		double startTime = 0.0;
-		if(null != getFirstPlanet()) {
-			startTime = getFirstPlanet().getTimeToJumpPoint(1.0);
+	/** @return the last jump point in the path */
+	public SpaceLocation getLastJumpPoint() {
+		if( path.isEmpty() ) {
+			return start.isJumpPoint() ? start : null;
 		}
-		return startTime - currentTransit;
-	}
-	
-	public double getEndTime() {
-		double endTime = 0.0;
-		if(null != getLastPlanet()) {
-			endTime = getLastPlanet().getTimeToJumpPoint(1.0);
-		}
-		return endTime;
-	}
-	
-	public double getTotalRechargeTime() {
-		int rechargeTime = 0;
-		for(Planet planet : path) {
-			if(planet.equals(getFirstPlanet())) {
-				continue;
+		for( int i = path.size() - 1; i >= 0; -- i ) {
+			SpaceLocation loc = path.get(i).target;
+			if( loc.isJumpPoint() ) {
+				return loc;
 			}
-			if(planet.equals(getLastPlanet())) {
-				continue;
-			}
-			rechargeTime += planet.getRechargeTime();
 		}
-		return rechargeTime/24.0;
+		return start.isJumpPoint() ? start : null;
+	}
+	
+	/**
+	 * Remove all the edges going past the last jump point.
+	 * This can leave the path empty if it doesn't go past any jump points.
+	 */
+	public void removeEverythingPastLastJumpPoint() {
+		for( int i = path.size() - 1; i >= 0; -- i ) {
+			SpaceLocation loc = path.get(i).target;
+			if( !loc.isJumpPoint() ) {
+				path.remove(i);
+			}
+		}
+		if( path.isEmpty() ) {
+			if( !start.isJumpPoint() ) {
+				start = null;
+			}
+		}
+		return;
 	}
 
+	/** @return the final recharge amount after the last edge */
+	public double getFinalRechargeAmount() {
+		if( path.isEmpty() ) {
+			return 0.0;
+		}
+		return path.get(path.size() - 1).rechargeAmount;
+	}
+	
+	/** @return the amount of time for the first path element, in hours, if it's a regular transit */
+	public double getStartTime() {
+		if( !path.isEmpty() ) {
+			Edge firstEdge = path.get(0);
+			return firstEdge.type == EdgeType.TRAVEL
+					? firstEdge.source.getTravelTimeTo(firstEdge.target) : 0.0;
+		}
+		return 0.0;
+	}
+	
+	/** @return the amount of time for the last path element, in hours, if it's a regular transit */
+	public double getEndTime() {
+		if( !path.isEmpty() ) {
+			Edge lastEdge = path.get(path.size() - 1);
+			return lastEdge.type == EdgeType.TRAVEL
+					? lastEdge.source.getTravelTimeTo(lastEdge.target) : 0.0;
+		}
+		return 0.0;
+	}
+	
+	/** @return total recharge time needed in terran days */
+	public double getTotalRechargeTime() {
+		double rechargeTime = 0;
+		for( Edge e : path ) {
+			if( e.type == EdgeType.RECHARGE ) {
+				rechargeTime += e.source.getRechargeTime();
+			}
+		}
+		return rechargeTime / 24.0;
+	}
+
+	/** @return amount of jumps needed for this path */
 	public int getJumps() {
-		return size()-1;
+		int jumps = 0;
+		for( Edge e : path ) {
+			if( e.type == EdgeType.JUMP ) {
+				++ jumps;
+			}
+		}
+		return jumps;
 	}
 	
+	/** @return total travel time in terran days */
 	public double getTotalTime(double currentTransit) {	
-		return getTotalRechargeTime() + getStartTime(currentTransit) + getEndTime();
+		double totalTime = 0;
+		for( Edge e : path ) {
+			switch( e.type ) {
+				case TRAVEL:
+					totalTime += e.source.getTravelTimeTo(e.target);
+					break;
+				case RECHARGE:
+					totalTime += e.source.getRechargeTime();
+					break;
+				case JUMP:
+					// TODO - make the jump time dependent on the skill level of the crew
+					totalTime += 1.0;
+					break;
+				default:
+					// Nothing to do here yet
+			}
+		}
+		return totalTime / 24.0;
 	}
 	
-	public void addPlanet(Planet p) {
-		path.add(p);
+	/** Add a location on the surface of the planet */
+	public boolean addLocation(Planet p) {
+		return addLocation(p.getPointOnSurface());
 	}
 	
+	/** Add one of the jump points of the given star */
+	public boolean addLocation(Star s) {
+		return addLocation(s.getPreferredJumpPoint());
+	}
+
+	/** Add a location to the end of the path. Includes a recharge action as necessary. */
+	public boolean addLocation(SpaceLocation l) {
+		if( null == l ) {
+			return false;
+		}
+		if( null == start ) {
+			start = l;
+			return true;
+		}
+		SpaceLocation lastPoint = getLastPlanet();
+		if( lastPoint.equals(l) ) {
+			// Why?
+			return false;
+		}
+		if( lastPoint.inSameSystemAs(l) ) {
+			// Traditional transfer
+			path.add(Edge.createTransfer(lastPoint, l, getFinalRechargeAmount()));
+			return true;
+		}
+		// Else try a jump
+		boolean rechargeNeeded = (getFinalRechargeAmount() <= 1.0);
+		Edge rechargeEdge = null;
+		if( rechargeNeeded ) {
+			rechargeEdge = Edge.createRecharge(getLastPlanet());
+			if( null == rechargeEdge ) {
+				return false;
+			}
+		}
+		Edge jumpEdge = Edge.createJump(getLastPlanet(), l);
+		if( null != jumpEdge && (null != rechargeEdge || !rechargeNeeded) ) {
+			if( rechargeNeeded ) {
+				path.add(rechargeEdge);
+			}
+			path.add(jumpEdge);
+			return true;
+		}
+		return false;
+	}
+	
+	/*
 	public void addPlanets(ArrayList<Planet> planets) {
 		path.addAll(planets);
+	}
+	*/
+	
+	/**
+	 * Append this path to the current one. If the start and end locations don't math, try
+	 * to insert a simple edge between them.
+	 * <p>
+	 * No validation of the appended path is being made.
+	 * 
+	 * @return true if the path was successfully appended, false otherwise.
+	 */
+	public boolean appendPath(JumpPath other) {
+		// If we're empty, just replace
+		if( null == start ) {
+			start = other.start;
+			path = new ArrayList<Edge>(other.path);
+			return true;
+		}
+		// Else, try to stitch it together
+		if( !getLastPlanet().equals(other.start) ) {
+			if( !addLocation(other.start) ) {
+				return false;
+			}
+		}
+		path.addAll(other.path);
+		return true;
 	}
 	
 	public void removeFirstPlanet() {
 		if(!path.isEmpty()) {
+			start = path.get(0).target;
 			path.remove(0);
+		} else {
+			start = null;
 		}
 	}
 	
+	/** @return the amount of path edges */
 	public int size() {
 		return path.size();
 	}
 	
-	public Planet get(int i) {
-		if(i >= size()) {
+	/** @return the space location at a given index, from 0 to size() */
+	public SpaceLocation get(int i) {
+		if( i < 0 || i > path.size() ) {
 			return null;
+		} else if( i == 0 ) {
+			return start;
 		} else {
-			return path.get(i);
+			return path.get(i - 1).target;
 		}
 	}
 	
-	public boolean contains(Planet planet) {
-		return path.contains(planet);
+	public boolean isFirstEdgeType(EdgeType type) {
+		if( path.isEmpty() ) {
+			return false;
+		}
+		return path.get(0).type == type;
+	}
+
+	public boolean contains(Star star) {
+		if( null == star ) {
+			return false;
+		}
+		for( Edge e : path ) {
+			if( star.equals(e.target.getStar()) ) {
+				return true;
+			}
+		}
+		return star.equals(start.getStar());
 	}
 	
 	public void writeToXml(PrintWriter pw1, int indent) {
-		pw1.println(MekHqXmlUtil.indentStr(indent) + "<jumpPath>");
-		for(Planet p : path) {
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<planetName>"
-				+MekHqXmlUtil.escape(p.getName())
-				+"</planetName>");
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(JumpPath.class, JumpPath.Edge.class, SpaceLocation.class);
+			Marshaller marshaller = jaxbContext.createMarshaller();
+			marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
+			marshaller.marshal(this, pw1);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		pw1.println(MekHqXmlUtil.indentStr(indent) + "</jumpPath>");
-		
 	}
 	
 	public static JumpPath generateInstanceFromXML(Node wn, Campaign c) {
-		JumpPath retVal = null;
-		
 		try {		
-			retVal = new JumpPath();
-			NodeList nl = wn.getChildNodes();
-			
-			for (int x=0; x<nl.getLength(); x++) {
-				Node wn2 = nl.item(x);
-				if (wn2.getNodeName().equalsIgnoreCase("planetName")) {
-					Planet p = c.getPlanet(wn2.getTextContent());
-					if(null != p) {
-						retVal.addPlanet(p);
-					} else {
-						MekHQ.logError("Couldn't find planet named " + wn2.getTextContent());
-					}
-				}
-			}
+			JAXBContext jaxbContext = JAXBContext.newInstance(JumpPath.class, JumpPath.Edge.class, SpaceLocation.class);
+			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+			unmarshaller.setProperty("jaxb.fragment", Boolean.TRUE);
+			return unmarshaller.unmarshal(wn, JumpPath.class).getValue();
 		} catch (Exception ex) {
-			// Errrr, apparently either the class name was invalid...
-			// Or the listed name doesn't exist.
-			// Doh!
 			MekHQ.logError(ex);
 		}
-		
-		return retVal;
+		return null;
 	}
+	
+	/**
+	 * A jump path edge, encapsulating data like the source and target location (SpaceLocation),
+	 * the type of edge/mode of travel (conventional burn, jumping, recharging), and possibly more.
+	 */
+	public static final class Edge implements Serializable {
+		private static final long serialVersionUID = -5889539269632520576L;
+		
+		@XmlJavaTypeAdapter(SpaceLocationAdapter.class)
+		public SpaceLocation source;
+		@XmlJavaTypeAdapter(SpaceLocationAdapter.class)
+		public SpaceLocation target;
+		public double rechargeAmount = 0.0;
+		public EdgeType type;
+
+		public static Edge createJump(SpaceLocation start, SpaceLocation end) {
+			if( null != start && null != end && start.canJumpTo(end) ) {
+				return new Edge(start, end, EdgeType.JUMP, 0.0);
+			}
+			return null;
+		}
+		
+		public static Edge createRecharge(SpaceLocation at) {
+			if( null != at && !Double.isInfinite(at.getRechargeTime()) ) {
+				return new Edge(at, at, EdgeType.RECHARGE, 1.0);
+			}
+			return null;
+		}
+		
+		public static Edge createTransfer(SpaceLocation start, SpaceLocation end, double currentRechargeAmount) {
+			if( null != start && null != end && start.inSameSystemAs(end) ) {
+				return new Edge(start, end, EdgeType.TRAVEL, currentRechargeAmount);
+			}
+			return null;
+		}
+
+		private Edge(SpaceLocation source, SpaceLocation target, EdgeType type, double rechargeAmount) {
+			this.source = source;
+			this.target = target;
+			this.type = type;
+			this.rechargeAmount = rechargeAmount;
+		}
+	
+		/** @return human-readable description */
+		public String getDesc(Date when) {
+			switch(type) {
+				case TRAVEL:
+					return "Travelling from (" + source.getDesc(when) + ") to (" + target.getDesc(when) + "), "
+							+ "default travel time " + (source.getTravelTimeTo(target) / 24) + " days";
+				case RECHARGE:
+					return "Recharging at (" + source.getDesc(when) + ") for " + (source.getRechargeTime()/24) + " days";
+				case JUMP:
+					return "Jumping from (" + source.getDesc(when) + ") to (" + target.getDesc(when) + ")";
+				default:
+					return "Undefined action";
+			}
+		}
+	}
+	
+	public static enum EdgeType {
+		WAIT, TRAVEL, JUMP, RECHARGE;
+	}
+
 }
