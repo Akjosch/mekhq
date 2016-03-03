@@ -47,5 +47,6 @@ public class StarXMLData {
     public Integer numPlanets; // amount of planets
     @XmlElement(name="minorPlanets")
     public Integer numMinorPlanets; // amount of minor planets
-    
+    @XmlElement(name="defaultPlanet")
+    public String defaultPlanetId;
 }

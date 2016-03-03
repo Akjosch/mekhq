@@ -1082,6 +1082,7 @@ public class Star implements Serializable {
 		result.name = data.name;
 		result.shortName = data.shortName;
 		result.id = null != data.id ? data.id : data.name;
+		result.defaultPlanetId = data.defaultPlanetId;
 		result.x = data.xCoord;
 		result.y = data.yCoord;
 		// Spectral classification: use spectralType if available, else the separate values

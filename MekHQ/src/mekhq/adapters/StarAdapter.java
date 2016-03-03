@@ -23,6 +23,7 @@ public class StarAdapter extends XmlAdapter<StarXMLData, Star> {
 		result.id = v.getId();
 		result.name = v.getName(null);
 		result.shortName = v.getShortName(null);
+		result.defaultPlanetId = v.getDefaultPlanetId();
 		result.xCoord = v.getX();
 		result.yCoord = v.getY();
 		result.desc = v.getDescription();
