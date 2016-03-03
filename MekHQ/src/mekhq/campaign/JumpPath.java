@@ -26,6 +26,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -402,15 +403,29 @@ public class JumpPath implements Serializable {
 		public String getDesc(Date when) {
 			switch(type) {
 				case TRAVEL:
-					return "Travelling from (" + source.getDesc(when) + ") to (" + target.getDesc(when) + "), "
+					return "Travelling from " + source.getDesc(when) + ") to " + target.getDesc(when) + ", "
 							+ "default travel time " + (source.getTravelTimeTo(target) / 24) + " days";
 				case RECHARGE:
-					return "Recharging at (" + source.getDesc(when) + ") for " + (source.getRechargeTime()/24) + " days";
+					return "Recharging at " + source.getDesc(when) + " for " + (source.getRechargeTime()/24) + " days";
 				case JUMP:
-					return "Jumping from (" + source.getDesc(when) + ") to (" + target.getDesc(when) + ")";
+					return "Jumping from " + source.getDesc(when) + " to " + target.getDesc(when) + "";
 				default:
 					return "Undefined action";
 			}
+		}
+		
+		/** @return human-readably short description */
+		public String getShortDesc(Date when) {
+			switch(type) {
+			case TRAVEL:
+				return String.format(Locale.ROOT, "To %s (%.0fh)", target.getShortDesc(when), source.getTravelTimeTo(target));
+			case RECHARGE:
+				return String.format(Locale.ROOT, "Recharge at %s (%.0fh)", source.getShortDesc(when), source.getRechargeTime());
+			case JUMP:
+				return String.format(Locale.ROOT, "Jump to %s (1h)", target.getShortDesc(when));
+			default:
+				return "Undefined action";
+		}
 		}
 	}
 	

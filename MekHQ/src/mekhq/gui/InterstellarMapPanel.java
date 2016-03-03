@@ -425,15 +425,15 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
 			Set<Faction> factions = null != defaultPlanet ?
 					defaultPlanet.getCurrentFactions(campaign.getDate()) :
 						Collections.<Faction>singleton(Faction.UNDISCOVERED);
-			int i = 0;
-			for( Faction faction : factions ) {
-				g2.setPaint(faction.getColor());
-				arc.setArcByCenter(x, y, size, 0, 360.0 * (1-((double)i)/factions.size()), Arc2D.PIE);
-				g2.fill(arc);
-				++ i;
+			if( null != factions ) {
+				int i = 0;
+				for( Faction faction : factions ) {
+					g2.setPaint(faction.getColor());
+					arc.setArcByCenter(x, y, size, 0, 360.0 * (1-((double)i)/factions.size()), Arc2D.PIE);
+					g2.fill(arc);
+					++ i;
+				}
 			}
-
-
 		}
 
 		//cycle through planets again and assign names - to make sure names go on outside

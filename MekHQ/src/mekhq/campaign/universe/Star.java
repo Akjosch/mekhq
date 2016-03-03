@@ -373,7 +373,7 @@ public class Star implements Serializable {
 	
 	/** Make sure the default planet ID is set to something, unless we have no planets */
 	private void ensureDefaultPlanetExists(String suggestedPlanetId) {
-		if( null == defaultPlanetId ) {
+		if( null == defaultPlanetId || !planets.contains(defaultPlanetId) ) {
 			if( null != suggestedPlanetId ) {
 				defaultPlanetId = suggestedPlanetId;
 			} else {
@@ -1064,6 +1064,7 @@ public class Star implements Serializable {
 	
 	/** @return the default (default: first defined) planet around this star */
 	public Planet getDefaultPlanet() {
+		ensureDefaultPlanetExists(null);
 		return Planets.getInstance().getPlanetById(defaultPlanetId);
 	}
 	

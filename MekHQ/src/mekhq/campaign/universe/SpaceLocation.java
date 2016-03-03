@@ -93,6 +93,10 @@ public abstract class SpaceLocation {
 		return "lost in space";
 	}
 
+	public String getShortDesc(Date when) {
+		return "lost in space";
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

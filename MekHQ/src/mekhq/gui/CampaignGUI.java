@@ -5020,7 +5020,7 @@ public class CampaignGUI extends JPanel {
         }
         Star planet = panMap.getSelectedStar();
         if (null != planet) {
-            scrollPlanetView.setViewportView(new PlanetViewPanel(planet.getDefaultPlanet(), getCampaign()));
+            scrollPlanetView.setViewportView(new PlanetViewPanel(planet, getCampaign()));
         }
     }
 

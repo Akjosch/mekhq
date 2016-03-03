@@ -8,9 +8,11 @@ import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -56,12 +58,12 @@ public class Planets {
     	return starGrid.get(x).get(y);
     }
     
-    public static ArrayList<Star> getNearbyStars(Planet p, int distance) {
+    public static List<Star> getNearbyStars(Planet p, int distance) {
     	return getNearbyStars(p.getStar(), distance);
     }
     
-    public static ArrayList<Star> getNearbyStars(Star star, int distance) {
-    	ArrayList<Star> neighbors = new ArrayList<Star>();
+    public static List<Star> getNearbyStars(Star star, int distance) {
+    	List<Star> neighbors = new ArrayList<Star>();
     	int gridRadius = (int)Math.ceil(distance / 30.0);
 		int gridX = (int)(star.getX() / 30.0);
 		int gridY = (int)(star.getY() / 30.0);
@@ -77,6 +79,12 @@ public class Planets {
 				}
 			}
 		}
+		Collections.sort(neighbors, new Comparator<Star>() {
+			@Override
+			public int compare(Star o1, Star o2) {
+				return Double.compare(star.getDistanceTo(o1), star.getDistanceTo(o2));
+			}
+		});
 		return neighbors;
     }
 

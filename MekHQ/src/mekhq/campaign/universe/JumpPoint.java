@@ -33,7 +33,7 @@ public class JumpPoint extends ConstantPoint {
 	@Override
 	public double getRechargeTime() {
 		// Standard recharge time
-		return 141 + 10 * getStar().getSpectralClass() + getStar().getSubtype();
+		return getStar().getSolarRechargeTime();
 	}
 
 	@Override
@@ -43,7 +43,12 @@ public class JumpPoint extends ConstantPoint {
 	
 	@Override
 	public String getDesc(Date when) {
-		return String.format(Locale.ROOT, "at %s jump point of %s", isNadir() ? "nadir" : "zenith", getStar().getName(when));
+		return String.format(Locale.ROOT, "%s jump point of %s", isNadir() ? "nadir" : "zenith", getStar().getName(when));
+	}
+	
+	@Override
+	public String getShortDesc(Date when) {
+		return String.format(Locale.ROOT, "%s jump point of %s", isNadir() ? "nadir" : "zenith", getStar().getName(when));
 	}
 	
 	public static JumpPoint fromOptions(String[] opts) {

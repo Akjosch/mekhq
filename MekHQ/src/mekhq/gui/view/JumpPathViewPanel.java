@@ -8,13 +8,13 @@ package mekhq.gui.view;
 
 import java.awt.Color;
 import java.text.DecimalFormat;
+import java.util.Date;
 import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
 
 import mekhq.campaign.Campaign;
 import mekhq.campaign.JumpPath;
-import mekhq.campaign.universe.SpaceLocation;
 
 /**
  * A custom panel that gets filled in with goodies from a JumpPath record
@@ -96,13 +96,11 @@ public class JumpPathViewPanel extends javax.swing.JPanel {
 		java.awt.GridBagConstraints gridBagConstraints;
 		pnlPath.setLayout(new java.awt.GridBagLayout());
 		int i = 0;
+		Date now = campaign.getDate();
 		javax.swing.JLabel lblPlanet;
-		for(SpaceLocation planet : path.getPlanets()) {
-			if( Double.isInfinite(planet.getRechargeTime()) ) {
-				lblPlanet = new javax.swing.JLabel(planet.getDesc(campaign.getDate()));
-			} else {
-				lblPlanet = new javax.swing.JLabel(planet.getDesc(campaign.getDate()) + " (" + planet.getRechargeTime() + " hours)");
-			}
+		
+		for(JumpPath.Edge edge : path.getEdges()) {
+			lblPlanet = new javax.swing.JLabel(edge.getShortDesc(now));
 			gridBagConstraints = new java.awt.GridBagConstraints();
 			gridBagConstraints.gridx = 0;
 			gridBagConstraints.gridy = i;

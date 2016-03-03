@@ -5294,7 +5294,7 @@ public class Campaign implements Serializable {
                 // and batteries by keeping track of recharge state
                 double rechargeTime = current.getRechargeTime();
                 double currentG = scoreG.get(current) + rechargeTime + 1;
-                ArrayList<Star> neighborKeys = Planets.getNearbyStars(current.getStar(), 30);
+                List<Star> neighborKeys = Planets.getNearbyStars(current.getStar(), 30);
                 for (Star neighborKey : neighborKeys) {
                 	SpaceLocation nadirJumpPoint = neighborKey.getJumpPoint(true);
                 	SpaceLocation zenithJumpPoint = neighborKey.getJumpPoint(false);
@@ -5393,9 +5393,14 @@ public class Campaign implements Serializable {
         return finalPath;
     }
 
-    public ArrayList<Star> getAllReachableStarsFrom(Planet planet) {
+    public List<Star> getAllReachableStarsFrom(Planet planet) {
         return Planets.getNearbyStars(planet, 30);
     }
+
+    public List<Star> getAllReachableStarsFrom(Star star) {
+        return Planets.getNearbyStars(star, 30);
+    }
+
 
     /**
      * Right now this is going to be a total hack because the rules from FM Merc would be a nightmare to calculate and I
