@@ -28,7 +28,6 @@ import megamek.common.EquipmentType;
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class Era {
-
     public static final int E_AOW   = 0;
     public static final int E_RW    = 1;
     public static final int E_SL    = 2;
@@ -123,5 +122,4 @@ public class Era {
             return -1;
     	}
     }
-    
 }

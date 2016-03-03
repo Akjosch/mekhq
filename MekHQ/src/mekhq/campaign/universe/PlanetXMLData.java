@@ -114,15 +114,15 @@ public class PlanetXMLData {
 		jp.addLocation(Planets.getInstance().getStarById("Thurrock"));
 		
 		System.out.println("");
+		System.out.println("");
+		System.out.flush();
+		
 		System.out.println("Amount of jumps: " + jp.getJumps());
 		System.out.println("Travel time: " + jp.getTotalTime(0));
 		System.out.println("Recharging time: " + jp.getTotalRechargeTime());
 		System.out.flush();
 		
-		jp.writeToXml(new PrintWriter(System.out), 0);
-		
-		System.out.println("");
-		System.out.flush();
+		//jp.writeToXml(new PrintWriter(System.out), 0);
 		
 		for( JumpPath.Edge edge : jp.getEdges() ) {
 			System.out.println(edge.getDesc(null));

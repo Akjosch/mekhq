@@ -3,7 +3,7 @@ package mekhq.campaign.universe;
 import java.util.Date;
 import java.util.Locale;
 
-/** A point (roughly) along the ecliptic */
+/** A point (roughly) on the ecliptic */
 public class OrbitalPoint extends SpaceLocation {
 	private double distance = 0;
 	
@@ -67,7 +67,7 @@ public class OrbitalPoint extends SpaceLocation {
 
 	@Override
 	public String getDesc(Date date) {
-		return String.format(Locale.ROOT, "In orbit around %s, average distance %f km", getStar().getName(date), distance);
+		return String.format(Locale.ROOT, "in orbit around %s, average distance %f km", getStar().getName(date), distance);
 	}
 	
 	@Override public int hashCode() {

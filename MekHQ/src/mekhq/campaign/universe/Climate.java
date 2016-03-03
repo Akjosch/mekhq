@@ -1,7 +1,7 @@
 package mekhq.campaign.universe;
 
 public enum Climate {
-	// Temperature ranges from Interstellar Operations
+	// Temperature ranges from Interstellar Operations Beta
 	ARTIC(150, 267, "Arctic"), BOREAL(268, 277, "Boreal"), TEMPERATE(278, 287, "Temperate"),
 	WARM(288, 297, "Warm"), TROPICAL(298, 307, "Tropical"), SUPERTROPICAL(308, 317, "Supertropical"),
 	HELL(318, 500, "Hellish");

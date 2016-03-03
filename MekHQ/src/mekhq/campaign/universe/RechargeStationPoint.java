@@ -36,7 +36,7 @@ public class RechargeStationPoint extends ConstantPoint {
 	
 	@Override
 	public String getDesc(Date when) {
-		return String.format(Locale.ROOT, "At %s recharge station of %s", isNadir() ? "nadir" : "zenith", getStar().getName(when));
+		return String.format(Locale.ROOT, "at %s recharge station of %s", isNadir() ? "nadir" : "zenith", getStar().getName(when));
 	}
 	
 	public static RechargeStationPoint fromOptions(String[] opts) {

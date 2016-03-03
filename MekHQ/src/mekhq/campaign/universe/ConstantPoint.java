@@ -1,7 +1,7 @@
 package mekhq.campaign.universe;
 
 /**
- * A class representing a point at a constant distance above/below the eclipptic - jump points
+ * A class representing a point at a constant distance above/below the ecliptic - jump points
  * and recharge stations for now
  */
 public abstract class ConstantPoint extends SpaceLocation {

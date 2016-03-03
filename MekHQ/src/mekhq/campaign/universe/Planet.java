@@ -181,6 +181,24 @@ public class Planet implements Serializable {
 		}
 		return new ArrayList<PlanetaryEvent>(events.values());
 	}
+	
+	/** @return events for this year. Never returns <i>null</i>. */
+	@SuppressWarnings("deprecation")
+	public List<PlanetaryEvent> getEvents(int year) {
+		if( null == events ) {
+			return Collections.<PlanetaryEvent>emptyList();
+		}
+		List<PlanetaryEvent> result = new ArrayList<PlanetaryEvent>();
+		for( Date date : events.navigableKeySet() ) {
+			if( date.getYear() + 1900 > year ) {
+				break;
+			}
+			if( date.getYear() + 1900 == year ) {
+				result.add(events.get(date));
+			}
+		}
+		return result;
+	}
 
 	public String getName(Date when) {
 		if( null == when || null == events ) {

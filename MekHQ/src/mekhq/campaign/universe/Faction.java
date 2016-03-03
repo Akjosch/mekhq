@@ -116,7 +116,7 @@ public class Faction {
 		return periphery;
 	}
 	
-	/** @return true if this faction represents a lack of civilisation */
+	/** @return true if this faction represents a lack of civilization (though not necessarily lack of people) */
 	public boolean isEmpty() {
 		return shortname.equals("ABN") // Abandoned
 				|| shortname.equals("UND") // Undiscovered

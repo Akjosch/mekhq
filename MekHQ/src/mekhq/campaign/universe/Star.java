@@ -183,6 +183,24 @@ public class Star implements Serializable {
 		return new ArrayList<StellarEvent>(events.values());
 	}
 
+	/** @return events for this year. Never returns <i>null</i>. */
+	@SuppressWarnings("deprecation")
+	public List<StellarEvent> getEvents(int year) {
+		if( null == events ) {
+			return Collections.<StellarEvent>emptyList();
+		}
+		List<StellarEvent> result = new ArrayList<StellarEvent>();
+		for( Date date : events.navigableKeySet() ) {
+			if( date.getYear() + 1900 > year ) {
+				break;
+			}
+			if( date.getYear() + 1900 == year ) {
+				result.add(events.get(date));
+			}
+		}
+		return result;
+	}
+	
 	public String getName(Date when) {
 		if( null == when || null == events ) {
 			return name;

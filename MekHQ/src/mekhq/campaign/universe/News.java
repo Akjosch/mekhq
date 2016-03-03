@@ -18,14 +18,13 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * Instead of making this a static like Planets, wer are just going to reload a years
+ * Instead of making this a static like Planets, we are just going to reload a year's
  * worth of news items at the start of every year, to cut down on memory usage. If this 
  * slows things down too much on year turn over we can reconsider
  * @author Jay Lawson
  *
  */
 public class News {
-    
     //we need two hashes - one to access by date and the other by an id
     private Hashtable<Date, ArrayList<NewsItem>> archive;
     private Hashtable<Integer, NewsItem> news;

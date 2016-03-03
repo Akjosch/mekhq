@@ -90,7 +90,7 @@ public abstract class SpaceLocation {
 	 * @return human-readable i18n string reference
 	 */
 	public String getDesc(Date when) {
-		return "Lost in space";
+		return "lost in space";
 	}
 
 	@Override

@@ -43,7 +43,6 @@ public class Planets {
  	private static HashMap<Integer, Map<Integer, Set<Star>>> starGrid;
     private Thread loader;
 
-
     private Planets() {
         planetList = new ConcurrentHashMap<String, Planet>();
         starList = new ConcurrentHashMap<String, Star>();
@@ -107,7 +106,7 @@ public class Planets {
 		}
 	}
 
-	protected ConcurrentMap<String,Planet> getPlanets() {
+	public ConcurrentMap<String, Planet> getPlanets() {
 		return planetList;
 	}
 	
@@ -115,7 +114,7 @@ public class Planets {
 		return( null != id ? planetList.get(id) : null);
 	}
 	
-	public ConcurrentMap<String,Star> getStars() {
+	public ConcurrentMap<String, Star> getStars() {
 		return starList;
 	}
 	
@@ -204,8 +203,6 @@ public class Planets {
 				}
 			}
 			
-			// TODO Populate the orbits, issue warnings if it's not consistently possible
-			
 			// We could do some validation here, like if every planet is on a proper orbit or something,
 			// but right now that'd be just too much work for too little reward.
 			// In the future, this could be reported as data consistency error.
@@ -229,6 +226,7 @@ public class Planets {
 			if( null == starGrid ) {
 				starGrid = new HashMap<Integer, Map<Integer, Set<Star>>>();
 			}
+			// Be nice to the garbage collector
 			for( Map.Entry<Integer, Map<Integer, Set<Star>>> starGridColumn : starGrid.entrySet() ) {
 				for( Map.Entry<Integer, Set<Star>> starGridElement : starGridColumn.getValue().entrySet() ) {
 					if( null != starGridElement.getValue() ) {

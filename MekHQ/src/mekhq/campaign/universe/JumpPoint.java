@@ -43,7 +43,7 @@ public class JumpPoint extends ConstantPoint {
 	
 	@Override
 	public String getDesc(Date when) {
-		return String.format(Locale.ROOT, "At %s jump point of %s", isNadir() ? "nadir" : "zenith", getStar().getName(when));
+		return String.format(Locale.ROOT, "at %s jump point of %s", isNadir() ? "nadir" : "zenith", getStar().getName(when));
 	}
 	
 	public static JumpPoint fromOptions(String[] opts) {
