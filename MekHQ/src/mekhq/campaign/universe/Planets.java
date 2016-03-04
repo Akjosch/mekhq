@@ -62,7 +62,7 @@ public class Planets {
     	return getNearbyStars(p.getStar(), distance);
     }
     
-    public static List<Star> getNearbyStars(Star star, int distance) {
+    public static List<Star> getNearbyStars(final Star star, int distance) {
     	List<Star> neighbors = new ArrayList<Star>();
     	int gridRadius = (int)Math.ceil(distance / 30.0);
 		int gridX = (int)(star.getX() / 30.0);

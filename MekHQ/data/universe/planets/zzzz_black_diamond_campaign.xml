@@ -10,7 +10,7 @@
 		<lum>0.714459</lum>
 		<temperature>5380</temperature>
 		<planets>8</planets>
-		<radius>0.9748</radius>
+		<radius>0.9751</radius>
 		<minorPlanets>27</minorPlanets>
 	</star>
 	<planet>
@@ -21,29 +21,74 @@
 		<name>Aquagea I</name>
 		<starId>Aquagea</starId>
 		<sysPos>1</sysPos>
+		<orbitRadius>0.1321</orbitRadius>
+		<orbitEccentricity>0.0018</orbitEccentricity>
+		<orbitInclination>0.02</orbitInclination>
 		<temperature>432</temperature>
-		<orbitRadius>0.132</orbitRadius>
+		<satellites>0</satellites>
+		<mass>0.636</mass>
+		<radius>0.893</radius>
+		<density>4921.534</density>
+		<gravity>0.798</gravity>
+		<dayLength>51.80</dayLength>
+		<class>Hell planet</class>
 	</planet>
 	<planet>
-		<name>Aquagea II</name>
+	<name>Aquagea II</name>
 		<starId>Aquagea</starId>
 		<sysPos>2</sysPos>
+		<orbitRadius>0.2724</orbitRadius>
+		<orbitEccentricity>0.0185</orbitEccentricity>
+		<orbitInclination>0.02</orbitInclination>
 		<temperature>218</temperature>
-		<orbitRadius>0.272</orbitRadius>
+		<satellites>0</satellites>
+		<mass>1.020</mass>
+		<radius>0.975</radius>
+		<density>6054.079</density>
+		<gravity>1.073</gravity>
+		<dayLength>51.35</dayLength>
+		<class>Greenhouse planet</class>
 	</planet>
 	<planet>
-		<name>Aquagea III</name>
+	<name>Aquagea III</name>
 		<starId>Aquagea</starId>
 		<sysPos>3</sysPos>
-		<temperature>119</temperature>
-		<orbitRadius>0.428</orbitRadius>
+		<orbitRadius>0.4283</orbitRadius>
+		<orbitEccentricity>0.0113</orbitEccentricity>
+		<orbitInclination>0.02</orbitInclination>
+		<temperature>118</temperature>
+		<satellites>0</satellites>
+		<mass>1.952</mass>
+		<radius>1.194</radius>
+		<density>6311.085</density>
+		<gravity>1.369</gravity>
+		<dayLength>-3.29</dayLength>
+		<class>Greenhouse planet (helium-rich)</class>
 	</planet>
 	<planet>
 		<name>Aquagea IV</name>
 		<starId>Aquagea</starId>
 		<sysPos>4</sysPos>
+		<orbitRadius>0.6955</orbitRadius>
+		<orbitEccentricity>0.0263</orbitEccentricity>
+		<orbitInclination>0.02</orbitInclination>
 		<temperature>34</temperature>
-		<orbitRadius>0.696</orbitRadius>
+		<satellites>9</satellites>
+		<satellite>Aquagea IV/1</satellite>
+		<satellite>Aquagea IV/2</satellite>
+		<satellite>Aquagea IV/3</satellite>
+		<satellite>Aquagea IV/4</satellite>
+		<satellite>Aquagea IV/5</satellite>
+		<satellite>Aquagea IV/6</satellite>
+		<satellite>Aquagea IV/7</satellite>
+		<satellite>Aquagea IV/8</satellite>
+		<satellite>Aquagea IV/9</satellite>
+		<mass>12.877</mass>
+		<radius>3.063</radius>
+		<density>2465.226</density>
+		<gravity>1.372</gravity>
+		<dayLength>27.77</dayLength>
+		<class>Gas dwarf (hydrogen-poor)</class>
 		<event>
 			<date>2750-01-01</date>
 			<faction>CC</faction>
@@ -64,8 +109,17 @@
 		<name>Aquagea V</name>
 		<starId>Aquagea</starId>
 		<sysPos>5</sysPos>
+		<orbitRadius>0.8257</orbitRadius>
+		<orbitEccentricity>0.0004</orbitEccentricity>
+		<orbitInclination>0.02</orbitInclination>
 		<temperature>9</temperature>
-		<orbitRadius>0.826</orbitRadius>
+		<satellites>0</satellites>
+		<mass>0.742</mass>
+		<radius>0.936</radius>
+		<density>4986.035</density>
+		<gravity>0.848</gravity>
+		<dayLength>29.63</dayLength>
+		<class>Earth-like planet</class>
 		<event>
 			<date>2750-01-01</date>
 			<faction>CC</faction>
@@ -86,21 +140,68 @@
 		<name>Aquagea VI</name>
 		<starId>Aquagea</starId>
 		<sysPos>6</sysPos>
-		<temperature>-47</temperature>
-		<orbitRadius>1.290</orbitRadius>
+		<orbitRadius>1.2905</orbitRadius>
+		<orbitEccentricity>0.0007</orbitEccentricity>
+		<orbitInclination>0.02</orbitInclination>
+		<temperature>-48</temperature>
+		<satellites>0</satellites>
+		<mass>1.666</mass>
+		<radius>1.232</radius>
+		<density>4903.585</density>
+		<gravity>1.098</gravity>
+		<dayLength>17.01</dayLength>
+		<class>Frozen rock planet</class>
 	</planet>
 	<planet>
 		<name>Aquagea VII</name>
 		<starId>Aquagea</starId>
 		<sysPos>7</sysPos>
+		<orbitRadius>9.4999</orbitRadius>
+		<orbitEccentricity>0.1382</orbitEccentricity>
+		<orbitInclination>0.01</orbitInclination>
 		<temperature>-190</temperature>
-		<orbitRadius>9.500</orbitRadius>
+		<satellites>12</satellites>
+		<satellite>Aquagea VII/1</satellite>
+		<satellite>Aquagea VII/2</satellite>
+		<satellite>Aquagea VII/3</satellite>
+		<satellite>Aquagea VII/4</satellite>
+		<satellite>Aquagea VII/5</satellite>
+		<satellite>Aquagea VII/6</satellite>
+		<satellite>Aquagea VII/7</satellite>
+		<satellite>Aquagea VII/8</satellite>
+		<satellite>Aquagea VII/9</satellite>
+		<satellite>Aquagea VII/10</satellite>
+		<satellite>Aquagea VII/11</satellite>
+		<satellite>Aquagea VII/12</satellite>
+		<mass>264.119</mass>
+		<radius>9.811</radius>
+		<density>1538.906</density>
+		<gravity>2.744</gravity>
+		<dayLength>-26.02</dayLength>
+		<class>Gas dwarf</class>
 	</planet>
 	<planet>
 		<name>Aquagea VIII</name>
 		<starId>Aquagea</starId>
 		<sysPos>8</sysPos>
-		<temperature>-224</temperature>
-		<orbitRadius>27.874</orbitRadius>
+		<orbitRadius>27.8740</orbitRadius>
+		<orbitEccentricity>0.0160</orbitEccentricity>
+		<orbitInclination>0.02</orbitInclination>
+		<temperature>-225</temperature>
+		<satellites>8</satellites>
+		<satellite>Aquagea VIII/1</satellite>
+		<satellite>Aquagea VIII/2</satellite>
+		<satellite>Aquagea VIII/3</satellite>
+		<satellite>Aquagea VIII/4</satellite>
+		<satellite>Aquagea VIII/5</satellite>
+		<satellite>Aquagea VIII/6</satellite>
+		<satellite>Aquagea VIII/7</satellite>
+		<satellite>Aquagea VIII/8</satellite>
+		<mass>63.123</mass>
+		<radius>5.870</radius>
+		<density>1717.274</density>
+		<gravity>1.832</gravity>
+		<dayLength>26.94</dayLength>
+		<class>Ice giant</class>
 	</planet>
 </planets>
