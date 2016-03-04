@@ -74,10 +74,8 @@ public class PlanetXMLData {
     public Integer sysPos;
     @XmlJavaTypeAdapter(SocioIndustrialDataAdapter.class)
     public Planet.SocioIndustrialData socioIndustrial;
-    @XmlJavaTypeAdapter(StringListAdapter.class)
 	@XmlElement(name = "satellite")
     public List<String> satellites;
-    @XmlJavaTypeAdapter(StringListAdapter.class)
 	@XmlElement(name = "landMass")
     public List<String> landMasses;
     @XmlJavaTypeAdapter(HPGRatingAdapter.class)
