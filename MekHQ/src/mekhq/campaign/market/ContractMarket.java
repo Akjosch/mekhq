@@ -181,21 +181,32 @@ public class ContractMarket implements Serializable {
 			}
 
 			boolean inBackwater = true;
-			if (!currentFactions.get(0).isPeriphery()) {
-				if (currentFactions.size() > 1) {
-					inBackwater = false;
-				} else {
+			if( currentFactions.size() > 1 )
+			{
+				// More than one faction, if any is *not* periphery, we're not in backwater either
+				for( Faction f : currentFactions ) {
+					if( !f.isPeriphery() ) {
+						inBackwater = false;
+					}
+				}
+			} else {
+				// Just one faction. Are there any others nearby?
+				Faction onlyFaction = currentFactions.iterator().next();
+				if( !onlyFaction.isPeriphery() ) {
 					for (Star key : Planets.getNearbyStars(campaign.getCurrentPlanet().getStar(), 30)) {
 						for (Faction f : key.getCurrentFactions(campaign.getDate())) {
-							if (!f.getShortName().equals(currentFactions.get(0).getShortName())) {
+							if( !onlyFaction.equals(f) ) {
 								inBackwater = false;
 								break;
 							}
 						}
-						if (!inBackwater) break;
+						if (!inBackwater) {
+							break;
+						}
 					}
 				}
 			}
+
 			if (inBackwater) {
 				numContracts--;
 			}
