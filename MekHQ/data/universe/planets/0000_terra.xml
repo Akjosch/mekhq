@@ -17,27 +17,7 @@
 		
 Terra was a neutral power controlled by ComStar from 2788 until the planet was taken by the Word of Blake in 3057.
 
-The Sol system contains multiple colonized planets, foremost are Mars and Venus. Mars is heavily colonized and is the site of multiple advanced industrial centers. The Sol system is also home to many spaceborn colonies, from the Titan Ship Yards, which produce and service Jumpships and Warships to the multiple settlements in the far-flung astroid belt, these people call themselves Belters and are often only loosely associated with each other.
-
----
-
-3135 - The homeworld of humanity, Terra was the crown jewel of the galaxy when the Star League was in full bloom. Plagued by overcrowding and pollution in the years before mankind went to the stars, the land, air, and seas were clean once again by the twenty-sixth century, while the greatest of the planet‘s many cities were restored and improved. At the time of the Star League, Terra had two capital cities: Geneva, on the European continent, for the planet, and Unity City, capital of the Star League, on the North American continent. During the Amaris crisis, however, much of Terra‘s splendor was marred by the Usurper‘s troops, who obliterated several Castles Brian, the Star League Court, and many of the planet‘s most important cities during the coup, occupation, and liberation of Terra. Even today, all seven of Terra‘s main landmasses—North America, Europe, and Asia in the north hemisphere; South America, Africa, Australia, and Antarctica in the southern—still bear the scars and memorials of the Star League‘s final days. However, the rise and fall of Amaris‘ short-lived empire was not the only event to lay waste to the Cradle of Humanity. As allied forces converged on Terra to end the Word of Blake‘s control of the world in the waning days of the Jihad, the surviving Blakist forces in the Terran system resorted to fanatical scorched-earth tactics and suicide assaults that caused even more widespread destruction. The ancient cities of Berlin, Paris, and Rome on the European continent, Moscow, Tokyo, and New Delhi in Asia, Cairo in Africa, and much of the Eastern Megalopolis in North America, all suffered extensive damage from tactical nuclear weapons and heavy urban warfare. Hilton Head, the former command center for ComStar and the Word of Blake when they held sway over Terra, was destroyed in the fighting, along with five of the planet‘s surviving Castles Brian. When Devlin Stone established The Republic of the Sphere, he commissioned the reconstruction of the historic and critically damaged planetary capital, Geneva, to serve again—not just as the capital of Terra, but of the entire Republic. 
-
-In addition to Terra herself, colonies exist on the Terran lunar surface, and the fourth planet in the system, Mars. At the peak of the Star League, settlements also existed on Venus, the second world, and a major shipyard was placed orbiting Titan, a moon of the gas giant Saturn, but both of these worlds are once more void of human habitation. Venus gradually reverted to its hellish environment after the fall of the League, becoming totally uninhabitable once again by the close of the thirty-first century, and the Titan shipyards were destroyed during the Jihad. The capital cities of Luna and Mars are Luna City and Koryo, respectively, though Koryo was heavily damaged in the final days of the Word of Blake‘s reign.
-
----
-
-3028 - In 2017, Mars was the first planet explored by humankind and was colonised soon after. In 2110, humanity's first attempt at terraforming began on Mars with the seeding of the two polar icecaps with a genetically enhanced plant that eventually caused the ice to melt and evaporate into the atmosphere. Other areas of Mars were planted with other hardy plants to convert carbon dioxide to oxygen and capture the sun's radiant heat. Ice asteroids were crashed into Mars to provide additional water and the resultant deep impact craters became the sites of domed cities. By 2201, rebreathers were no longer required and the temperature was above freezing. Mining companies began to actively exploit the metal depoists and industry soon followed. By the creation of the Star League, Mars had a population of over one million people in 20 domed cities. In 2601, the War Academy of Mars was completed. The Academy consisted of a vast complex of buildings, spaceports, battlefields and barracks located ind a hugh canyon approximately 100 kilometres southeast of Olympus Mons.
-
-During the Aramis coup, the officers and cadets of the Academy fought off the 23rd Republican Dragoons for six weeks before a nuclear weapon was used by frustrated Rim Worlds commander. Republican forces destroyed 11 cities.
-
----
-
-3028 - The terraforming of Venus began in the 2100s. In 2245, it was discovered that the chemicals that covered the planet's surface made excellent fertilizer. Agribusinesses set up farms using artificial soil and began producing enough food to feed Terra, Mars and Venus and a surplus for other struggling colonies.
-
-The Military Academy of Aphros, the planetary capital, was completed in 2242 and trained soldiers for the SLDF. It was destroyed during the first few months of the Amaris coup by a nuclear device.
-
-Since the fall of the Star League, ten of the twenty huge atmosphere reconditioning stations have failed and Venus has slowly reverted to its normal environmental conditions. Only three inhabited cities, Aphros, Kilic and Genny remain. Recent investigations indicate that the planet will no longer be habitable by 3068.</desc>
+The Sol system contains multiple colonized planets, foremost are Mars and Venus. Mars is heavily colonized and is the site of multiple advanced industrial centers. The Sol system is also home to many spaceborn colonies, from the Titan Ship Yards, which produce and service Jumpships and Warships to the multiple settlements in the far-flung astroid belt, these people call themselves Belters and are often only loosely associated with each other.</desc>
 	</star>
 	<planet>
 		<name>Terra</name>
@@ -102,6 +82,9 @@ Since the fall of the Star League, ten of the twenty huge atmosphere recondition
 		<landMass>South America</landMass>
 		<landMass>Luna - (Luna City)</landMass>
 		<hpg>A</hpg>
+		<desc>3135 - The homeworld of humanity, Terra was the crown jewel of the galaxy when the Star League was in full bloom. Plagued by overcrowding and pollution in the years before mankind went to the stars, the land, air, and seas were clean once again by the twenty-sixth century, while the greatest of the planet‘s many cities were restored and improved. At the time of the Star League, Terra had two capital cities: Geneva, on the European continent, for the planet, and Unity City, capital of the Star League, on the North American continent. During the Amaris crisis, however, much of Terra‘s splendor was marred by the Usurper‘s troops, who obliterated several Castles Brian, the Star League Court, and many of the planet‘s most important cities during the coup, occupation, and liberation of Terra. Even today, all seven of Terra‘s main landmasses—North America, Europe, and Asia in the north hemisphere; South America, Africa, Australia, and Antarctica in the southern—still bear the scars and memorials of the Star League‘s final days. However, the rise and fall of Amaris‘ short-lived empire was not the only event to lay waste to the Cradle of Humanity. As allied forces converged on Terra to end the Word of Blake‘s control of the world in the waning days of the Jihad, the surviving Blakist forces in the Terran system resorted to fanatical scorched-earth tactics and suicide assaults that caused even more widespread destruction. The ancient cities of Berlin, Paris, and Rome on the European continent, Moscow, Tokyo, and New Delhi in Asia, Cairo in Africa, and much of the Eastern Megalopolis in North America, all suffered extensive damage from tactical nuclear weapons and heavy urban warfare. Hilton Head, the former command center for ComStar and the Word of Blake when they held sway over Terra, was destroyed in the fighting, along with five of the planet‘s surviving Castles Brian. When Devlin Stone established The Republic of the Sphere, he commissioned the reconstruction of the historic and critically damaged planetary capital, Geneva, to serve again—not just as the capital of Terra, but of the entire Republic. 
+
+In addition to Terra herself, colonies exist on the Terran lunar surface, and the fourth planet in the system, Mars. At the peak of the Star League, settlements also existed on Venus, the second world, and a major shipyard was placed orbiting Titan, a moon of the gas giant Saturn, but both of these worlds are once more void of human habitation. Venus gradually reverted to its hellish environment after the fall of the League, becoming totally uninhabitable once again by the close of the thirty-first century, and the Titan shipyards were destroyed during the Jihad. The capital cities of Luna and Mars are Luna City and Koryo, respectively, though Koryo was heavily damaged in the final days of the Word of Blake‘s reign.</desc>
 	</planet>
 	<planet>
 		<name>Mercury</name>
@@ -118,6 +101,11 @@ Since the fall of the Star League, ten of the twenty huge atmosphere recondition
 		<temperature>460</temperature>
 		<percentWater>0</percentWater>
 		<landMass>(Aphros)</landMass>
+		<desc>3028 - The terraforming of Venus began in the 2100s. In 2245, it was discovered that the chemicals that covered the planet's surface made excellent fertilizer. Agribusinesses set up farms using artificial soil and began producing enough food to feed Terra, Mars and Venus and a surplus for other struggling colonies.
+
+The Military Academy of Aphros, the planetary capital, was completed in 2242 and trained soldiers for the SLDF. It was destroyed during the first few months of the Amaris coup by a nuclear device.
+
+Since the fall of the Star League, ten of the twenty huge atmosphere reconditioning stations have failed and Venus has slowly reverted to its normal environmental conditions. Only three inhabited cities, Aphros, Kilic and Genny remain. Recent investigations indicate that the planet will no longer be habitable by 3068.</desc>
 	</planet>
 	<planet>
 		<name>Mars</name>
@@ -128,6 +116,9 @@ Since the fall of the Star League, ten of the twenty huge atmosphere recondition
 		<percentWater>0</percentWater>
 		<landMass>(Koryo)</landMass>
 		<satellites>2</satellites>
+		<desc>3028 - In 2017, Mars was the first planet explored by humankind and was colonised soon after. In 2110, humanity's first attempt at terraforming began on Mars with the seeding of the two polar icecaps with a genetically enhanced plant that eventually caused the ice to melt and evaporate into the atmosphere. Other areas of Mars were planted with other hardy plants to convert carbon dioxide to oxygen and capture the sun's radiant heat. Ice asteroids were crashed into Mars to provide additional water and the resultant deep impact craters became the sites of domed cities. By 2201, rebreathers were no longer required and the temperature was above freezing. Mining companies began to actively exploit the metal depoists and industry soon followed. By the creation of the Star League, Mars had a population of over one million people in 20 domed cities. In 2601, the War Academy of Mars was completed. The Academy consisted of a vast complex of buildings, spaceports, battlefields and barracks located ind a hugh canyon approximately 100 kilometres southeast of Olympus Mons.
+
+During the Aramis coup, the officers and cadets of the Academy fought off the 23rd Republican Dragoons for six weeks before a nuclear weapon was used by frustrated Rim Worlds commander. Republican forces destroyed 11 cities.</desc>
 	</planet>
 	<planet>
 		<name>Jupiter</name>

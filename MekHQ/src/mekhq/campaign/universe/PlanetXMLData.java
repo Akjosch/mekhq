@@ -126,33 +126,11 @@ public class PlanetXMLData {
 		while( !Planets.getInstance().isInitialized() ) {
 			Thread.sleep(50);
 		}
-		Star aquagea = Planets.getInstance().getStarById("Aquagea");
-		Planet oldAquagea = Planets.getInstance().getPlanetById("Aquagea IV");
 
-		// Try to output it back
-		Planets.getInstance().writeStar(System.out, aquagea, true);
-		
-		// Try out jump paths
-		JumpPath jp = new JumpPath();
-		jp.addLocation(oldAquagea);
-		jp.addLocation(Planets.getInstance().getPlanetById("Aquagea V"));
-		jp.addLocation(aquagea.getPreferredJumpPoint());
-		jp.addLocation(Planets.getInstance().getStarById("Thurrock"));
-		
+		Star sol = Planets.getInstance().getStarById("Sol");
+		Planets.getInstance().writeStar(System.out, sol, true);
 		System.out.println("");
-		System.out.println("");
-		System.out.flush();
-		
-		System.out.println("Amount of jumps: " + jp.getJumps());
-		System.out.println("Travel time: " + jp.getTotalTime(0));
-		System.out.println("Recharging time: " + jp.getTotalRechargeTime());
-		System.out.flush();
-		
-		//jp.writeToXml(new PrintWriter(System.out), 0);
-		
-		for( JumpPath.Edge edge : jp.getEdges() ) {
-			System.out.println(edge.getDesc(null));
-		}
+		Planets.getInstance().writeStar(System.out, Planets.getInstance().getStarById("Aquagea"));
 	}
 
     public static final class FactionChange {
