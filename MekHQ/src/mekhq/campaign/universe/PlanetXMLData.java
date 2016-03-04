@@ -22,7 +22,6 @@ import mekhq.adapters.HPGRatingAdapter;
 import mekhq.adapters.LifeFormAdapter;
 import mekhq.adapters.SocioIndustrialDataAdapter;
 import mekhq.adapters.SpectralClassAdapter;
-import mekhq.adapters.StringListAdapter;
 import mekhq.campaign.JumpPath;
 
 /**
