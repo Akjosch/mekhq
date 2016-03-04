@@ -25,6 +25,7 @@ import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -168,6 +169,9 @@ public class ContractMarket implements Serializable {
 
 			Set<Faction> currentFactions =
 					campaign.getCurrentPlanet().getStar().getCurrentFactions(campaign.getDate());
+			if( null == currentFactions ) {
+				currentFactions = Collections.<Faction>emptySet();
+			}
 			boolean inMinorFaction = true;
 			for (Faction f : currentFactions) {
 				if (RandomFactionGenerator.getInstance().isMajorPower(f) ||

@@ -62,7 +62,7 @@ public class UnitTableData implements Serializable, ActionListener {
 	private static final long serialVersionUID = -2047012666986245214L;
 	Map<String, Map<Integer, Map<String, FactionTables>>> ratTree;
 	//example: ratTree.get("Xotl").get(3028).get("FWL")
-	Map<String, ArrayList<String>> altTables;
+	private Map<String, ArrayList<String>> altTables;
 	
 	private static UnitTableData utd = null;
 	private static boolean interrupted = false;

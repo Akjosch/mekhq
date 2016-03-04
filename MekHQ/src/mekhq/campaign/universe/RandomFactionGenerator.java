@@ -420,20 +420,23 @@ public class RandomFactionGenerator implements Serializable {
 		borders.clear();
 		currentFactions.clear();
 		for (Planet p : Planets.getInstance().getPlanets().values()) {
-			for (Faction f : p.getCurrentFactions(date)) {
-				String fName = f.getShortName();
-				if (f.isEmpty() || fName.equals("CLAN")) {
-					continue;
-				}
-				if (fName.equals("ROS") && date.after(FORTRESS_REPUBLIC)) {
-					 continue;
-				}
-				currentFactions.add(fName);
-				if (p.getStar().getDistanceTo(currentLocation.getStar()) <= options.getSearchRadius()) {
-					if (!f.isClan()) {
-						employers.add(fName);
+			Set<Faction> factions = p.getCurrentFactions(date);
+			if( null != factions ) {
+				for (Faction f : factions ) {
+					String fName = null != f ? f.getShortName() : "???";
+					if (null == f || f.isEmpty() || fName.equals("CLAN")) {
+						continue;
 					}
-					updateBorders(f, p);
+					if (fName.equals("ROS") && date.after(FORTRESS_REPUBLIC)) {
+						 continue;
+					}
+					currentFactions.add(fName);
+					if (p.getStar().getDistanceTo(currentLocation.getStar()) <= options.getSearchRadius()) {
+						if (!f.isClan()) {
+							employers.add(fName);
+						}
+						updateBorders(f, p);
+					}
 				}
 			}
 		}

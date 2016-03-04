@@ -50,7 +50,29 @@ public class PlanetXMLData {
     public List<FactionChange> factionChanges;
 	@XmlElement(name = "event")
     public List<Planet.PlanetaryEvent> events;
+	/** Pressure description ID */
     public Integer pressure;
+    /** Pressure in Earth standard */
+    public Double pressureAtm;
+    /** Atmospheric mass compared to Earth's 28.9645 kg/mol */
+    public Double atmMass;
+    /** Atmospheric description */
+    public String atmosphere;
+    public Double albedo;
+    public Double greenhouseEffect;
+    @XmlElement(name = "volcamisn")
+    public Integer volcanicActivity;
+    @XmlElement(name = "tectonics")
+    public Integer tectonicActivity;
+    public Integer habitability;
+    
+    // Human data
+    /** Order of magnitude of the population - 1 */
+    @XmlElement(name = "pop")
+    public Integer populationRating;
+    public String government;
+    public Integer controlRating;
+    
     public Double gravity;
 	/** @deprecated Should belong to the star */
 	@XmlJavaTypeAdapter(BooleanValueAdapter.class)
@@ -64,6 +86,7 @@ public class PlanetXMLData {
     public Climate climate;
     public Integer percentWater;
     public Integer temperature;
+    public Double dayLength;
 	/** @deprecated Should belong to the star */
 	@XmlJavaTypeAdapter(SpectralClassAdapter.class)
     public Integer spectralClass;
@@ -81,8 +104,15 @@ public class PlanetXMLData {
     @XmlJavaTypeAdapter(HPGRatingAdapter.class)
     public Integer hpg;
     public String desc;
+    
 	@XmlElement(name = "orbitRadius")
 	public Double orbitSemimajorAxis;
+	public Double orbitEccentricity;
+	public Double orbitInclination;
+	
+	@XmlElement(name = "class")
+	public String className;
+	
 	/** Mark this planet as not to be included/deleted. Requires a valid id (or name if no id supplied). */
 	@XmlJavaTypeAdapter(BooleanValueAdapter.class)
 	public Boolean delete;
