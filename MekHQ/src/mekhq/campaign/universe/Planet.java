@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import megamek.common.EquipmentType;
@@ -79,20 +80,38 @@ public class Planet implements Serializable {
 	private Climate climate;
 	private Integer percentWater;
 	private Integer temperature;
+    /** Pressure in Earth standard */
+	private Double pressureAtm;
+    /** Atmospheric mass compared to Earth's 28.9645 kg/mol */
+	private Double atmMass;
+    /** Atmospheric description */
+	private String atmosphere;
+	private Double albedo;
+	private Double greenhouseEffect;
+    @XmlElement(name = "volcamisn")
+    private Integer volcanicActivity;
+    @XmlElement(name = "tectonics")
+    private Integer tectonicActivity;
+    private Integer habitability;
+	private Double dayLength;
 	private Integer hpg;
 	private String desc;
 	
 	// Orbital data
 	/** Semimajor axis (average distance to parent star), in AU */
 	private Double orbitSemimajorAxis = 0.0;
+	private Double orbitEccentricity;
+	private Double orbitInclination;
 
 	//socioindustrial levels
 	private Planet.SocioIndustrialData socioIndustrial;
 
-	//keep some string information in arraylists
+	//keep some string information in lists
 	private List<String> satellites;
 	private List<String> landMasses;
 
+	private List<PointOfInterest> pois;
+	
 	/**
 	 * a hash to keep track of dynamic planet changes
 	 * <p>
@@ -170,8 +189,29 @@ public class Planet implements Serializable {
 		return null != landMasses ? new ArrayList<String>(landMasses) : null;
 	}
 
+	public Integer getVolcanicActivity() {
+		return volcanicActivity;
+	}
+
+	public Integer getTectonicActivity() {
+		return tectonicActivity;
+	}
+
+	public Double getDayLength() {
+		return dayLength;
+	}
+
+	public Double getOrbitEccentricity() {
+		return orbitEccentricity;
+	}
+
+	public Double getOrbitInclination() {
+		return orbitInclination;
+	}
+
+
 	// Date-dependant data
-	
+
 	private PlanetaryEvent getOrCreateEvent(Date when) {
 		if( null == when ) {
 			return null;
@@ -364,6 +404,34 @@ public class Planet implements Serializable {
 		return garrisonUnits;
 	}
 
+	public Double getPressureAtm(Date when) {
+		return pressureAtm; // TODO: include in events
+	}
+
+	public Double getAtmMass(Date when) {
+		return atmMass; // TODO: include in events
+	}
+
+	public String getAtmosphere(Date when) {
+		return atmosphere; // TODO: Include in events
+	}
+
+	public Double getAlbedo(Date when) {
+		return albedo; // TODO: include in events
+	}
+
+	public Double getGreenhouseEffect(Date when) {
+		return greenhouseEffect; // TODO: include in events
+	}
+
+	public Integer getHabitability(Date when) {
+		return habitability; // TODO: include in events
+	}
+
+	public List<PointOfInterest> getPois(Date when) {
+		return null != pois ? new ArrayList<PointOfInterest>(pois) : null; // TODO: include in events
+	}
+	
 	public Map<String, Integer> getFactions(Date when) {
 		if( null == when || null == events ) {
 			return factionCodes;
@@ -484,6 +552,20 @@ public class Planet implements Serializable {
 		return EquipmentType.RATING_C;
 	}
 
+	private <T> T nonNull(T first, T second) {
+		return null != first ? first : second;
+	}
+	
+	private void addPointOfInterest(PointOfInterest poi) {
+		if( null == poi ) {
+			return;
+		}
+		if( null == pois ) {
+			pois = new ArrayList<PointOfInterest>();
+		}
+		pois.add(poi);
+	}
+	
 	/**
 	 * Copy all but id from the other planet. Update event list. Events with the
 	 * same date as others already in the list get overwritten, others added.
@@ -491,38 +573,57 @@ public class Planet implements Serializable {
 	 */
 	public void copyDataFrom(Planet other) {
 		if( null != other ) {
-			name = null != other.name ? other.name : name;
-			shortName = null != other.shortName ? other.shortName : shortName;
-			climate = null != other.climate ? other.climate : climate;
-			desc = null != other.desc ? other.desc : desc;
-			factionCodes = null != other.factionCodes ? other.factionCodes : factionCodes;
-			gravity = null != other.gravity ? other.gravity : gravity;
-			hpg = null != other.hpg ? other.hpg : hpg;
-			landMasses = null != other.landMasses ? other.landMasses : landMasses;
-			lifeForm = null != other.lifeForm ? other.lifeForm : lifeForm;
-			orbitSemimajorAxis = null != other.orbitSemimajorAxis ? other.orbitSemimajorAxis : orbitSemimajorAxis;
-			percentWater = null != other.percentWater ? other.percentWater : percentWater;
-			pressure = null != other.pressure ? other.pressure : pressure;
-			satellites = null != other.satellites ? other.satellites : satellites;
-			sysPos = null != other.sysPos ? other.sysPos : sysPos;
-			temperature = null != other.temperature ? other.temperature : temperature;
-			socioIndustrial = null != other.socioIndustrial ? other.socioIndustrial : socioIndustrial;
+			// We don't change the ID or StarID
+			name = nonNull(other.name, name);
+			shortName = nonNull(other.shortName, shortName);
+			climate = nonNull(other.climate, climate);
+			desc = nonNull(other.desc, desc);
+			factionCodes = nonNull(other.factionCodes, factionCodes);
+			gravity = nonNull(other.gravity, gravity);
+			hpg = nonNull(other.hpg, hpg);
+			landMasses = nonNull(other.landMasses, landMasses);
+			lifeForm = nonNull(other.lifeForm, lifeForm);
+			orbitSemimajorAxis = nonNull(other.orbitSemimajorAxis, orbitSemimajorAxis);
+			orbitEccentricity = nonNull(other.orbitEccentricity, orbitEccentricity);
+			orbitInclination = nonNull(other.orbitInclination, orbitInclination);
+			percentWater = nonNull(other.percentWater, percentWater);
+			pressure = nonNull(other.pressure, pressure);
+			pressureAtm = nonNull(other.pressureAtm, pressureAtm);
+			pressureAtm = nonNull(other.pressureAtm, pressureAtm);
+			atmMass = nonNull(other.atmMass, atmMass);
+			atmosphere = nonNull(other.atmosphere, atmosphere);
+			albedo = nonNull(other.albedo, albedo);
+			greenhouseEffect = nonNull(other.greenhouseEffect, greenhouseEffect);
+			volcanicActivity = nonNull(other.volcanicActivity, volcanicActivity);
+			tectonicActivity = nonNull(other.tectonicActivity, tectonicActivity);
+			habitability = nonNull(other.habitability, habitability);
+			dayLength = nonNull(other.dayLength, dayLength);
+			satellites = nonNull(other.satellites, satellites);
+			sysPos = nonNull(other.sysPos, sysPos);
+			temperature = nonNull(other.temperature, temperature);
+			socioIndustrial = nonNull(other.socioIndustrial, socioIndustrial);
 			// Merge (not replace!) events
 			if( null != other.events ) {
 				for( PlanetaryEvent event : other.getEvents() ) {
 					if( null != event && null != event.date ) {
 						PlanetaryEvent myEvent = getOrCreateEvent(event.date);
-						myEvent.climate = null != event.climate ? event.climate : myEvent.climate;
-						myEvent.faction = null != event.faction ? event.faction : myEvent.faction;
-						myEvent.hpg = null != event.hpg ? event.hpg : myEvent.hpg;
-						myEvent.lifeForm = null != event.lifeForm ? event.lifeForm : myEvent.lifeForm;
-						myEvent.message = null != event.message ? event.message : myEvent.message;
-						myEvent.name = null != event.name ? event.name : myEvent.name;
-						myEvent.percentWater = null != event.percentWater ? event.percentWater : myEvent.percentWater;
-						myEvent.shortName = null != event.shortName ? event.shortName : myEvent.shortName;
-						myEvent.socioIndustrial = null != event.socioIndustrial ? event.socioIndustrial : myEvent.socioIndustrial;
-						myEvent.temperature = null != event.temperature ? event.temperature : myEvent.temperature;
+						myEvent.climate = nonNull(event.climate, myEvent.climate);
+						myEvent.faction = nonNull(event.faction, myEvent.faction);
+						myEvent.hpg = nonNull(event.hpg, myEvent.hpg);
+						myEvent.lifeForm = nonNull(event.lifeForm, myEvent.lifeForm);
+						myEvent.message = nonNull(event.message, myEvent.message);
+						myEvent.name = nonNull(event.name, myEvent.name);
+						myEvent.percentWater = nonNull(event.percentWater, myEvent.percentWater);
+						myEvent.shortName = nonNull(event.shortName, myEvent.shortName);
+						myEvent.socioIndustrial = nonNull(event.socioIndustrial, myEvent.socioIndustrial);
+						myEvent.temperature = nonNull(event.temperature, myEvent.temperature);
 					}
+				}
+			}
+			// Merge points of interest
+			if( null != other.pois ) {
+				for( PointOfInterest poi : other.pois ) {
+					addPointOfInterest(poi);
 				}
 			}
 		}
@@ -531,9 +632,9 @@ public class Planet implements Serializable {
 	@SuppressWarnings("deprecation")
 	public static Planet getPlanetFromXMLData(PlanetXMLData data) {
 		Planet result = new Planet();
+		result.id = null != data.id ? data.id : data.name;
 		result.name = data.name;
 		result.shortName = data.shortName;
-		result.id = null != data.id ? data.id : data.name;
 		result.starId = data.starId;
 		result.climate = data.climate;
 		result.desc = data.desc;
@@ -543,12 +644,24 @@ public class Planet implements Serializable {
 		result.landMasses = data.landMasses;
 		result.lifeForm = data.lifeForm;
 		result.orbitSemimajorAxis = data.orbitSemimajorAxis;
+		result.orbitEccentricity = data.orbitEccentricity;
+		result.orbitInclination = data.orbitInclination;
 		result.percentWater = data.percentWater;
 		result.pressure = data.pressure;
+		result.pressureAtm = data.pressureAtm;
+		result.atmMass = data.atmMass;
+		result.atmosphere = data.atmosphere;
+		result.albedo = data.albedo;
+		result.greenhouseEffect = data.greenhouseEffect;
+		result.volcanicActivity = data.volcanicActivity;
+		result.tectonicActivity = data.tectonicActivity;
+		result.habitability = data.habitability;
+		result.dayLength = data.dayLength;
 		result.satellites = data.satellites;
 		result.sysPos = data.sysPos;
 		result.temperature = data.temperature;
 		result.socioIndustrial = data.socioIndustrial;
+		result.pois = data.pois;
 		if( null != data.events ) {
 			result.events = new TreeMap<Date, PlanetaryEvent>();
 			for( PlanetaryEvent event : data.events ) {
@@ -892,5 +1005,27 @@ public class Planet implements Serializable {
 	    public SocioIndustrialData socioIndustrial;
 	    @XmlJavaTypeAdapter(HPGRatingAdapter.class)
 	    public Integer hpg;
+	}
+	
+	/**
+	 * Some point of interest on the planetary surface or very close to it (city, factory, garrison).
+	 * <p>
+	 * The hex position is according to the planetary map in IO Beta. If both it and lat/long values
+	 * are provided, the hex value is overwritten.
+	 * If one of lat or long is provided, the other has to be as well.
+	 */
+	public static final class PointOfInterest {
+		public String id;
+		public String name;
+		public String type;
+		public String hex;
+		@XmlElement(name="lat")
+		public Double latitude;
+		@XmlElement(name="long")
+		public Double longitude;
+		/** Height above or below zero surface in km, defaults to 0. For example, Mt. Everest would have 8.848. */
+		@XmlElement(name="alt")
+		public Double altitude;
+		public String desc;
 	}
 }

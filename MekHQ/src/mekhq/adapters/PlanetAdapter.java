@@ -33,12 +33,24 @@ public class PlanetAdapter extends XmlAdapter<PlanetXMLData, Planet> {
 		result.landMasses = v.getLandMasses();
 		result.lifeForm = v.getLifeForm(null);
 		result.orbitSemimajorAxis = v.getOrbitSemimajorAxis();
+		result.orbitEccentricity = v.getOrbitEccentricity();
+		result.orbitInclination = v.getOrbitInclination();
 		result.percentWater = v.getPercentWater(null);
 		result.pressure = v.getPressure();
+		result.pressureAtm = v.getPressureAtm(null);
+		result.atmMass = v.getAtmMass(null);
+		result.atmosphere = v.getAtmosphere(null);
+		result.albedo = v.getAlbedo(null);
+		result.greenhouseEffect = v.getGreenhouseEffect(null);
+		result.habitability = v.getHabitability(null);
+		result.pois = v.getPois(null);
 		result.satellites = v.getSatellites();
 		result.socioIndustrial = v.getSocioIndustrial(null);
 		result.sysPos = v.getSystemPosition();
 		result.temperature = v.getTemperature(null);
+		result.volcanicActivity = v.getVolcanicActivity();
+		result.tectonicActivity = v.getTectonicActivity();
+		result.dayLength = v.getDayLength();
 		return result;
 	}
 

@@ -104,6 +104,11 @@ public class PlanetXMLData {
     public Integer hpg;
     public String desc;
     
+    /** Points of interest - cities, garrisons, factories */
+    @XmlElement(name="poi")
+    public List<Planet.PointOfInterest> pois;
+    
+    // Orbital parameters
 	@XmlElement(name = "orbitRadius")
 	public Double orbitSemimajorAxis;
 	public Double orbitEccentricity;
