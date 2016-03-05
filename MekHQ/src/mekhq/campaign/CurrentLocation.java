@@ -24,10 +24,12 @@ package mekhq.campaign;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Locale;
 
 import mekhq.MekHQ;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.finances.Transaction;
+import mekhq.campaign.unit.JumpShipUnit;
 import mekhq.campaign.universe.Planet;
 import mekhq.campaign.universe.SpaceLocation;
 
@@ -48,10 +50,10 @@ public class CurrentLocation implements Serializable {
 	private static final long serialVersionUID = -4337642922571022697L;
 	
 	private SpaceLocation currentLocation;
+	private JumpShipUnit currentJumpship;
+	
 	//keep track of jump path
 	private JumpPath jumpPath;
-	/** Time spent during current recharge, in hours */
-	private double rechargeTime;
 	/** Time spent in current transit, in hours */
 	private double transitTime;
 	
@@ -70,11 +72,17 @@ public class CurrentLocation implements Serializable {
 	public CurrentLocation(SpaceLocation loc, double time) {
 		this.currentLocation = loc;
 		this.transitTime = time;
-		this.rechargeTime = 0.0;
+		this.currentJumpship = new JumpShipUnit();
+		if( null != loc ) {
+			currentJumpship.setLocation(loc.getStar().getPreferredJumpPoint());
+		}
 	}
 	
 	public void setCurrentLocation(SpaceLocation loc) {
 		currentLocation = loc;
+		if( null != loc ) {
+			currentJumpship.setLocation(loc.getStar().getPreferredJumpPoint());
+		}
 	}
 	
 	public void setTransitTime(double time) {
@@ -115,7 +123,7 @@ public class CurrentLocation implements Serializable {
 		} else {
 			toReturn += "<i>" + Math.round(100.0*getTransitTime()/24.0)/100.0 + " days out </i>";
 		}
-		toReturn += ", <i>" + Math.round(100.0*rechargeTime/currentLocation.getRechargeTime()) + "% charged</i>";
+		toReturn += String.format(Locale.ROOT, ", <i>%.0f%% charged</i>", currentJumpship.getCharge() * 100);
 		return "<html>" + toReturn + "</html>";
 	}
 	
@@ -127,6 +135,22 @@ public class CurrentLocation implements Serializable {
 		jumpPath = path;
 	}
 	
+	private double chargeJumpships(final Campaign campaign, final double maxHours) {
+		double usedRechargeTime = 0.0;
+		if( !currentJumpship.isCharged() ) {
+			usedRechargeTime = currentJumpship.addChargeHours(maxHours);
+			if( usedRechargeTime > 0.0 ) {
+				campaign.addReport(String.format(Locale.ROOT, "Jumpships spent %.2f hours recharging drives", usedRechargeTime));
+				if( currentJumpship.isCharged() ) {
+					campaign.addReport("Jumpship drives full charged");
+				} else {
+					campaign.addReport(String.format(Locale.ROOT, "Drive recharge time remaining: %.2f hours", currentJumpship.getRemainingChargeTime()));
+				}
+			}
+		}
+		return usedRechargeTime;
+	}
+	
 	/**
 	 * Check for a jump path and if found, do whatever needs to be done to move 
 	 * forward
@@ -135,24 +159,19 @@ public class CurrentLocation implements Serializable {
 		newDay(campaign, 24.0);
 	}
 	
+	private static double SECOND_IN_HOURS = 1.0 / 3600.0;
+	
 	public void newDay(final Campaign campaign, final double hours) {
-		//recharge even if there is no jump path
-		//because jumpships don't go anywhere
 		// TODO: Keep a list of jump capable ships and where they are.
-		double usedRechargeTime = Math.min(hours, currentLocation.getRechargeTime() - rechargeTime);
-		if( usedRechargeTime > 0 ) {
-			campaign.addReport("Jumpships spent " + Math.round(100.0 * usedRechargeTime)/100.0 + " hours recharging drives");
-			rechargeTime += usedRechargeTime;
-			if(rechargeTime >= currentLocation.getRechargeTime()) {
-				campaign.addReport("Jumpship drives full charged");
-			}
-		}
 		if( null == jumpPath || jumpPath.isEmpty() ) {
+			// recharge even if there is no jump path
+			// because jumpships don't go anywhere
+			chargeJumpships(campaign, hours);
 			return;
 		}
 
 		double usedTime = 0.0;
-		while( !jumpPath.isEmpty() && usedTime < hours ) {
+		while( !jumpPath.isEmpty() && usedTime < hours - SECOND_IN_HOURS ) {
 			SpaceLocation target = jumpPath.get(1);
 			if( jumpPath.isFirstEdgeType(JumpPath.EdgeType.TRAVEL) ) {
 				// We're doing a standard in-system burn. See if we reach the destination.
@@ -161,6 +180,7 @@ public class CurrentLocation implements Serializable {
 					transitTime += travelTime;
 					campaign.addReport("Dropships spent " + Math.round(100.0 * travelTime)/100.0
 							+ " hours in transit to " + target.getDesc(campaign.getDate()));
+					chargeJumpships(campaign, travelTime);
 				}
 				if( travelTime <= hours - usedTime ) {
 					// We made it within the alloted time window
@@ -171,8 +191,8 @@ public class CurrentLocation implements Serializable {
 				}
 				usedTime += travelTime;
 			} else if( jumpPath.isFirstEdgeType(JumpPath.EdgeType.RECHARGE) ) {
-				usedTime = Math.max(usedTime, usedRechargeTime);
-				if( rechargeTime >= currentLocation.getRechargeTime() ) {
+				usedTime += chargeJumpships(campaign, hours - usedTime);
+				if( currentJumpship.isCharged() ) {
 					jumpPath.removeFirstPlanet();
 					currentLocation = jumpPath.getFirstPlanet();
 					campaign.addReport("Ready to jump to " + target.getDesc(campaign.getDate()));
@@ -199,7 +219,7 @@ public class CurrentLocation implements Serializable {
 					currentLocation = jumpPath.getFirstPlanet();
 	                campaign.addReport("Jumping to " + target.getStar().getName(campaign.getDate()));
 	                transitTime = 0.0;
-					rechargeTime = 0.0;
+	                currentJumpship.setCharge(0.0);
 				}
 			}
 		}
@@ -220,10 +240,16 @@ public class CurrentLocation implements Serializable {
 				+"<transitTime>"
 				+transitTime
 				+"</transitTime>");
+		
+		pw1.print(MekHqXmlUtil.indentStr(indent+1));
+		currentJumpship.writeToXml(pw1);
+		pw1.println("");
+		/*
 		pw1.println(MekHqXmlUtil.indentStr(indent+1)
 				+"<rechargeTime>"
 				+rechargeTime
 				+"</rechargeTime>");
+				*/
 		if(null != jumpPath) {
 			jumpPath.writeToXml(pw1, indent+1);
 		}
@@ -255,10 +281,12 @@ public class CurrentLocation implements Serializable {
 				} else if (wn2.getNodeName().equalsIgnoreCase("transitTime")) {
 					retVal.transitTime = Double.parseDouble(wn2.getTextContent());
 				} else if (wn2.getNodeName().equalsIgnoreCase("rechargeTime")) {
-					retVal.rechargeTime = Double.parseDouble(wn2.getTextContent());
+					//retVal.rechargeTime = Double.parseDouble(wn2.getTextContent());
 				} else if (wn2.getNodeName().equalsIgnoreCase("jumpPath")) {
 					retVal.jumpPath = JumpPath.generateInstanceFromXML(wn2, c);
-				} 
+				} else if( wn2.getNodeName().equalsIgnoreCase("jumpShip")) {
+					retVal.currentJumpship = JumpShipUnit.generateInstanceFromXML(wn2);
+				}
 			}
 		} catch (Exception ex) {
 			// Errrr, apparently either the class name was invalid...

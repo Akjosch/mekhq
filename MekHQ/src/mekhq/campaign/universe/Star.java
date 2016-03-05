@@ -634,7 +634,6 @@ public class Star implements Serializable {
 	/** Recharge time in hours using solar radiation alone (at jump point and 100% efficiency) */
 	public int getSolarRechargeTime() {
 		if( null == spectralClass || null == subtype ) {
-			MekHQ.logError("Star [" + id + "] has no valid spectral type set: " + spectralType);
 			return 183;
 		}
 		if( spectralClass == SPECTRAL_T ) {
