@@ -322,7 +322,7 @@ public class JumpPath implements Serializable {
 	}
 
 	public boolean contains(Star star) {
-		if( null == star ) {
+		if( null == star || null == start || null == path ) {
 			return false;
 		}
 		for( Edge e : path ) {

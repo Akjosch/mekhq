@@ -112,6 +112,15 @@ public class UnitTableData implements Serializable, ActionListener {
 		return allRatNames;
 	}
 	
+	private void waitForInitialization() {
+		try {
+			while( !initialized ) {
+					Thread.sleep(50);
+			}
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
 	/**
 	 * Retrieves the names of all RATCollections that meet the criteria.
 	 * 
@@ -121,6 +130,7 @@ public class UnitTableData implements Serializable, ActionListener {
 	 * @return-a list of RATCollection names that can be used for getRAT(...)
 	 */
 	public List<FactionTables> getRATCollections(String faction, int unitType, int year) {
+		waitForInitialization();
 		List<FactionTables> retval = new ArrayList<FactionTables>();
 		for (String collection : ratTree.keySet()) {
 			for (Integer y : ratTree.get(collection).keySet()) {
@@ -142,6 +152,7 @@ public class UnitTableData implements Serializable, ActionListener {
 	 * not later than year
 	 */
 	public boolean hasRAT(String collection, int year, String faction, int unitType) {
+		waitForInitialization();
 		if (ratTree.get(collection) == null) {
 			return false;
 		}
@@ -162,6 +173,7 @@ public class UnitTableData implements Serializable, ActionListener {
 	 * regardless of year
 	 */
 	public boolean hasRAT(String collection, String faction, int unitType) {
+		waitForInitialization();
 		if (ratTree.get(collection) == null) {
 			System.err.println("Could not find RAT collection " + collection);
 			return false;
@@ -187,6 +199,7 @@ public class UnitTableData implements Serializable, ActionListener {
 	 */
 	
 	public FactionTables getBestRAT(String[] rats, int year, String faction, int unitType) {
+		waitForInitialization();
 		ArrayList<String> sorted = new ArrayList<String>();
 		ArrayList<String> altFactions = getAltFactions(faction);
 		for (String source : rats) {
@@ -249,6 +262,7 @@ public class UnitTableData implements Serializable, ActionListener {
 	}
 	
 	public ArrayList<String> getAltFactions(String fName) {
+		waitForInitialization();
 		ArrayList<String> retVal = new ArrayList<String>();
 		retVal.add(fName);
 		Faction f = Faction.getFaction(fName);
@@ -271,6 +285,7 @@ public class UnitTableData implements Serializable, ActionListener {
 	/* Returns the latest year for the rat and faction that does not exceed year*/
 	
 	public FactionTables getClosestRAT(String rat, int year, String faction, int unitType) {
+		waitForInitialization();
 		FactionTables retval = null;
 		for (int y : ratTree.get(rat).keySet()) {
 			if (y > year) {
@@ -287,6 +302,7 @@ public class UnitTableData implements Serializable, ActionListener {
 	/* returns the first (earliest) RAT in the collection for the faction */
 
 	public FactionTables getFirstRAT(String rat, String faction, int unitType) {
+		waitForInitialization();
 		for (int year : ratTree.get(rat).keySet()) {
 			if (ratTree.get(rat).get(year).get(faction) != null &&
 					ratTree.get(rat).get(year).get(faction).hasTable(unitType)) {
@@ -297,6 +313,7 @@ public class UnitTableData implements Serializable, ActionListener {
 	}
 
 	public FactionTables getRAT(String rat, int year, String faction) {
+		waitForInitialization();
 		return ratTree.get(rat).get(year).get(faction);
 	}
 	

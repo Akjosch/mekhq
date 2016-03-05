@@ -28,6 +28,8 @@ import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.UUID;
 
+import javax.management.RuntimeErrorException;
+
 import megamek.client.RandomUnitGenerator;
 import megamek.common.Compute;
 import megamek.common.Entity;
@@ -1026,6 +1028,13 @@ public class PersonnelMarket {
     		}
     		String rat = ft.getTable(unitType, weight, UnitTableData.QUALITY_F);
     		if (null != rat) {
+				try {
+	    			while( !RandomUnitGenerator.getInstance().isInitialized() ) {
+	    					Thread.sleep(50);
+	    			}
+				} catch( InterruptedException e ) {
+					throw new RuntimeException(e);
+				}
     			RandomUnitGenerator.getInstance().setChosenRAT(rat);
     			ArrayList<MechSummary> msl = RandomUnitGenerator.getInstance().generate(1);
     			if (msl.size() > 0) {

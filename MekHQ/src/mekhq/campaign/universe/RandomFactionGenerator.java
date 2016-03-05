@@ -713,11 +713,14 @@ public class RandomFactionGenerator implements Serializable {
 			for (Planet startingPlanet : border) {
 				for (Star s : Planets.getNearbyStars(startingPlanet, maxJumps * 30)) {
 					for( Planet p : s.getPlanets() ) {
-						for (Faction f : p.getCurrentFactions(date)) {
-							if (f.getShortName().equals(defender) ||
-									defender.equals("PIR") ||
-									(f.getShortName().equals(attacker) && defender.equals("REB"))) {
-								planetList.add(p);
+						Set<Faction> factions = p.getCurrentFactions(date);
+						if( null != factions ) {
+							for (Faction f : p.getCurrentFactions(date)) {
+								if (f.getShortName().equals(defender) ||
+										defender.equals("PIR") ||
+										(f.getShortName().equals(attacker) && defender.equals("REB"))) {
+									planetList.add(p);
+								}
 							}
 						}
 					}
