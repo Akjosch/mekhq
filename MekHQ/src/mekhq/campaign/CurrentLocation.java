@@ -182,7 +182,7 @@ public class CurrentLocation implements Serializable {
 							+ " hours in transit to " + target.getDesc(campaign.getDate()));
 					chargeJumpships(campaign, travelTime);
 				}
-				if( travelTime <= hours - usedTime ) {
+				if( travelTime < hours - usedTime ) {
 					// We made it within the alloted time window
 					jumpPath.removeFirstPlanet();
 					currentLocation = jumpPath.getFirstPlanet();
@@ -219,7 +219,7 @@ public class CurrentLocation implements Serializable {
 					currentLocation = jumpPath.getFirstPlanet();
 	                campaign.addReport("Jumping to " + target.getStar().getName(campaign.getDate()));
 	                transitTime = 0.0;
-	                currentJumpship.setCharge(0.0);
+	                currentJumpship.jumpTo(currentLocation);
 				}
 			}
 		}

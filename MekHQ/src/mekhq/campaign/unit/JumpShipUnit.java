@@ -83,6 +83,15 @@ public class JumpShipUnit {
 		this.location = location;
 	}
 	
+	/** This method doesn't check if the jump is possible, just if the location is valid */
+	public void jumpTo(SpaceLocation loc) {
+		if( null == loc || !loc.isJumpPoint() ) {
+			return;
+		}
+		this.location = loc;
+		this.charge = 0.0;
+	}
+	
 	public void writeToXml(PrintWriter pw) {
 		try {
 			JAXBContext jaxbContext = JAXBContext.newInstance(JumpShipUnit.class);
