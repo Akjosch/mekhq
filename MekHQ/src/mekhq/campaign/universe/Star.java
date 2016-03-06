@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -1056,6 +1057,9 @@ public class Star implements Serializable {
 		result.lum = data.lum;
 		result.temperature = data.temperature;
 		result.radius = data.radius;
+		if( data.generateType && null == result.spectralType ) {
+			result.setSpectralType(generateSpectralType(new Random(result.id.hashCode() + 133773), true));
+		}
 		return result;
 	}
 
@@ -1076,9 +1080,37 @@ public class Star implements Serializable {
 		result.spectralType = getSpectralType(data.spectralClass, data.subtype, data.luminosity);
 		result.nadirCharge = null != data.nadirCharge ? data.nadirCharge.booleanValue() : false;
 		result.zenithCharge = null != data.zenithCharge ? data.zenithCharge.booleanValue() : false;
+		if( null == result.spectralType ) {
+			result.setSpectralType(generateSpectralType(new Random(result.id.hashCode() + 133773), true));
+		}
 		return result;
 	}
 
+	// Slightly modified IO Beta table
+	private static int[] realisticSpectralType = new int[]{
+			SPECTRAL_F, SPECTRAL_M, SPECTRAL_G, SPECTRAL_K, SPECTRAL_M,
+			SPECTRAL_M, SPECTRAL_M, SPECTRAL_M, SPECTRAL_M, SPECTRAL_L, -1};
+	private static int[] lifeFriendlySpectralType = new int[]{
+			SPECTRAL_M, SPECTRAL_M, SPECTRAL_M, SPECTRAL_K, SPECTRAL_K,
+			SPECTRAL_G, SPECTRAL_G, SPECTRAL_F, SPECTRAL_F, SPECTRAL_F, SPECTRAL_F};
+	private static int[] hotSpectralType = new int[]{
+			SPECTRAL_B, SPECTRAL_B, SPECTRAL_A, SPECTRAL_A, SPECTRAL_A,
+			SPECTRAL_F, SPECTRAL_F, SPECTRAL_F, SPECTRAL_F, SPECTRAL_F, SPECTRAL_F};
+
+	public static String generateSpectralType(Random rnd, boolean lifeFriendly) {
+		int spectralType;
+		if( lifeFriendly ) {
+			spectralType = lifeFriendlySpectralType[rnd.nextInt(6) + rnd.nextInt(6)];
+		} else {
+			spectralType = realisticSpectralType[rnd.nextInt(6) + rnd.nextInt(6)];
+			if( -1 == spectralType ) {
+				spectralType = hotSpectralType[rnd.nextInt(6) + rnd.nextInt(6)];
+			}
+		}
+		int subType = rnd.nextBoolean() ? rnd.nextInt(6) + 4 : rnd.nextInt(10);
+		return getSpectralType(spectralType, subType * 1.0, LUM_V);
+	}
+	
 	/** A class representing some event, possibly changing stellar information */
 	public static final class StellarEvent {
 		@XmlJavaTypeAdapter(DateAdapter.class)

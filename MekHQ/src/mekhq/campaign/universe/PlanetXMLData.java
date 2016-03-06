@@ -116,6 +116,8 @@ public class PlanetXMLData {
 	@XmlElement(name = "class")
 	public String className;
 	
+	// All kinds of flags
+	
 	/** Mark this planet as not to be included/deleted. Requires a valid id (or name if no id supplied). */
 	@XmlJavaTypeAdapter(BooleanValueAdapter.class)
 	public Boolean delete;

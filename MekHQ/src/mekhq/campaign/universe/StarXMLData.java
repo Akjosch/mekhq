@@ -49,4 +49,10 @@ public class StarXMLData {
     public Integer numMinorPlanets; // amount of minor planets
     @XmlElement(name="defaultPlanet")
     public String defaultPlanetId;
+
+	// All kinds of flags
+	
+	/** Mark this star to have a procedurally generated spectral class, based on its ID. This has no effect if the class is specified. */
+	@XmlJavaTypeAdapter(BooleanValueAdapter.class)
+	public Boolean generateType;
 }
