@@ -226,7 +226,7 @@ public class Planet implements Serializable {
 		return new ArrayList<PlanetaryEvent>(events.values());
 	}
 	
-	private <T> T getEventData(Date when, T defaultValue, EventGetter<T> getter) {
+	protected <T> T getEventData(Date when, T defaultValue, EventGetter<T> getter) {
 		if( null == when || null == events || null == getter ) {
 			return defaultValue;
 		}
@@ -235,7 +235,7 @@ public class Planet implements Serializable {
 			if( date.after(when) ) {
 				break;
 			}
-			result = nonNull(getter.get(events.get(date)), result);
+			result = Utilities.nonNull(getter.get(events.get(date)), result);
 		}
 		return result;
 	}
@@ -471,10 +471,6 @@ public class Planet implements Serializable {
 		return EquipmentType.RATING_C;
 	}
 
-	private <T> T nonNull(T first, T second) {
-		return null != first ? first : second;
-	}
-	
 	private void addPointOfInterest(PointOfInterest poi) {
 		if( null == poi ) {
 			return;
@@ -493,49 +489,49 @@ public class Planet implements Serializable {
 	public void copyDataFrom(Planet other) {
 		if( null != other ) {
 			// We don't change the ID or StarID
-			name = nonNull(other.name, name);
-			shortName = nonNull(other.shortName, shortName);
-			climate = nonNull(other.climate, climate);
-			desc = nonNull(other.desc, desc);
-			factionCodes = nonNull(other.factionCodes, factionCodes);
-			gravity = nonNull(other.gravity, gravity);
-			hpg = nonNull(other.hpg, hpg);
-			landMasses = nonNull(other.landMasses, landMasses);
-			lifeForm = nonNull(other.lifeForm, lifeForm);
-			orbitSemimajorAxis = nonNull(other.orbitSemimajorAxis, orbitSemimajorAxis);
-			orbitEccentricity = nonNull(other.orbitEccentricity, orbitEccentricity);
-			orbitInclination = nonNull(other.orbitInclination, orbitInclination);
-			percentWater = nonNull(other.percentWater, percentWater);
-			pressure = nonNull(other.pressure, pressure);
-			pressureAtm = nonNull(other.pressureAtm, pressureAtm);
-			pressureAtm = nonNull(other.pressureAtm, pressureAtm);
-			atmMass = nonNull(other.atmMass, atmMass);
-			atmosphere = nonNull(other.atmosphere, atmosphere);
-			albedo = nonNull(other.albedo, albedo);
-			greenhouseEffect = nonNull(other.greenhouseEffect, greenhouseEffect);
-			volcanicActivity = nonNull(other.volcanicActivity, volcanicActivity);
-			tectonicActivity = nonNull(other.tectonicActivity, tectonicActivity);
-			habitability = nonNull(other.habitability, habitability);
-			dayLength = nonNull(other.dayLength, dayLength);
-			satellites = nonNull(other.satellites, satellites);
-			sysPos = nonNull(other.sysPos, sysPos);
-			temperature = nonNull(other.temperature, temperature);
-			socioIndustrial = nonNull(other.socioIndustrial, socioIndustrial);
+			name = Utilities.nonNull(other.name, name);
+			shortName = Utilities.nonNull(other.shortName, shortName);
+			climate = Utilities.nonNull(other.climate, climate);
+			desc = Utilities.nonNull(other.desc, desc);
+			factionCodes = Utilities.nonNull(other.factionCodes, factionCodes);
+			gravity = Utilities.nonNull(other.gravity, gravity);
+			hpg = Utilities.nonNull(other.hpg, hpg);
+			landMasses = Utilities.nonNull(other.landMasses, landMasses);
+			lifeForm = Utilities.nonNull(other.lifeForm, lifeForm);
+			orbitSemimajorAxis = Utilities.nonNull(other.orbitSemimajorAxis, orbitSemimajorAxis);
+			orbitEccentricity = Utilities.nonNull(other.orbitEccentricity, orbitEccentricity);
+			orbitInclination = Utilities.nonNull(other.orbitInclination, orbitInclination);
+			percentWater = Utilities.nonNull(other.percentWater, percentWater);
+			pressure = Utilities.nonNull(other.pressure, pressure);
+			pressureAtm = Utilities.nonNull(other.pressureAtm, pressureAtm);
+			pressureAtm = Utilities.nonNull(other.pressureAtm, pressureAtm);
+			atmMass = Utilities.nonNull(other.atmMass, atmMass);
+			atmosphere = Utilities.nonNull(other.atmosphere, atmosphere);
+			albedo = Utilities.nonNull(other.albedo, albedo);
+			greenhouseEffect = Utilities.nonNull(other.greenhouseEffect, greenhouseEffect);
+			volcanicActivity = Utilities.nonNull(other.volcanicActivity, volcanicActivity);
+			tectonicActivity = Utilities.nonNull(other.tectonicActivity, tectonicActivity);
+			habitability = Utilities.nonNull(other.habitability, habitability);
+			dayLength = Utilities.nonNull(other.dayLength, dayLength);
+			satellites = Utilities.nonNull(other.satellites, satellites);
+			sysPos = Utilities.nonNull(other.sysPos, sysPos);
+			temperature = Utilities.nonNull(other.temperature, temperature);
+			socioIndustrial = Utilities.nonNull(other.socioIndustrial, socioIndustrial);
 			// Merge (not replace!) events
 			if( null != other.events ) {
 				for( PlanetaryEvent event : other.getEvents() ) {
 					if( null != event && null != event.date ) {
 						PlanetaryEvent myEvent = getOrCreateEvent(event.date);
-						myEvent.climate = nonNull(event.climate, myEvent.climate);
-						myEvent.faction = nonNull(event.faction, myEvent.faction);
-						myEvent.hpg = nonNull(event.hpg, myEvent.hpg);
-						myEvent.lifeForm = nonNull(event.lifeForm, myEvent.lifeForm);
-						myEvent.message = nonNull(event.message, myEvent.message);
-						myEvent.name = nonNull(event.name, myEvent.name);
-						myEvent.percentWater = nonNull(event.percentWater, myEvent.percentWater);
-						myEvent.shortName = nonNull(event.shortName, myEvent.shortName);
-						myEvent.socioIndustrial = nonNull(event.socioIndustrial, myEvent.socioIndustrial);
-						myEvent.temperature = nonNull(event.temperature, myEvent.temperature);
+						myEvent.climate = Utilities.nonNull(event.climate, myEvent.climate);
+						myEvent.faction = Utilities.nonNull(event.faction, myEvent.faction);
+						myEvent.hpg = Utilities.nonNull(event.hpg, myEvent.hpg);
+						myEvent.lifeForm = Utilities.nonNull(event.lifeForm, myEvent.lifeForm);
+						myEvent.message = Utilities.nonNull(event.message, myEvent.message);
+						myEvent.name = Utilities.nonNull(event.name, myEvent.name);
+						myEvent.percentWater = Utilities.nonNull(event.percentWater, myEvent.percentWater);
+						myEvent.shortName = Utilities.nonNull(event.shortName, myEvent.shortName);
+						myEvent.socioIndustrial = Utilities.nonNull(event.socioIndustrial, myEvent.socioIndustrial);
+						myEvent.temperature = Utilities.nonNull(event.temperature, myEvent.temperature);
 					}
 				}
 			}

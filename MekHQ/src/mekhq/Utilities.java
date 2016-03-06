@@ -1137,4 +1137,9 @@ public class Utilities {
 	public static int lerp(int min, int max, double f) {
 		return (int)Math.round(min * (1.0 - f) + max * f);
 	}
+
+	/** @return the first argument if it's not null, else the second argument */
+	public static <T> T nonNull(T first, T second) {
+		return null != first ? first : second;
+	}
 }

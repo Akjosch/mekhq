@@ -544,7 +544,7 @@ public class PlanetViewPanel extends JPanel {
 		pnlStats.add(lblRecharge, gridBagConstraints);
 		
 		txtRecharge.setName("lblRecharge2"); // NOI18N
-		txtRecharge.setText(star.getRechargeStations(now));
+		txtRecharge.setText(star.getRechargeStationsText(now));
 		txtRecharge.setEditable(false);
 		txtRecharge.setLineWrap(true);
 		txtRecharge.setWrapStyleWord(true);

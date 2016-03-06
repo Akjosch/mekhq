@@ -476,7 +476,7 @@ public class RandomFactionGenerator implements Serializable {
 			distance = BORDER_RANGE_NEAR_PERIPHERY;
 		}
 		for (Star star : Planets.getNearbyStars(p, distance)) {
-			for (Faction f2 : star.getCurrentFactions(lastUpdate)) {
+			for (Faction f2 : star.getFactionSet(lastUpdate)) {
 				String eName = f2.getShortName();
 				if (f2.isEmpty() || eName.equals("CLAN")) {
 					continue;

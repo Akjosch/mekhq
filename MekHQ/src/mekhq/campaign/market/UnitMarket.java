@@ -166,7 +166,7 @@ public class UnitMarket implements Serializable {
 			}
 
 			if (campaign.getUnitRatingMod() >= IUnitRating.DRAGOON_B) {
-				Set<Faction> factions = campaign.getCurrentPlanet().getStar().getCurrentFactions(campaign.getDate());
+				Set<Faction> factions = campaign.getCurrentPlanet().getStar().getFactionSet(campaign.getDate());
 				String faction = Utilities.getRandomItem(factions).getShortName();
 				if (campaign.getFaction().isClan() ||
 						!Faction.getFaction(faction).isClan()) {

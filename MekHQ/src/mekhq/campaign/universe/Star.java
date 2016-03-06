@@ -14,7 +14,6 @@ import java.util.TreeMap;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
-import mekhq.MekHQ;
 import mekhq.Utilities;
 import mekhq.adapters.BooleanValueAdapter;
 import mekhq.adapters.DateAdapter;
@@ -184,6 +183,20 @@ public class Star implements Serializable {
 		return new ArrayList<StellarEvent>(events.values());
 	}
 
+	protected <T> T getEventData(Date when, T defaultValue, EventGetter<T> getter) {
+		if( null == when || null == events || null == getter ) {
+			return defaultValue;
+		}
+		T result = defaultValue;
+		for( Date date : events.navigableKeySet() ) {
+			if( date.after(when) ) {
+				break;
+			}
+			result = Utilities.nonNull(getter.get(events.get(date)), result);
+		}
+		return result;
+	}
+
 	/** @return events for this year. Never returns <i>null</i>. */
 	@SuppressWarnings("deprecation")
 	public List<StellarEvent> getEvents(int year) {
@@ -203,44 +216,15 @@ public class Star implements Serializable {
 	}
 	
 	public String getName(Date when) {
-		if( null == when || null == events ) {
-			return name;
-		}
-		String result = name;
-		for( Date date : events.navigableKeySet() ) {
-			if( date.after(when) ) {
-				break;
-			}
-			if( null != events.get(date).name ) {
-				result = events.get(date).name;
-			}
-		}
-		return result;
-	}
-
-	public void setName(String name, Date when) {
-		if( null == when ) {
-			this.name = name;
-			return;
-		}
-		StellarEvent event = getOrCreateEvent(when);
-		event.name = name;
+		return getEventData(when, name, new EventGetter<String>() {
+			@Override public String get(StellarEvent e) { return e.name; }
+		});
 	}
 
 	public String getShortName(Date when) {
-		if( null == when || null == events ) {
-			return shortName;
-		}
-		String result = shortName;
-		for( Date date : events.navigableKeySet() ) {
-			if( date.after(when) ) {
-				break;
-			}
-			if( null != events.get(date).shortName ) {
-				result = events.get(date).shortName;
-			}
-		}
-		return result;
+		return getEventData(when, shortName, new EventGetter<String>() {
+			@Override public String get(StellarEvent e) { return e.shortName; }
+		});
 	}
 	
 	/** @return short name if set, else full name, else "unnamed" */
@@ -252,71 +236,26 @@ public class Star implements Serializable {
 		return null != result ? result : "unnamed";
 	}
 	
-	public void setShortName(String shortName, Date when) {
-		if( null == when ) {
-			this.shortName = shortName;
-			return;
-		}
-		StellarEvent event = getOrCreateEvent(when);
-		event.shortName = shortName;
-	}
-	
 	public Boolean isNadirCharge(Date when) {
-		if( null == when || null == events ) {
-			return nadirCharge;
-		}
-		Boolean result = nadirCharge;
-		for( Date date : events.navigableKeySet() ) {
-			if( date.after(when) ) {
-				break;
-			}
-			if( null != events.get(date).nadirCharge ) {
-				result = events.get(date).nadirCharge;
-			}
-		}
-		return result;
-	}
-
-	public void setNadirCharge(boolean nadirCharge, Date when) {
-		if( null == when ) {
-			this.nadirCharge = nadirCharge;
-			return;
-		}
-		StellarEvent event = getOrCreateEvent(when);
-		event.nadirCharge = nadirCharge;
+		return getEventData(when, nadirCharge, new EventGetter<Boolean>() {
+			@Override public Boolean get(StellarEvent e) { return e.nadirCharge; }
+		});
 	}
 
 	public boolean isZenithCharge(Date when) {
-		if( null == when || null == events ) {
-			return zenithCharge;
-		}
-		Boolean result = zenithCharge;
-		for( Date date : events.navigableKeySet() ) {
-			if( date.after(when) ) {
-				break;
-			}
-			if( null != events.get(date).zenithCharge ) {
-				result = events.get(date).zenithCharge;
-			}
-		}
-		return result;
+		return getEventData(when, zenithCharge, new EventGetter<Boolean>() {
+			@Override public Boolean get(StellarEvent e) { return e.zenithCharge; }
+		});
 	}
 
-	public void setZenithCharge(boolean zenithCharge, Date when) {
-		if( null == when ) {
-			this.zenithCharge = zenithCharge;
-			return;
-		}
-		StellarEvent event = getOrCreateEvent(when);
-		event.zenithCharge = zenithCharge;
-	}
-
-	public String getRechargeStations(Date when) {
-		if(zenithCharge && nadirCharge) {
+	public String getRechargeStationsText(Date when) {
+		Boolean nadir = isNadirCharge(when);
+		Boolean zenith = isZenithCharge(when);
+		if(null != nadir && null != zenith && nadir.booleanValue() && zenith.booleanValue()) {
 			return "Zenith, Nadir";
-		} else if(zenithCharge) {
+		} else if(null != zenith && zenith.booleanValue()) {
 			return "Zenith";
-		} else if(nadirCharge) {
+		} else if(null != nadir && nadir.booleanValue()) {
 			return "Nadir";
 		} else {
 			return "None";
@@ -324,7 +263,7 @@ public class Star implements Serializable {
 	}
 
 	/** @return the factions in system; check individual planets for details */
-	public Set<Faction> getCurrentFactions(Date when) {
+	public Set<Faction> getFactionSet(Date when) {
 		Set<Faction> factions = new HashSet<Faction>();
 		for( Planet planet : getPlanets() ) {
 			Set<Faction> planetaryFactions = planet.getFactionSet(when);
@@ -353,7 +292,7 @@ public class Star implements Serializable {
 	public String getFactionDesc(Date when) {
 		@SuppressWarnings("deprecation")
 		int era = Era.getEra(when.getYear() + 1900);
-		Set<Faction> factions = getCurrentFactions(when);
+		Set<Faction> factions = getFactionSet(when);
 		List<String> factionNames = new ArrayList<String>(factions.size());
 		for( Faction f : factions ) {
 			factionNames.add(f.getFullName(era));
@@ -1139,5 +1078,10 @@ public class Star implements Serializable {
 	    public Boolean nadirCharge;
 		@XmlJavaTypeAdapter(BooleanValueAdapter.class)
 	    public Boolean zenithCharge;
+	}
+	
+	// @FunctionalInterface in Java 8
+	private static interface EventGetter<T> {
+		T get(StellarEvent e);
 	}
 }

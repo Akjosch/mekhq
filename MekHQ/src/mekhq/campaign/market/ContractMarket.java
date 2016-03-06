@@ -168,7 +168,7 @@ public class ContractMarket implements Serializable {
 			int numContracts = Compute.d6() - 4 + unitRatingMod;
 
 			Set<Faction> currentFactions =
-					campaign.getCurrentPlanet().getStar().getCurrentFactions(campaign.getDate());
+					campaign.getCurrentPlanet().getStar().getFactionSet(campaign.getDate());
 			if( null == currentFactions ) {
 				currentFactions = Collections.<Faction>emptySet();
 			}
@@ -198,7 +198,7 @@ public class ContractMarket implements Serializable {
 				Faction onlyFaction = currentFactions.iterator().next();
 				if( !onlyFaction.isPeriphery() ) {
 					for (Star key : Planets.getNearbyStars(campaign.getCurrentPlanet().getStar(), 30)) {
-						for (Faction f : key.getCurrentFactions(campaign.getDate())) {
+						for (Faction f : key.getFactionSet(campaign.getDate())) {
 							if( !onlyFaction.equals(f) ) {
 								inBackwater = false;
 								break;
@@ -235,7 +235,7 @@ public class ContractMarket implements Serializable {
 			/* If located on a faction's capital (interpreted as the starting planet for that faction),
 			 * generate one contract offer for that faction.
 			 */
-			for (Faction f : campaign.getCurrentPlanet().getStar().getCurrentFactions(campaign.getDate())) {
+			for (Faction f : campaign.getCurrentPlanet().getStar().getFactionSet(campaign.getDate())) {
 				try {
 					if (f.getStartingPlanet(campaign.getEra()).equals(campaign.getCurrentPlanet().getName())
 							&& RandomFactionGenerator.getInstance().getEmployerSet().contains(f.getShortName())) {
