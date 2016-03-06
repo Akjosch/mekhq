@@ -327,9 +327,9 @@ public class Star implements Serializable {
 	public Set<Faction> getCurrentFactions(Date when) {
 		Set<Faction> factions = new HashSet<Faction>();
 		for( Planet planet : getPlanets() ) {
-			Set<Faction> planetaryFactions = planet.getCurrentFactions(when);
+			Set<Faction> planetaryFactions = planet.getFactionSet(when);
 			if( null != planetaryFactions ) {
-				factions.addAll(planet.getCurrentFactions(when));
+				factions.addAll(planet.getFactionSet(when));
 			}
 		}
 		return factions;

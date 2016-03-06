@@ -423,7 +423,7 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
 			}
 			Planet defaultPlanet = planet.getDefaultPlanet();
 			Set<Faction> factions = null != defaultPlanet ?
-					defaultPlanet.getCurrentFactions(campaign.getDate()) :
+					defaultPlanet.getFactionSet(campaign.getDate()) :
 						Collections.<Faction>singleton(Faction.UNDISCOVERED);
 			if( null != factions ) {
 				int i = 0;

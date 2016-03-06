@@ -451,7 +451,7 @@ public class ContractMarket implements Serializable {
         	boolean factionValid = false;
         	for (Star p : Planets.getNearbyStars(campaign.getCurrentPlanet().getStar(), 30)) {
         		if (factionValid) break;
-        		for (Faction f : p.getDefaultPlanet().getCurrentFactions(campaign.getDate())) {
+        		for (Faction f : p.getDefaultPlanet().getFactionSet(campaign.getDate())) {
         			if (f.getShortName().equals(contract.getEnemyCode())) {
         				factionValid = true;
         				break;

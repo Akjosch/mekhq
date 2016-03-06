@@ -36,7 +36,7 @@ public class PlanetAdapter extends XmlAdapter<PlanetXMLData, Planet> {
 		result.orbitEccentricity = v.getOrbitEccentricity();
 		result.orbitInclination = v.getOrbitInclination();
 		result.percentWater = v.getPercentWater(null);
-		result.pressure = v.getPressure();
+		result.pressure = v.getPressure(null);
 		result.pressureAtm = v.getPressureAtm(null);
 		result.atmMass = v.getAtmMass(null);
 		result.atmosphere = v.getAtmosphere(null);

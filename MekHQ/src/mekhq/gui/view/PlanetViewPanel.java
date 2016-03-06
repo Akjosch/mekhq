@@ -268,7 +268,7 @@ public class PlanetViewPanel extends JPanel {
 			++ infoRow;
 		}
 		
-		if( null != planet.getPressure() ) {
+		if( null != planet.getPressure(now) ) {
 			JLabel lblPressure = new JLabel();
 			lblPressure.setName("lblPressure1"); // NOI18N
 			lblPressure.setText(resourceMap.getString("lblPressure1.text"));
@@ -281,7 +281,7 @@ public class PlanetViewPanel extends JPanel {
 			
 			JTextArea txtPressure = new JTextArea();
 			txtPressure.setName("lblPressure2"); // NOI18N
-			txtPressure.setText(planet.getPressureName());
+			txtPressure.setText(planet.getPressureName(now));
 			txtPressure.setEditable(false);
 			txtPressure.setLineWrap(true);
 			txtPressure.setWrapStyleWord(true);
@@ -434,7 +434,7 @@ public class PlanetViewPanel extends JPanel {
 			
 			JTextArea txtSocioIndustrial = new JTextArea();
 			txtSocioIndustrial.setName("lblSocioIndustrial2"); // NOI18N
-			txtSocioIndustrial.setText(planet.getSocioIndustrialLevel(now));
+			txtSocioIndustrial.setText(planet.getSocioIndustrialText(now));
 			txtSocioIndustrial.setEditable(false);
 			txtSocioIndustrial.setLineWrap(true);
 			txtSocioIndustrial.setWrapStyleWord(true);

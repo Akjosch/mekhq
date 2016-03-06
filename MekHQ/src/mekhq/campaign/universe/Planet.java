@@ -164,14 +164,6 @@ public class Planet implements Serializable {
 		return null != gravity ? gravity.toString() + "g" : "fit for humans";
 	}
 
-	public Integer getPressure() {
-		return pressure;
-	}
-	
-	public String getPressureName() {
-		return null != pressure ? PlanetaryConditions.getAtmosphereDisplayableName(pressure) : "fit for humans";
-	}
-
 	public Double getOrbitSemimajorAxis() {
 		return orbitSemimajorAxis;
 	}
@@ -209,7 +201,6 @@ public class Planet implements Serializable {
 		return orbitInclination;
 	}
 
-
 	// Date-dependant data
 
 	private PlanetaryEvent getOrCreateEvent(Date when) {
@@ -235,6 +226,20 @@ public class Planet implements Serializable {
 		return new ArrayList<PlanetaryEvent>(events.values());
 	}
 	
+	private <T> T getEventData(Date when, T defaultValue, EventGetter<T> getter) {
+		if( null == when || null == events || null == getter ) {
+			return defaultValue;
+		}
+		T result = defaultValue;
+		for( Date date : events.navigableKeySet() ) {
+			if( date.after(when) ) {
+				break;
+			}
+			result = nonNull(getter.get(events.get(date)), result);
+		}
+		return result;
+	}
+	
 	/** @return events for this year. Never returns <i>null</i>. */
 	@SuppressWarnings("deprecation")
 	public List<PlanetaryEvent> getEvents(int year) {
@@ -254,92 +259,44 @@ public class Planet implements Serializable {
 	}
 
 	public String getName(Date when) {
-		if( null == when || null == events ) {
-			return name;
-		}
-		String result = name;
-		for( Date date : events.navigableKeySet() ) {
-			if( date.after(when) ) {
-				break;
-			}
-			if( null != events.get(date).name ) {
-				result = events.get(date).name;
-			}
-		}
-		return result;
+		return getEventData(when, name, new EventGetter<String>() {
+			@Override public String get(PlanetaryEvent e) { return e.name; }
+		});
 	}
 
 	public String getShortName(Date when) {
-		if( null == when || null == events ) {
-			return shortName;
-		}
-		String result = shortName;
-		for( Date date : events.navigableKeySet() ) {
-			if( date.after(when) ) {
-				break;
-			}
-			if( null != events.get(date).shortName ) {
-				result = events.get(date).shortName;
-			}
-		}
-		return result;
+		return getEventData(when, shortName, new EventGetter<String>() {
+			@Override public String get(PlanetaryEvent e) { return e.shortName; }
+		});
 	}
 
 	public SocioIndustrialData getSocioIndustrial(Date when) {
-		if( null == when || null == events ) {
-			return null != socioIndustrial ? socioIndustrial : SocioIndustrialData.NONE;
-		}
-		SocioIndustrialData result = null != socioIndustrial ? socioIndustrial : SocioIndustrialData.NONE;
-		for( Date date : events.navigableKeySet() ) {
-			if( date.after(when) ) {
-				break;
-			}
-			if( null != events.get(date).socioIndustrial ) {
-				result = events.get(date).socioIndustrial;
-			}
-		}
-		return result;
+		return getEventData(when, socioIndustrial, new EventGetter<SocioIndustrialData>() {
+			@Override public SocioIndustrialData get(PlanetaryEvent e) { return e.socioIndustrial; }
+		});
 	}
 
-	public String getSocioIndustrialLevel(Date when) {
-		return getSocioIndustrial(when).toString();
+	public String getSocioIndustrialText(Date when) {
+		SocioIndustrialData sid = getSocioIndustrial(when);
+		return null != sid ? sid.toString() : "";
 	}
 
 	public Integer getHPG(Date when) {
-		if( null == when || null == events ) {
-			return null != hpg ? hpg : EquipmentType.RATING_X;
-		}
-		Integer result = null != hpg ? hpg : EquipmentType.RATING_X;
-		for( Date date : events.navigableKeySet() ) {
-			if( date.after(when) ) {
-				break;
-			}
-			if( null != events.get(date).hpg ) {
-				result = events.get(date).hpg;
-			}
-		}
-		return result;
+		return getEventData(when, hpg, new EventGetter<Integer>() {
+			@Override public Integer get(PlanetaryEvent e) { return e.hpg; }
+		});
 	}
 
 
 	public String getHPGClass(Date when) {
-		return EquipmentType.getRatingName(getHPG(when));
+		Integer currentHPG = getHPG(when);
+		return null != currentHPG ? EquipmentType.getRatingName(currentHPG) : "";
 	}
 
 	public LifeForm getLifeForm(Date when) {
-		if( null == when || null == events ) {
-			return null != lifeForm ? lifeForm : LifeForm.NONE;
-		}
-		LifeForm result = null != lifeForm ? lifeForm : LifeForm.NONE;
-		for( Date date : events.navigableKeySet() ) {
-			if( date.after(when) ) {
-				break;
-			}
-			if( null != events.get(date).lifeForm ) {
-				result = events.get(date).lifeForm;
-			}
-		}
-		return result;
+		return getEventData(when, null != lifeForm ? lifeForm : LifeForm.NONE, new EventGetter<LifeForm>() {
+			@Override public LifeForm get(PlanetaryEvent e) { return e.lifeForm; }
+		});
 	}
 
 	public String getLifeFormName(Date when) {
@@ -347,21 +304,10 @@ public class Planet implements Serializable {
 	}
 
 	public Climate getClimate(Date when) {
-		if( null == when || null == events ) {
-			return climate;
-		}
-		Climate result = climate;
-		for( Date date : events.navigableKeySet() ) {
-			if( date.after(when) ) {
-				break;
-			}
-			if( null != events.get(date).climate ) {
-				result = events.get(date).climate;
-			}
-		}
-		return result;
+		return getEventData(when, climate, new EventGetter<Climate>() {
+			@Override public Climate get(PlanetaryEvent e) { return e.climate; }
+		});
 	}
-
 
 	public String getClimateName(Date when) {
 		Climate c = getClimate(when);
@@ -369,39 +315,28 @@ public class Planet implements Serializable {
 	}
 
 	public Integer getPercentWater(Date when) {
-		if( null == when || null == events ) {
-			return percentWater;
-		}
-		Integer result = percentWater;
-		for( Date date : events.navigableKeySet() ) {
-			if( date.after(when) ) {
-				break;
-			}
-			if( null != events.get(date).percentWater ) {
-				result = events.get(date).percentWater;
-			}
-		}
-		return result;
+		return getEventData(when, percentWater, new EventGetter<Integer>() {
+			@Override public Integer get(PlanetaryEvent e) { return e.percentWater; }
+		});
 	}
 
 	public Integer getTemperature(Date when) {
-		if( null == when || null == events ) {
-			return temperature;
-		}
-		Integer result = temperature;
-		for( Date date : events.navigableKeySet() ) {
-			if( date.after(when) ) {
-				break;
-			}
-			if( null != events.get(date).temperature ) {
-				result = events.get(date).temperature;
-			}
-		}
-		return result;
+		return getEventData(when, temperature, new EventGetter<Integer>() {
+			@Override public Integer get(PlanetaryEvent e) { return e.temperature; }
+		});
 	}
 
 	public List<String> getGarrisonUnits() {
 		return garrisonUnits;
+	}
+
+	public Integer getPressure(Date when) {
+		return pressure; // TODO: inclue in events
+	}
+	
+	public String getPressureName(Date when) {
+		Integer currentPressure = getPressure(when);
+		return null != currentPressure ? PlanetaryConditions.getAtmosphereDisplayableName(currentPressure) : "unknown";
 	}
 
 	public Double getPressureAtm(Date when) {
@@ -432,28 +367,11 @@ public class Planet implements Serializable {
 		return null != pois ? new ArrayList<PointOfInterest>(pois) : null; // TODO: include in events
 	}
 	
+	/** @return ap of factions and their influences at a given date */
 	public Map<String, Integer> getFactions(Date when) {
-		if( null == when || null == events ) {
-			return factionCodes;
-		}
-		Map<String, Integer> result = factionCodes;
-		for( Date date : events.navigableKeySet() ) {
-			if( date.after(when) ) {
-				break;
-			}
-			if( null != events.get(date).faction ) {
-				result = events.get(date).faction;
-			}
-		}
-		return result;
-	}
-
-	public Set<String> getBaseFactionCodes() {
-		return Collections.unmodifiableSet(factionCodes.keySet());
-	}
-
-	public Set<Faction> getBaseFactions() {
-		return getFactionsFrom(factionCodes.keySet());
+		return getEventData(when, factionCodes, new EventGetter< Map<String, Integer>>() {
+			@Override public  Map<String, Integer> get(PlanetaryEvent e) { return e.faction; }
+		});
 	}
 
 	private static Set<Faction> getFactionsFrom(Set<String> codes) {
@@ -464,7 +382,8 @@ public class Planet implements Serializable {
 		return factions;
 	}
 
-	public Set<Faction> getCurrentFactions(Date when) {
+	/** @return set of factions at a given date */
+	public Set<Faction> getFactionSet(Date when) {
 		Map<String, Integer> currentFactions = getFactions(when);
 		return null != currentFactions ? getFactionsFrom(currentFactions.keySet()) : null;
 	}
@@ -476,7 +395,7 @@ public class Planet implements Serializable {
 	public String getFactionDesc(Date when) {
 		@SuppressWarnings("deprecation")
 		int era = Era.getEra(when.getYear() + 1900);
-		Set<Faction> factions = getCurrentFactions(when);
+		Set<Faction> factions = getFactionSet(when);
 		if( null == factions ) {
 			return "-";
 		}
@@ -1027,5 +946,10 @@ public class Planet implements Serializable {
 		@XmlElement(name="alt")
 		public Double altitude;
 		public String desc;
+	}
+	
+	// @FunctionalInterface in Java 8
+	private static interface EventGetter<T> {
+		T get(PlanetaryEvent e);
 	}
 }

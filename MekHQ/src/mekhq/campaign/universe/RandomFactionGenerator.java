@@ -420,7 +420,7 @@ public class RandomFactionGenerator implements Serializable {
 		borders.clear();
 		currentFactions.clear();
 		for (Planet p : Planets.getInstance().getPlanets().values()) {
-			Set<Faction> factions = p.getCurrentFactions(date);
+			Set<Faction> factions = p.getFactionSet(date);
 			if( null != factions ) {
 				for (Faction f : factions ) {
 					String fName = null != f ? f.getShortName() : "???";
@@ -713,9 +713,9 @@ public class RandomFactionGenerator implements Serializable {
 			for (Planet startingPlanet : border) {
 				for (Star s : Planets.getNearbyStars(startingPlanet, maxJumps * 30)) {
 					for( Planet p : s.getPlanets() ) {
-						Set<Faction> factions = p.getCurrentFactions(date);
+						Set<Faction> factions = p.getFactionSet(date);
 						if( null != factions ) {
-							for (Faction f : p.getCurrentFactions(date)) {
+							for (Faction f : p.getFactionSet(date)) {
 								if (f.getShortName().equals(defender) ||
 										defender.equals("PIR") ||
 										(f.getShortName().equals(attacker) && defender.equals("REB"))) {

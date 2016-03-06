@@ -399,7 +399,8 @@ public class AtBScenario extends Scenario {
 		if (null != mission) {
 			Planet p = Planets.getInstance().getPlanetById(mission.getPlanetName());
 			if (null != p) {
-				atmosphere = null != p.getPressure() ? p.getPressure() : PlanetaryConditions.ATMO_STANDARD;
+				// TODO: Query current date's pressure, for terraformed planets
+				atmosphere = null != p.getPressure(null) ? p.getPressure(null) : PlanetaryConditions.ATMO_STANDARD;
 				gravity = null != p.getGravity() ? p.getGravity().floatValue() : 1.0f;
 			}
 		}
