@@ -28,7 +28,8 @@ import java.util.GregorianCalendar;
 import java.util.Hashtable;
 import java.util.UUID;
 
-import javax.management.RuntimeErrorException;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import megamek.client.RandomUnitGenerator;
 import megamek.common.Compute;
@@ -50,9 +51,6 @@ import mekhq.campaign.rating.IUnitRating;
 import mekhq.campaign.universe.Faction;
 import mekhq.campaign.universe.RandomFactionGenerator;
 import mekhq.campaign.universe.UnitTableData;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 public class PersonnelMarket {
 	private ArrayList<Person> personnel = new ArrayList<Person>();

@@ -42,7 +42,6 @@ import mekhq.campaign.mission.AtBContract;
 import mekhq.campaign.mission.Contract;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.personnel.SkillType;
-import mekhq.campaign.universe.Planets;
 
 /**
  * Contract summary view for ContractMarketDialog

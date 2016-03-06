@@ -22,7 +22,6 @@ import mekhq.adapters.HPGRatingAdapter;
 import mekhq.adapters.LifeFormAdapter;
 import mekhq.adapters.SocioIndustrialDataAdapter;
 import mekhq.adapters.SpectralClassAdapter;
-import mekhq.campaign.JumpPath;
 
 /**
  * A pure data class holding the Java representation of the planet inside the configuration list.

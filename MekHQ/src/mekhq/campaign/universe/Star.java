@@ -620,6 +620,18 @@ public class Star implements Serializable {
 			radius = null != other.radius ? other.radius : radius;
 			defaultPlanetId = null != other.defaultPlanetId ? other.defaultPlanetId : defaultPlanetId;
 			preparePlanetsList(null != numPlanets ? numPlanets.intValue() : 0);
+			if( null != other.events ) {
+				for( StellarEvent event : other.getEvents() ) {
+					if( null != event && null != event.date ) {
+						StellarEvent myEvent = getOrCreateEvent(event.date);
+						myEvent.message = Utilities.nonNull(event.message, myEvent.message);
+						myEvent.name = Utilities.nonNull(event.name, myEvent.name);
+						myEvent.shortName = Utilities.nonNull(event.shortName, myEvent.shortName);
+						myEvent.nadirCharge = Utilities.nonNull(event.nadirCharge, myEvent.nadirCharge);
+						myEvent.zenithCharge = Utilities.nonNull(event.zenithCharge, myEvent.zenithCharge);
+					}
+				}
+			}
 		}
 	}
 

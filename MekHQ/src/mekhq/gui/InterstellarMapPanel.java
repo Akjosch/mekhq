@@ -467,10 +467,6 @@ public class InterstellarMapPanel extends javax.swing.JPanel {
         return closestStar;
     }
 
-    private void center(Planet p, int x) {
-    	center(p.getStar());
-    }
-    
     private void center(SpaceLocation l) {
     	center(l.getStar());
     }
