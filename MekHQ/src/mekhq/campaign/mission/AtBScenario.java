@@ -399,8 +399,8 @@ public class AtBScenario extends Scenario {
 		if (null != mission) {
 			Planet p = Planets.getInstance().getPlanetById(mission.getPlanetName());
 			if (null != p) {
-				atmosphere = p.getPressure();
-				gravity = p.getGravity().floatValue();
+				atmosphere = null != p.getPressure() ? p.getPressure() : PlanetaryConditions.ATMO_STANDARD;
+				gravity = null != p.getGravity() ? p.getGravity().floatValue() : 1.0f;
 			}
 		}
 	}
@@ -716,6 +716,9 @@ public class AtBScenario extends Scenario {
 			 * the player can keep the 'Mech without a battle so no enemy
 			 * units are generated.
 			 */
+			if( botForces.isEmpty() ) {
+				setSpecialMissionForces(campaign);
+			}
 			if (botForces.get(0) != null && specMissionEnemies != null
 					&& specMissionEnemies.get(weight) != null) {
 				botForces.get(0).setEntityList(specMissionEnemies.get(weight));

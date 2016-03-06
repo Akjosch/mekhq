@@ -99,7 +99,6 @@ public class JumpShipUnit {
 		try {
 			JAXBContext jaxbContext = JAXBContext.newInstance(JumpShipUnit.class);
 			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			unmarshaller.setProperty("jaxb.fragment", Boolean.TRUE);
 			JumpShipUnit jumpShip = unmarshaller.unmarshal(wn, JumpShipUnit.class).getValue();
 			return jumpShip;
 		} catch (Exception e) {

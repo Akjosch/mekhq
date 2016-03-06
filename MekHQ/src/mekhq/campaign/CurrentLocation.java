@@ -267,17 +267,17 @@ public class CurrentLocation implements Serializable {
 			for (int x=0; x<nl.getLength(); x++) {
 				Node wn2 = nl.item(x);
 				if (wn2.getNodeName().equalsIgnoreCase("currentPlanetName")) {
-					Planet p = c.getPlanet(wn2.getTextContent());
-					if(null == p) {
+					retVal.currentLocation = SpaceLocation.byName(wn2.getTextContent());
+					if( null == retVal.currentLocation ) {
 						//whoops we cant find your planet man, back to Earth
-						MekHQ.logError("Couldn't find planet named " + wn2.getTextContent());
-						p = c.getPlanet("Terra");
+						MekHQ.logError("Couldn't parse location " + wn2.getTextContent());
+						Planet p = c.getPlanet("Terra");
 						if(null == p) {
 							//if that doesnt work then give the first planet we have
 							p = c.getPlanets().get(0);
 						}
+						retVal.currentLocation = p.getPointOnSurface();
 					}
-					retVal.currentLocation = p.getPointOnSurface();
 				} else if (wn2.getNodeName().equalsIgnoreCase("transitTime")) {
 					retVal.transitTime = Double.parseDouble(wn2.getTextContent());
 				} else if (wn2.getNodeName().equalsIgnoreCase("rechargeTime")) {
@@ -295,6 +295,13 @@ public class CurrentLocation implements Serializable {
 			MekHQ.logError(ex);
 		}
 
+		if( null == retVal.currentJumpship ) {
+			retVal.currentJumpship = new JumpShipUnit();
+			if( null != retVal.currentLocation ) {
+				retVal.currentJumpship.setLocation(retVal.currentLocation.getStar().getPreferredJumpPoint());
+			}
+		}
+		
 		return retVal;
 	}
 }
