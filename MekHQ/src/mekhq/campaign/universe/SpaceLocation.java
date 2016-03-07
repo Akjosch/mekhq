@@ -80,6 +80,11 @@ public abstract class SpaceLocation {
 	 * outside jump points and recharge stations).
 	 */
 	public abstract double getRechargeTime();
+	
+	/** @return velocity in respect to the central star in km/s */
+	public double getVelocity() {
+		return 0;
+	}
 
 	/**
 	 * @return a machine-readable name allowing to reconstruct this location later on

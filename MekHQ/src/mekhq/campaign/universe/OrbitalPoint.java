@@ -61,6 +61,17 @@ public class OrbitalPoint extends SpaceLocation {
 		// No recharge at orbital positions (for now)
 		return Double.POSITIVE_INFINITY;
 	}
+	
+	@Override
+	public double getVelocity() {
+		if( distance > 0.0 ) {
+			double starMass = getStar().getMassKg();
+			if( starMass > 0.0 ) {
+				return Math.sqrt(Utilities.GRAV_CONSTANT * starMass / distance / 1000.0) / 1000.0;
+			}
+		}
+		return 0.0;
+	}
 
 	@Override
 	public String getName() {
