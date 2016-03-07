@@ -883,8 +883,177 @@ public class Planet implements Serializable {
 		public String desc;
 	}
 	
-	// @FunctionalInterface in Java 8
+	// @FunctionalInterface in Java 8, or just use Function<PlanetaryEvent, T>
 	private static interface EventGetter<T> {
 		T get(PlanetaryEvent e);
+	}
+	
+	/** BT planet types */
+	public static enum PlanetaryType {
+		SMALL_ASTEROID, MEDIUM_ASTEROID, DWARF_TERRESTIAL, TERRESTIAL, GIANT_TERRESTIAL, GAS_GIANT, ICE_GIANT;
+	}
+	
+	/** Big varied list of planetary classes, several per type */
+	public static final class PlanetaryClass {
+		// Gas giants
+		
+		/** Ammonia clouds, max temperature of 150 K; reddish due to organic compounds */
+		public static final PlanetaryClass GAS_GIANT_I
+			= new PlanetaryClass(PlanetaryType.GAS_GIANT, "Ammonia-clouded gas giant");
+		/** Water clouds, max temperature 300 K; white */
+		public static final PlanetaryClass GAS_GIANT_II
+			= new PlanetaryClass(PlanetaryType.GAS_GIANT, "Water-clouded gas giant");
+		/** No global cloud cover, temperatures between 300 K and 800 K; dark blue */
+		public static final PlanetaryClass GAS_GIANT_III
+			= new PlanetaryClass(PlanetaryType.GAS_GIANT, "Cloudless gas giant");
+		/** Deep cloud cover of silicates and iron, temperature range 800 to 1400 K; dark greenish grey */
+		public static final PlanetaryClass GAS_GIANT_IV
+			= new PlanetaryClass(PlanetaryType.GAS_GIANT, "Alkali gas giant");
+		/** High cloud cover of silicates and iron, temperatures above 1400 K; greenish grey */
+		public static final PlanetaryClass GAS_GIANT_V
+			= new PlanetaryClass(PlanetaryType.GAS_GIANT, "Silicate-clouded gas giant");
+		/** Metallic core of a gas giant stripped of hydrogen and helium atmosphere due to close proximity to a star */
+		public static final PlanetaryClass CTHONIAN
+			= new PlanetaryClass(PlanetaryType.GAS_GIANT, "Cthonian planet");
+		/**  Giant planet composed mostly of water, methane and ammonia; typically very cold. */
+		public static final PlanetaryClass ICE_GIANT
+			= new PlanetaryClass(PlanetaryType.ICE_GIANT, "Ice giant");
+		/** Hot 'Puffy' giants, very hot and in transition to cthonian planets */
+		public static final PlanetaryClass HOT_PUFFY_GIANT
+			= new PlanetaryClass(PlanetaryType.GAS_GIANT, "Hot 'puffy' gas giant");
+		/** Cold "puffy" giant, implies internal heating and strong magnetic fields */
+		public static final PlanetaryClass COLD_PUFFY_GIANT
+			= new PlanetaryClass(PlanetaryType.GAS_GIANT, "'Puffy' gas giant");
+		/** Late-stage hot "puffy" gas giant with atmosphere boiling away and a comet-like trail */
+		public static final PlanetaryClass BOILING_GIANT
+			= new PlanetaryClass(PlanetaryType.GAS_GIANT, "Boiling giant");
+		/** Rocky core, thick hydrogen/hellium atmosphere */
+		public static final PlanetaryClass GAS_DWARF
+			= new PlanetaryClass(PlanetaryType.GIANT_TERRESTIAL, "Gas dwarf");
+		
+		// Terrestial planets
+		
+		/** Low-water variant on Earth-sized planet */
+		public static final PlanetaryClass DESERT
+			= new PlanetaryClass(PlanetaryType.TERRESTIAL, "Desert planet");
+		/** Earth-sized planet with oceans and water clouds */
+		public static final PlanetaryClass EARTH_LIKE
+		= new PlanetaryClass(PlanetaryType.TERRESTIAL, "Earth-like planet");
+		/** Variant of an Earth-like planet with a runaway greenhouse effect. See: Venus */
+		public static final PlanetaryClass GREENHOUSE
+		= new PlanetaryClass(PlanetaryType.TERRESTIAL, "Greenhouse planet");
+		/** Hot planets still retaining a substantial atmosphere (CO2 molar mass = 44), but not liquid water;
+		 * also likely lacking a strong magnetic field */
+		public static final PlanetaryClass HELL
+			= new PlanetaryClass(PlanetaryType.TERRESTIAL, "Hell planet");
+		/** Cold (up to 260K) planet lacking a magnetic field, consisting mostly of rock */
+		public static final PlanetaryClass FROZEN_ROCK
+			= new PlanetaryClass(PlanetaryType.TERRESTIAL, "Frozen rock planet");
+		/** Airless rock, mostly relatively warm (260K or above) */
+		public static final PlanetaryClass AIRLESS
+			= new PlanetaryClass(PlanetaryType.TERRESTIAL, "Airless rock planet");
+		/** Small rocky worlds with carbon dioxide atmosphere (mostly) */
+		public static final PlanetaryClass DRY_ROCK
+			= new PlanetaryClass(PlanetaryType.TERRESTIAL, "Dry rocky planet");
+		/** Earth-like conditions, including fluid water, but no notable magnetic field */
+		public static final PlanetaryClass ROCKY
+			= new PlanetaryClass(PlanetaryType.TERRESTIAL, "Rocky planet");
+		/** Earth-sized planet with oceans and water clouds, thick hellium-rich atmosphere */
+		public static final PlanetaryClass HIGH_PRESSURE
+			= new PlanetaryClass(PlanetaryType.GIANT_TERRESTIAL, "Giant terrestial planet");
+		/** Variant of an Earth-like planet with a runaway greenhouse effect and extremly thick hellium-rich atmosphere */
+		public static final PlanetaryClass EXTREME_GREENHOUSE
+			= new PlanetaryClass(PlanetaryType.GIANT_TERRESTIAL, "Giant greenhouse planet");
+		/** Earth-sized planet or planetoid with a thick ice cover: Below 260 K for water ice, below 180 K for CO2 and ammonia and below 80K for methane */
+		public static final PlanetaryClass WATER_ICE
+			= new PlanetaryClass(PlanetaryType.TERRESTIAL, "Ice planet");
+		public static final PlanetaryClass AMMONIA_ICE
+			= new PlanetaryClass(PlanetaryType.TERRESTIAL, "Ammonia ice planet");
+		public static final PlanetaryClass METHANE_ICE
+			= new PlanetaryClass(PlanetaryType.TERRESTIAL, "Methane ice planet");
+		/** Iron-rich small planets without much or any mantle; typically close to their star or around big stars */
+		public static final PlanetaryClass IRON
+			= new PlanetaryClass(PlanetaryType.TERRESTIAL, "Iron planet");
+		public static final PlanetaryClass LAVA
+			= new PlanetaryClass(PlanetaryType.TERRESTIAL, "Lava planet");
+		/**
+		 * High-water content planets with temperatures between 260 K and 350 K;
+		 * typically good cloud cover and greenhouse effect.
+		 */
+		public static final PlanetaryClass OCEAN
+			= new PlanetaryClass(PlanetaryType.TERRESTIAL, "Ocean planet");
+		/**
+		 * Special - tidally flexed small planet, see Io.
+		 * These need special calculations to appear, and can only appear as moons of gas giants.
+		 */
+		public static final PlanetaryClass SULFUR
+			= new PlanetaryClass(PlanetaryType.TERRESTIAL, "Tidally-flexed planet");
+
+		// Minor planets and big asteroids
+		
+		/** Very dark, consisting mostly of carbonaceous chondite */
+		public static final PlanetaryClass CARBONACEOUS_PLANETOID
+			= new PlanetaryClass(PlanetaryType.MEDIUM_ASTEROID, "Carbonaceous planetoid");
+		/** Mostly packed ice/gravel */
+		public static final PlanetaryClass ICE_PLANETOID
+			= new PlanetaryClass(PlanetaryType.MEDIUM_ASTEROID, "Ice planetoid");
+		/** Rock; the most common type */
+		public static final PlanetaryClass SILICATE_PLANETOID
+			= new PlanetaryClass(PlanetaryType.MEDIUM_ASTEROID, "Silicate planetoid");
+		/** Metal (resource-rich) */
+		public static final PlanetaryClass METALLIC_PLANETOID
+			= new PlanetaryClass(PlanetaryType.MEDIUM_ASTEROID, "Metallic planetoid");
+		/** Loose gravel stuff, but not frozen */
+		public static final PlanetaryClass GRAVEL_PLANETOID
+			= new PlanetaryClass(PlanetaryType.MEDIUM_ASTEROID, "Gravel planetoid");
+		
+		/** A bunch of rocks loosely held together in a weird shape */
+		public static final PlanetaryClass MINOR_ASTEROID
+			= new PlanetaryClass(PlanetaryType.SMALL_ASTEROID, "Minor asteroid");
+
+		public static final Set<PlanetaryClass> knownClasses = new HashSet<PlanetaryClass>();
+		static {
+			knownClasses.add(GAS_GIANT_I);
+			knownClasses.add(GAS_GIANT_II);
+			knownClasses.add(GAS_GIANT_III);
+			knownClasses.add(GAS_GIANT_IV);
+			knownClasses.add(GAS_GIANT_V);
+			knownClasses.add(CTHONIAN);
+			knownClasses.add(ICE_GIANT);
+			knownClasses.add(HOT_PUFFY_GIANT);
+			knownClasses.add(COLD_PUFFY_GIANT);
+			knownClasses.add(BOILING_GIANT);
+			knownClasses.add(GAS_DWARF);
+			knownClasses.add(DESERT);
+			knownClasses.add(EARTH_LIKE);
+			knownClasses.add(GREENHOUSE);
+			knownClasses.add(EXTREME_GREENHOUSE);
+			knownClasses.add(WATER_ICE);
+			knownClasses.add(AMMONIA_ICE);
+			knownClasses.add(METHANE_ICE);
+			knownClasses.add(IRON);
+			knownClasses.add(LAVA);
+			knownClasses.add(OCEAN);
+			knownClasses.add(HELL);
+			knownClasses.add(FROZEN_ROCK);
+			knownClasses.add(ROCKY);
+			knownClasses.add(DRY_ROCK);
+			knownClasses.add(AIRLESS);
+			knownClasses.add(HIGH_PRESSURE);
+			knownClasses.add(CARBONACEOUS_PLANETOID);
+			knownClasses.add(ICE_PLANETOID);
+			knownClasses.add(SILICATE_PLANETOID);
+			knownClasses.add(METALLIC_PLANETOID);
+			knownClasses.add(GRAVEL_PLANETOID);
+			knownClasses.add(MINOR_ASTEROID);
+		}
+
+		public final PlanetaryType type;
+		public final String name;
+		
+		private PlanetaryClass(PlanetaryType type, String name) {
+			this.type = type;
+			this.name = name;
+		}
 	}
 }
