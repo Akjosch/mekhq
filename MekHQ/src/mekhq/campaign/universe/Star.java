@@ -1107,7 +1107,8 @@ public class Star implements Serializable {
 				spectralType = hotSpectralType[rnd.nextInt(6) + rnd.nextInt(6)];
 			}
 		}
-		int subType = rnd.nextBoolean() ? rnd.nextInt(6) + 4 : rnd.nextInt(10);
+		// Slightly weighted towards the higher numbers
+		int subType = (int)Math.floor(Utilities.lerp(0.0, 10.0, Math.pow(rnd.nextDouble(), 0.8)));
 		return getSpectralType(spectralType, subType * 1.0, LUM_V);
 	}
 	
