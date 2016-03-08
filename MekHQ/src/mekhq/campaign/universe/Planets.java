@@ -19,6 +19,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.dom.DOMException;
 
@@ -41,6 +42,22 @@ public class Planets {
 	 * nearby systems without iterating through the entire planet list
 	 */
  	private static HashMap<Integer, Map<Integer, Set<Star>>> starGrid;
+ 	
+	// Marshaller / unmarshaller instances
+	private static Marshaller marshaller;
+	private static Unmarshaller unmarshaller;
+	static {
+		try {
+			JAXBContext context = JAXBContext.newInstance(PlanetListXMLData.class,
+					StarXMLData.class, PlanetXMLData.class, Planet.class, Star.class);
+			marshaller = context.createMarshaller();
+			marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
+			unmarshaller = context.createUnmarshaller();
+		} catch(JAXBException e) {
+			MekHQ.logError(e);
+		}
+	}
+ 	
     private Thread loader;
 
     private Planets() {
@@ -139,9 +156,8 @@ public class Planets {
 
 	private void updatePlanets(InputStream source) {
 		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(PlanetListXMLData.class, StarXMLData.class, PlanetXMLData.class);
-			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-			PlanetListXMLData list = (PlanetListXMLData)jaxbUnmarshaller.unmarshal(source);
+			PlanetListXMLData list = unmarshaller.unmarshal(
+					new StreamSource(source), PlanetListXMLData.class).getValue();
 			
 			// Run through the explicitly defined stars first
 			for( Object obj : list.objects ) {
@@ -287,9 +303,6 @@ public class Planets {
 
 	public void writeStar(OutputStream out, Star star, boolean includePlanets) {
 		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(PlanetListXMLData.class, StarXMLData.class, PlanetXMLData.class, Planet.class, Star.class);
-			Marshaller marshaller = jaxbContext.createMarshaller();
-			marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
 			marshaller.marshal(new StarAdapter().marshal(star), out);
 			if( includePlanets ) {
 				for( Planet planet : star.getPlanets() ) {
@@ -297,8 +310,7 @@ public class Planets {
 				}
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MekHQ.logError(e);
 		}
 	}
 

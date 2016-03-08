@@ -45,6 +45,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.dom.DOMException;
 
@@ -83,7 +84,7 @@ public class Faction {
 	private static Unmarshaller unmarshaller;
 	static {
 		try {
-			JAXBContext context = JAXBContext.newInstance(Faction.class, FactionList.class);
+			JAXBContext context = JAXBContext.newInstance(Faction.class, FactionData.class);
 			marshaller = context.createMarshaller();
 			marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
 			unmarshaller = context.createUnmarshaller();
@@ -273,12 +274,8 @@ public class Faction {
 			MekHQ.logMessage(fullname + " faction did not have a long enough startingPlanet vector");
 		}
 		
-		// Copy the lists, because the JAXB supplied are immutable
-		altNames = new ArrayList<String>(altNames);
 		altNames.addAll(Collections.nCopies(Math.max(0, Era.E_NUM - altNames.size()), ""));
-		eraMods = new ArrayList<Integer>(eraMods);
 		eraMods.addAll(Collections.nCopies(Math.max(0, Era.E_NUM - eraMods.size()), 0));
-		startingPlanet = new ArrayList<String>(startingPlanet);
 		String planet = startingPlanet.isEmpty() ? "Terra" : startingPlanet.get(startingPlanet.size() - 1);
 		startingPlanet.addAll(Collections.nCopies(Math.max(0, Era.E_NUM - startingPlanet.size()), planet));
 		
@@ -359,21 +356,22 @@ public class Faction {
 
 	public static Faction getFactionFromXML(InputStream source) {
 		try {
-			return (Faction)unmarshaller.unmarshal(source);
+			return unmarshaller.unmarshal(new StreamSource(source), Faction.class).getValue();
 		} catch(JAXBException e) {
 			MekHQ.logError(e);
 		}
 		return null;
-		
 	}
 	
 	private static void updateFactions(InputStream source) {
 		try {
-			FactionList list = (FactionList)unmarshaller.unmarshal(source);
-			for( Faction faction : list.factions ) {
-				factions.put(faction.shortname, faction);
+			FactionData list = unmarshaller.unmarshal(new StreamSource(source), FactionData.class).getValue();
+			if( null != list.factions ) {
+				for( Faction faction : list.factions ) {
+					factions.put(faction.shortname, faction);
+				}
 			}
-			choosableFactionCodes = list.choosableFactionCodes;
+			choosableFactionCodes = Utilities.nonNull(list.choosableFactionCodes, choosableFactionCodes);
 		} catch(JAXBException e) {
 			MekHQ.logError(e);
 		}
@@ -416,7 +414,7 @@ public class Faction {
 	}
     
     @XmlRootElement(name="factions")
-    private static class FactionList {
+    private static class FactionData {
     	@XmlElement(name="faction")
     	public List<Faction> factions;
     	@XmlJavaTypeAdapter(StringListAdapter.class)

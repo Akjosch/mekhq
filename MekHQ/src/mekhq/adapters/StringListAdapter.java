@@ -1,6 +1,6 @@
 package mekhq.adapters;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
@@ -8,7 +8,12 @@ import javax.xml.bind.annotation.adapters.XmlAdapter;
 public class StringListAdapter extends XmlAdapter<String, List<String>> {
 	@Override
 	public List<String> unmarshal(String v) throws Exception {
-		return Arrays.<String>asList(v.split(","));
+		String[] values = v.split(",");
+		List<String> result = new ArrayList<String>(values.length);
+		for( String val : values ) {
+			result.add(val.trim());
+		}
+		return result;
 	}
 
 	@Override

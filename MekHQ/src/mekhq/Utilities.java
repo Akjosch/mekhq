@@ -283,7 +283,7 @@ public class Utilities {
 			File[] files = dir.listFiles(new FilenameFilter() {
 				@Override
 				public boolean accept(File dir, String name) {
-					return dir.isFile() && name.toLowerCase(Locale.ROOT).endsWith(".xml");
+					return name.toLowerCase(Locale.ROOT).endsWith(".xml");
 				}
 			});
 			if( null != files && files.length > 0 ) {
