@@ -22,9 +22,7 @@
 package mekhq.campaign.universe;
 
 import java.awt.Color;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
@@ -32,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
@@ -52,7 +49,9 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.w3c.dom.DOMException;
 
 import megamek.common.EquipmentType;
+import mekhq.FileParser;
 import mekhq.MekHQ;
+import mekhq.Utilities;
 import mekhq.adapters.BooleanValueAdapter;
 import mekhq.adapters.ColorAdapter;
 import mekhq.adapters.IntegerListAdapter;
@@ -79,7 +78,7 @@ public class Faction {
 	public static Faction PIRATE;
 	public static Faction REBELS;
 
-	// Marshaller / unmarshaller
+	// Marshaller / unmarshaller instances
 	private static Marshaller marshaller;
 	private static Unmarshaller unmarshaller;
 	static {
@@ -399,35 +398,13 @@ public class Faction {
 			}
 
 			// Step 3: Load all the xml files within the "factions" subdirectory, if it exists
-			File factionDir = new File(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/factions");
-			if( factionDir.isDirectory() ) {
-				File[] factionFiles = factionDir.listFiles(new FilenameFilter() {
-					@Override
-					public boolean accept(File dir, String name) {
-						return name.toLowerCase(Locale.ROOT).endsWith(".xml");
-					}
-				});
-				if( null != factionFiles && factionFiles.length > 0 ) {
-					// Case-insensitive sorting. Yes, even on Windows. Deal with it.
-					Arrays.sort(factionFiles, new Comparator<File>() {
+			Utilities.parseXMLFiles(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/factions",
+					new FileParser() {
 						@Override
-						public int compare(File f1, File f2) {
-							return f1.getPath().compareTo(f2.getPath());
+						public void parse(InputStream is) {
+							updateFactions(is);
 						}
 					});
-					// Try parsing and updating the main list, one by one
-					for( File factionFile : factionFiles ) {
-						try {
-							FileInputStream fis = new FileInputStream(factionFile);
-							updateFactions(fis);
-						} catch(Exception ex) {
-							// Ignore this file then
-							MekHQ.logError("Exception trying to parse " + factionFile.getPath() + " - ignoring.");
-							MekHQ.logError(ex);
-						}
-					}
-				}
-			}
 		
 			// Populate default factions
 			UNDISCOVERED = getFaction("UND");

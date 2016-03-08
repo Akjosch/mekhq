@@ -1,19 +1,15 @@
 package mekhq.campaign.universe;
 
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,7 +22,9 @@ import javax.xml.bind.Unmarshaller;
 
 import org.w3c.dom.DOMException;
 
+import mekhq.FileParser;
 import mekhq.MekHQ;
+import mekhq.Utilities;
 import mekhq.adapters.PlanetAdapter;
 import mekhq.adapters.StarAdapter;
 
@@ -257,35 +255,13 @@ public class Planets {
 			}
 			
 			// Step 3: Load all the xml files within the planets subdirectory, if it exists
-			File planetDir = new File(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/planets");
-			if( planetDir.isDirectory() ) {
-				File[] planetFiles = planetDir.listFiles(new FilenameFilter() {
-					@Override
-					public boolean accept(File dir, String name) {
-						return name.toLowerCase(Locale.ROOT).endsWith(".xml");
-					}
-				});
-				if( null != planetFiles && planetFiles.length > 0 ) {
-					// Case-insensitive sorting. Yes, even on Windows. Deal with it.
-					Arrays.sort(planetFiles, new Comparator<File>() {
+			Utilities.parseXMLFiles(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/planets",
+					new FileParser() {
 						@Override
-						public int compare(File f1, File f2) {
-							return f1.getPath().compareTo(f2.getPath());
+						public void parse(InputStream is) {
+							updatePlanets(is);
 						}
 					});
-					// Try parsing and updating the main list, one by one
-					for( File planetFile : planetFiles ) {
-						try {
-							FileInputStream fis = new FileInputStream(planetFile);
-							updatePlanets(fis);
-						} catch(Exception ex) {
-							// Ignore this file then
-							MekHQ.logError("Exception trying to parse " + planetFile.getPath() + " - ignoring.");
-							MekHQ.logError(ex);
-						}
-					}
-				}
-			}
 			
 			for (Star s : starList.values()) {
 				int x = (int)(s.getX()/30.0);
