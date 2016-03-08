@@ -104,17 +104,25 @@ public class Faction {
 	private Color color;
 	@XmlElement(defaultValue="General")
 	private String nameGenerator;
+	@XmlElement(defaultValue="false")
 	@XmlJavaTypeAdapter(BooleanValueAdapter.class)
 	private Boolean clan;
+	@XmlElement(defaultValue="false")
 	@XmlJavaTypeAdapter(BooleanValueAdapter.class)
 	private Boolean periphery;
 	@XmlJavaTypeAdapter(StringListAdapter.class)
 	private List<String> startingPlanet;
 	@XmlJavaTypeAdapter(IntegerListAdapter.class)
 	private List<Integer> eraMods;
+	private Integer startYear;
+	private Integer endYear;
 	
+	/** Is it an auto-generated faction? */
 	@XmlTransient
 	private boolean generated = false;
+	/** Is this faction modified compared to the version saved? */
+	@XmlTransient
+	private boolean modified = false;
 
 	public Faction() {
 		this("???", "Unknown");
@@ -165,6 +173,10 @@ public class Faction {
 	
 	public boolean isGenerated() {
 		return generated;
+	}
+	
+	public boolean isModified() {
+		return modified;
 	}
 	
 	/** @return true if this faction represents a lack of civilization (though not necessarily lack of people) */
@@ -278,13 +290,6 @@ public class Faction {
 		eraMods.addAll(Collections.nCopies(Math.max(0, Era.E_NUM - eraMods.size()), 0));
 		String planet = startingPlanet.isEmpty() ? "Terra" : startingPlanet.get(startingPlanet.size() - 1);
 		startingPlanet.addAll(Collections.nCopies(Math.max(0, Era.E_NUM - startingPlanet.size()), planet));
-		
-		if( null == clan ) {
-			clan = false;
-		}
-		if( null == periphery ) {
-			periphery = false;
-		}
 	}
 
 	public void writeToXML(OutputStream out) {
@@ -310,6 +315,7 @@ public class Faction {
 		result.startingPlanet.addAll(Collections.nCopies(Era.E_NUM, planet.getId()));
 		result.periphery = true;
 		result.generated = true;
+		result.modified = true;
 		
 		String baseShortName = "_LOCAL_" + planet.getId().replaceAll("\\s+", "_").toUpperCase(Locale.ROOT);
 		result.shortname = baseShortName;
