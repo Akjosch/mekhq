@@ -1057,7 +1057,7 @@ public class Star implements Serializable {
 		result.lum = data.lum;
 		result.temperature = data.temperature;
 		result.radius = data.radius;
-		if( data.generateType && null == result.spectralType ) {
+		if( null != data.generateType && data.generateType && null == result.spectralType ) {
 			result.setSpectralType(generateSpectralType(new Random(result.id.hashCode() + 133773), true));
 		}
 		return result;

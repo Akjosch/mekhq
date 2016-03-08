@@ -21,7 +21,7 @@ public class StringListAdapter extends XmlAdapter<String, List<String>> {
 			} else {
 				sb.append(",");
 			}
-			sb.append(item);
+			sb.append(item.trim());
 		}
 		return sb.toString();
 	}

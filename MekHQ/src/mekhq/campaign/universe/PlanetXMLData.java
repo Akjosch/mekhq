@@ -137,6 +137,10 @@ public class PlanetXMLData {
 		Planets.getInstance().writeStar(System.out, sol, true);
 		System.out.println("");
 		Planets.getInstance().writeStar(System.out, Planets.getInstance().getStarById("Aquagea"));
+		System.out.println("");
+		System.out.println("");
+		Faction.getFaction("SOC").writeToXML(System.out);
+		System.out.println("");
 	}
 
     public static final class FactionChange {
