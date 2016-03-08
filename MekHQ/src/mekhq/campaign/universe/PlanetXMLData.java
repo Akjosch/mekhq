@@ -139,7 +139,11 @@ public class PlanetXMLData {
 		Planets.getInstance().writeStar(System.out, Planets.getInstance().getStarById("Aquagea"));
 		System.out.println("");
 		System.out.println("");
-		Faction.getFaction("SOC").writeToXML(System.out);
+		Faction.generateLocalFaction(Planets.getInstance().getPlanetById("Aquagea V"));
+		Faction.generateLocalFaction(Planets.getInstance().getPlanetById("Aquagea V"));
+		Faction.generateLocalFaction(Planets.getInstance().getPlanetById("Aquagea V"), "something new").writeToXML(System.out);
+		System.out.println("");
+		Faction.generateLocalFaction(Planets.getInstance().getPlanetById("Aquagea V")).writeToXML(System.out);
 		System.out.println("");
 	}
 

@@ -46,6 +46,7 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.w3c.dom.DOMException;
@@ -111,6 +112,9 @@ public class Faction {
 	private List<String> startingPlanet;
 	@XmlJavaTypeAdapter(IntegerListAdapter.class)
 	private List<Integer> eraMods;
+	
+	@XmlTransient
+	private boolean generated = false;
 
 	public Faction() {
 		this("???", "Unknown");
@@ -157,6 +161,10 @@ public class Faction {
 
 	public boolean isPeriphery() {
 		return periphery;
+	}
+	
+	public boolean isGenerated() {
+		return generated;
 	}
 	
 	/** @return true if this faction represents a lack of civilization (though not necessarily lack of people) */
@@ -292,6 +300,37 @@ public class Faction {
 		}
 	}
 	
+	public static Faction generateLocalFaction(Planet planet) {
+		return generateLocalFaction(planet, "Local faction (" + planet.getName(null) + ")");
+	}
+	
+	public static Faction generateLocalFaction(Planet planet, String name) {
+		if( null == planet || null == name ) {
+			throw new NullPointerException();
+		}
+		Faction result = new Faction();
+		result.fullname = name;
+		result.startingPlanet.clear();
+		result.startingPlanet.addAll(Collections.nCopies(Era.E_NUM, planet.getId()));
+		result.periphery = true;
+		result.generated = true;
+		
+		String baseShortName = "_LOCAL_" + planet.getId().replaceAll("\\s+", "_").toUpperCase(Locale.ROOT);
+		result.shortname = baseShortName;
+		synchronized(LOADING_LOCK) {
+			int i = 2;
+			while( factions.containsKey(result.shortname) ) {
+				result.shortname = baseShortName + "_" + i;
+				++ i;
+			}
+			factions.put(result.shortname, result);
+		}
+		
+		
+		return result;
+	}
+	
+	/** @return a copy of the short faction names */
 	public static List<String> getFactionList() {
 		List<String> flist = new ArrayList<String>();
 		for(String sname : factions.keySet()) {
