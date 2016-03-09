@@ -296,13 +296,15 @@ public class Utilities {
 				});
 				// Try parsing and updating the main list, one by one
 				for( File file : files ) {
-					try {
-						FileInputStream fis = new FileInputStream(file);
-						parser.parse(fis);
-					} catch(Exception ex) {
-						// Ignore this file then
-						MekHQ.logError("Exception trying to parse " + file.getPath() + " - ignoring.");
-						MekHQ.logError(ex);
+					if( file.isFile() ) {
+						try {
+							FileInputStream fis = new FileInputStream(file);
+							parser.parse(fis);
+						} catch(Exception ex) {
+							// Ignore this file then
+							MekHQ.logError("Exception trying to parse " + file.getPath() + " - ignoring.");
+							MekHQ.logError(ex);
+						}
 					}
 				}
 			}
@@ -313,12 +315,7 @@ public class Utilities {
 			}
 			
 			// Get subdirectories too
-			File[] dirs = dir.listFiles(new FilenameFilter() {
-				@Override
-				public boolean accept(File dir, String name) {
-					return dir.isDirectory();
-				}
-			});
+			File[] dirs = dir.listFiles();
 			if( null != dirs && dirs.length > 0 ) {
 				Arrays.sort(dirs, new Comparator<File>() {
 					@Override
@@ -327,7 +324,9 @@ public class Utilities {
 					}
 				});
 				for( File subDirectory : dirs ) {
-					parseXMLFiles(subDirectory.getPath(), parser, recurse);
+					if( subDirectory.isDirectory() ) {
+						parseXMLFiles(subDirectory.getPath(), parser, recurse);
+					}
 				}
 			}
 
