@@ -331,7 +331,9 @@ public class Planet implements Serializable {
 	}
 
 	public Integer getPressure(Date when) {
-		return pressure; // TODO: inclue in events
+		return getEventData(when, pressure, new EventGetter<Integer>() {
+			@Override public Integer get(PlanetaryEvent e) { return e.pressure; }
+		});
 	}
 	
 	public String getPressureName(Date when) {
@@ -340,27 +342,39 @@ public class Planet implements Serializable {
 	}
 
 	public Double getPressureAtm(Date when) {
-		return pressureAtm; // TODO: include in events
+		return getEventData(when, pressureAtm, new EventGetter<Double>() {
+			@Override public Double get(PlanetaryEvent e) { return e.pressureAtm; }
+		});
 	}
 
 	public Double getAtmMass(Date when) {
-		return atmMass; // TODO: include in events
+		return getEventData(when, atmMass, new EventGetter<Double>() {
+			@Override public Double get(PlanetaryEvent e) { return e.atmMass; }
+		});
 	}
 
 	public String getAtmosphere(Date when) {
-		return atmosphere; // TODO: Include in events
+		return getEventData(when, atmosphere, new EventGetter<String>() {
+			@Override public String get(PlanetaryEvent e) { return e.atmosphere; }
+		});
 	}
 
 	public Double getAlbedo(Date when) {
-		return albedo; // TODO: include in events
+		return getEventData(when, albedo, new EventGetter<Double>() {
+			@Override public Double get(PlanetaryEvent e) { return e.albedo; }
+		});
 	}
 
 	public Double getGreenhouseEffect(Date when) {
-		return greenhouseEffect; // TODO: include in events
+		return getEventData(when, greenhouseEffect, new EventGetter<Double>() {
+			@Override public Double get(PlanetaryEvent e) { return e.greenhouseEffect; }
+		});
 	}
 
 	public Integer getHabitability(Date when) {
-		return habitability; // TODO: include in events
+		return getEventData(when, habitability, new EventGetter<Integer>() {
+			@Override public Integer get(PlanetaryEvent e) { return e.habitability; }
+		});
 	}
 
 	public List<PointOfInterest> getPois(Date when) {
@@ -532,6 +546,13 @@ public class Planet implements Serializable {
 						myEvent.shortName = Utilities.nonNull(event.shortName, myEvent.shortName);
 						myEvent.socioIndustrial = Utilities.nonNull(event.socioIndustrial, myEvent.socioIndustrial);
 						myEvent.temperature = Utilities.nonNull(event.temperature, myEvent.temperature);
+						myEvent.pressure = Utilities.nonNull(event.pressure, myEvent.pressure);
+						myEvent.pressureAtm = Utilities.nonNull(event.pressureAtm, myEvent.pressureAtm);
+						myEvent.atmMass = Utilities.nonNull(event.atmMass, myEvent.atmMass);
+						myEvent.atmosphere = Utilities.nonNull(event.atmosphere, myEvent.atmosphere);
+						myEvent.albedo = Utilities.nonNull(event.albedo, myEvent.albedo);
+						myEvent.greenhouseEffect = Utilities.nonNull(event.greenhouseEffect, myEvent.greenhouseEffect);
+						myEvent.habitability = Utilities.nonNull(event.habitability, myEvent.habitability);
 					}
 				}
 			}
@@ -859,6 +880,13 @@ public class Planet implements Serializable {
 	    public SocioIndustrialData socioIndustrial;
 	    @XmlJavaTypeAdapter(HPGRatingAdapter.class)
 	    public Integer hpg;
+	    public Integer pressure;
+	    public Double pressureAtm;
+	    public Double atmMass;
+		public String atmosphere;
+		public Double albedo;
+		public Double greenhouseEffect;
+		public Integer habitability;
 	}
 	
 	/**

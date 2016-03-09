@@ -276,6 +276,7 @@ public class Faction {
 	 */
 	@SuppressWarnings("unused")
 	private void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
+		// Generic warnings about possibly outdated data
 		if(altNames.size() < Era.E_NUM) {
 			MekHQ.logMessage(fullname + " faction did not have a long enough altNames vector");
 		}
@@ -327,7 +328,6 @@ public class Faction {
 			}
 			factions.put(result.shortname, result);
 		}
-		
 		
 		return result;
 	}
