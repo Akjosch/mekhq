@@ -26,15 +26,23 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.Locale;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+import org.w3c.dom.Node;
+
 import mekhq.MekHQ;
-import mekhq.MekHqXmlUtil;
+import mekhq.adapters.SpaceLocationAdapter;
 import mekhq.campaign.finances.Transaction;
 import mekhq.campaign.unit.JumpShipUnit;
 import mekhq.campaign.universe.Planet;
 import mekhq.campaign.universe.SpaceLocation;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 
 /**
@@ -46,9 +54,26 @@ import org.w3c.dom.NodeList;
  * 
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
+@XmlRootElement(name="location")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class CurrentLocation implements Serializable {
 	private static final long serialVersionUID = -4337642922571022697L;
 	
+	private static Marshaller marshaller;
+	private static Unmarshaller unmarshaller;
+	static {
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(CurrentLocation.class, JumpPath.class,
+					JumpPath.Edge.class, SpaceLocation.class, JumpShipUnit.class);
+			marshaller = jaxbContext.createMarshaller();
+			marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
+			unmarshaller = jaxbContext.createUnmarshaller();
+		} catch(JAXBException e) {
+			MekHQ.logError(e);
+		}
+	}
+
+	@XmlJavaTypeAdapter(SpaceLocationAdapter.class)
 	private SpaceLocation currentLocation;
 	private JumpShipUnit currentJumpship;
 	
@@ -230,78 +255,29 @@ public class CurrentLocation implements Serializable {
 		}
 	}
 	
-	public void writeToXml(PrintWriter pw1, int indent) {
-		pw1.println(MekHqXmlUtil.indentStr(indent) + "<location>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<currentPlanetName>"
-				+MekHqXmlUtil.escape(currentLocation.getName())
-				+"</currentPlanetName>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<transitTime>"
-				+transitTime
-				+"</transitTime>");
-		
-		pw1.print(MekHqXmlUtil.indentStr(indent+1));
-		currentJumpship.writeToXml(pw1);
-		pw1.println("");
-		/*
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<rechargeTime>"
-				+rechargeTime
-				+"</rechargeTime>");
-				*/
-		if(null != jumpPath) {
-			jumpPath.writeToXml(pw1, indent+1);
+	protected void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
+		if( null == currentJumpship ) {
+			currentJumpship = new JumpShipUnit();
+			if( null != currentLocation ) {
+				currentJumpship.setLocation(currentLocation.getStar().getPreferredJumpPoint());
+			}
 		}
-		pw1.println(MekHqXmlUtil.indentStr(indent) + "</location>");
-		
+	}
+	
+	public void writeToXml(PrintWriter pw1, int indent) {
+		try {
+			marshaller.marshal(this, pw1);
+		} catch (Exception e) {
+			MekHQ.logError(e);
+		}
 	}
 	
 	public static CurrentLocation generateInstanceFromXML(Node wn, Campaign c) {
-		CurrentLocation retVal = null;
-		
 		try {		
-			retVal = new CurrentLocation();
-			NodeList nl = wn.getChildNodes();
-			
-			for (int x=0; x<nl.getLength(); x++) {
-				Node wn2 = nl.item(x);
-				if (wn2.getNodeName().equalsIgnoreCase("currentPlanetName")) {
-					retVal.currentLocation = SpaceLocation.byName(wn2.getTextContent());
-					if( null == retVal.currentLocation ) {
-						//whoops we cant find your planet man, back to Earth
-						MekHQ.logError("Couldn't parse location " + wn2.getTextContent());
-						Planet p = c.getPlanet("Terra");
-						if(null == p) {
-							//if that doesnt work then give the first planet we have
-							p = c.getPlanets().get(0);
-						}
-						retVal.currentLocation = p.getPointOnSurface();
-					}
-				} else if (wn2.getNodeName().equalsIgnoreCase("transitTime")) {
-					retVal.transitTime = Double.parseDouble(wn2.getTextContent());
-				} else if (wn2.getNodeName().equalsIgnoreCase("rechargeTime")) {
-					//retVal.rechargeTime = Double.parseDouble(wn2.getTextContent());
-				} else if (wn2.getNodeName().equalsIgnoreCase("jumpPath")) {
-					retVal.jumpPath = JumpPath.generateInstanceFromXML(wn2, c);
-				} else if( wn2.getNodeName().equalsIgnoreCase("jumpShip")) {
-					retVal.currentJumpship = JumpShipUnit.generateInstanceFromXML(wn2);
-				}
-			}
+			return unmarshaller.unmarshal(wn, CurrentLocation.class).getValue();
 		} catch (Exception ex) {
-			// Errrr, apparently either the class name was invalid...
-			// Or the listed name doesn't exist.
-			// Doh!
 			MekHQ.logError(ex);
 		}
-
-		if( null == retVal.currentJumpship ) {
-			retVal.currentJumpship = new JumpShipUnit();
-			if( null != retVal.currentLocation ) {
-				retVal.currentJumpship.setLocation(retVal.currentLocation.getStar().getPreferredJumpPoint());
-			}
-		}
-		
-		return retVal;
+		return null;
 	}
 }

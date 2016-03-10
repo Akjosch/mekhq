@@ -3,15 +3,17 @@ package mekhq.campaign.unit;
 import java.io.PrintWriter;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.w3c.dom.Node;
 
+import mekhq.MekHQ;
 import mekhq.adapters.SpaceLocationAdapter;
 import mekhq.campaign.universe.SpaceLocation;
 
@@ -19,20 +21,30 @@ import mekhq.campaign.universe.SpaceLocation;
  * Basic implementation of a jump ship, for now only tracking location and charge.
  */
 @XmlRootElement(name="jumpship")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class JumpShipUnit {
-	@XmlElement
+	private static Marshaller marshaller;
+	private static Unmarshaller unmarshaller;
+	static {
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(JumpShipUnit.class);
+			marshaller = jaxbContext.createMarshaller();
+			marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
+			unmarshaller = jaxbContext.createUnmarshaller();
+		} catch(JAXBException e) {
+			MekHQ.logError(e);
+		}
+	}
+	
 	private double charge;
-	@XmlElement
 	@XmlJavaTypeAdapter(SpaceLocationAdapter.class)
 	private SpaceLocation location;
 	
-	@XmlTransient
 	public double getCharge() {
 		return charge;
 	}
 	
 	/** @return the remaining charge-up time in hours */
-	@XmlTransient
 	public double getRemainingChargeTime() {
 		double localRechargeTime = null != location ? location.getRechargeTime() : Double.POSITIVE_INFINITY;
 		if( Double.isInfinite(localRechargeTime) ) {
@@ -74,7 +86,6 @@ public class JumpShipUnit {
 		return charge >= 1.0;
 	}
 	
-	@XmlTransient
 	public SpaceLocation getLocation() {
 		return location;
 	}
@@ -94,25 +105,17 @@ public class JumpShipUnit {
 	
 	public void writeToXml(PrintWriter pw) {
 		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(JumpShipUnit.class);
-			Marshaller marshaller = jaxbContext.createMarshaller();
-			marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
 			marshaller.marshal(this, pw);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MekHQ.logError(e);
 		}
 	}
 	
 	public static JumpShipUnit generateInstanceFromXML(Node wn) {
 		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(JumpShipUnit.class);
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			JumpShipUnit jumpShip = unmarshaller.unmarshal(wn, JumpShipUnit.class).getValue();
-			return jumpShip;
+			return unmarshaller.unmarshal(wn, JumpShipUnit.class).getValue();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MekHQ.logError(e);
 		}
 		return null;
 	}

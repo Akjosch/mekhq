@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElement;
@@ -55,6 +56,21 @@ import mekhq.campaign.universe.Star;
 @XmlRootElement(name="jumpPath")
 public class JumpPath implements Serializable {
 	private static final long serialVersionUID = 708430867050359759L;
+	
+	private static Marshaller marshaller;
+	private static Unmarshaller unmarshaller;
+	static {
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(JumpPath.class,
+					JumpPath.Edge.class, SpaceLocation.class);
+			marshaller = jaxbContext.createMarshaller();
+			marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
+			unmarshaller = jaxbContext.createUnmarshaller();
+		} catch(JAXBException e) {
+			MekHQ.logError(e);
+		}
+	}
+	
 	@XmlElement(name="start")
 	@XmlJavaTypeAdapter(SpaceLocationAdapter.class)
 	private SpaceLocation start;
@@ -258,12 +274,6 @@ public class JumpPath implements Serializable {
 		return false;
 	}
 	
-	/*
-	public void addPlanets(ArrayList<Planet> planets) {
-		path.addAll(planets);
-	}
-	*/
-	
 	/**
 	 * Append this path to the current one. If the start and end locations don't math, try
 	 * to insert a simple edge between them.
@@ -335,21 +345,14 @@ public class JumpPath implements Serializable {
 	
 	public void writeToXml(PrintWriter pw1, int indent) {
 		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(JumpPath.class, JumpPath.Edge.class, SpaceLocation.class);
-			Marshaller marshaller = jaxbContext.createMarshaller();
-			marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
 			marshaller.marshal(this, pw1);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MekHQ.logError(e);
 		}
 	}
 	
 	public static JumpPath generateInstanceFromXML(Node wn, Campaign c) {
 		try {		
-			JAXBContext jaxbContext = JAXBContext.newInstance(JumpPath.class, JumpPath.Edge.class, SpaceLocation.class);
-			Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-			unmarshaller.setProperty("jaxb.fragment", Boolean.TRUE);
 			return unmarshaller.unmarshal(wn, JumpPath.class).getValue();
 		} catch (Exception ex) {
 			MekHQ.logError(ex);

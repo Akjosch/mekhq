@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -54,7 +55,7 @@ import mekhq.campaign.universe.PlanetXMLData.FactionChange;
  *
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
-public class Planet implements Serializable {
+public final class Planet implements Serializable {
 	private static final long serialVersionUID = -8699502165157515099L;
 
 	
@@ -620,7 +621,7 @@ public class Planet implements Serializable {
 	
 	@Override
 	public int hashCode() {
-		return 37 + ((id == null) ? 0 : id.hashCode());
+		return 37 + Objects.hashCode(id);
 	}
 
 	@Override
@@ -629,11 +630,8 @@ public class Planet implements Serializable {
 			return true;
 		}
 		if( obj instanceof Planet ) {
-			Planet other = (Planet)obj;
-			if( null == id ) {
-				return null == other.id;
-			}
-			return id.equals(other.id);
+			final Planet other = (Planet)obj;
+			return Objects.equals(id, other.id);
 		}
 		return false;
 	}

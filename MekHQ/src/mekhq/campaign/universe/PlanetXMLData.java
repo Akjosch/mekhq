@@ -1,6 +1,7 @@
 package mekhq.campaign.universe;
 
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -22,6 +23,7 @@ import mekhq.adapters.HPGRatingAdapter;
 import mekhq.adapters.LifeFormAdapter;
 import mekhq.adapters.SocioIndustrialDataAdapter;
 import mekhq.adapters.SpectralClassAdapter;
+import mekhq.campaign.JumpPath;
 
 /**
  * A pure data class holding the Java representation of the planet inside the configuration list.
@@ -133,20 +135,15 @@ public class PlanetXMLData {
 			Thread.sleep(50);
 		}
 
-		Star sol = Planets.getInstance().getStarById("Sol");
-		Planets.getInstance().writeStar(System.out, sol, true);
-		System.out.println("");
-		Planets.getInstance().writeStar(System.out, Planets.getInstance().getStarById("Aquagea"));
-		System.out.println("");
-		System.out.println("");
-		Faction.getFaction("WOB").writeToXML(System.out);
-		System.out.println("");
-		Faction.generateLocalFaction(Planets.getInstance().getPlanetById("Aquagea V"));
-		Faction.generateLocalFaction(Planets.getInstance().getPlanetById("Aquagea V"));
-		Faction.generateLocalFaction(Planets.getInstance().getPlanetById("Aquagea V"), "something new").writeToXML(System.out);
-		System.out.println("");
-		Faction.generateLocalFaction(Planets.getInstance().getPlanetById("Aquagea V")).writeToXML(System.out);
-		System.out.println("");
+		Star start = Planets.getInstance().getStarById("Aquagea");
+		Planet startPlanet = Planets.getInstance().getPlanetById("Aquagea V");
+		Star end = Planets.getInstance().getStarById("Thurrock");
+		JumpPath path = new JumpPath();
+		path.addLocation(startPlanet);
+		path.addLocation(start.getPreferredJumpPoint());
+		path.addLocation(end.getPreferredJumpPoint());
+		
+		path.writeToXml(new PrintWriter(System.out), 0);
 	}
 
     public static final class FactionChange {
