@@ -22,18 +22,46 @@
 
 package mekhq.campaign.universe;
 
-import java.text.ParseException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.transform.stream.StreamSource;
 
+import mekhq.MekHQ;
+import mekhq.adapters.BooleanValueAdapter;
+
+@XmlRootElement(name="factory")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Factory {
+	private static Marshaller marshaller;
+	private static Unmarshaller unmarshaller;
+	static {
+		try {
+			JAXBContext jaxbContext = JAXBContext.newInstance(Factory.class);
+			marshaller = jaxbContext.createMarshaller();
+			marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
+			unmarshaller = jaxbContext.createUnmarshaller();
+		} catch(JAXBException e) {
+			MekHQ.logError(e);
+		}
+	}
+	
 	private String shortname;
 	private String fullname;
 	private String nameGenerator;
 	private String owner; // Faction shortname that owns it
 	private String planet;
+	@XmlJavaTypeAdapter(BooleanValueAdapter.class)
+	@XmlElement(defaultValue="false")
 	private boolean clan;
 	
 	// TODO: Need some more variables here for holding units and components produced
@@ -59,12 +87,20 @@ public class Factory {
 		return fullname;
 	}
 	
-	public String getOwner() {
+	public String getOwnerId() {
 		return owner;
 	}
 	
-	public String getPlanet() {
+	public Faction getOwner() {
+		return Faction.getFaction(owner);
+	}
+	
+	public String getPlanetId() {
 		return planet;
+	}
+	
+	public Planet getPlanet() {
+		return Planets.getInstance().getPlanetById(planet);
 	}
 	
 	public boolean isClan() {
@@ -79,27 +115,20 @@ public class Factory {
 		return nameGenerator;
 	}
     
-    public static Factory getFactionFromXML(Node wn) throws DOMException, ParseException {
-		Factory retVal = new Factory();
-		NodeList nl = wn.getChildNodes();
-		
-		for (int x=0; x<nl.getLength(); x++) {
-			Node wn2 = nl.item(x);
-			if (wn2.getNodeName().equalsIgnoreCase("shortname")) {
-				retVal.shortname = wn2.getTextContent();
-			} else if (wn2.getNodeName().equalsIgnoreCase("fullname")) {
-				retVal.fullname = wn2.getTextContent();
-			} else if (wn2.getNodeName().equalsIgnoreCase("nameGenerator")) {
-				retVal.nameGenerator = wn2.getTextContent();
-			} else if (wn2.getNodeName().equalsIgnoreCase("clan")) {
-				if (wn2.getTextContent().equalsIgnoreCase("true"))
-					retVal.clan = true;
-				else
-					retVal.clan = false;
-			} else if (wn2.getNodeName().equalsIgnoreCase("planet")) {
-				retVal.planet = wn2.getTextContent();
-			} 
+	public void writeToXml(OutputStream os) {
+		try {
+			marshaller.marshal(this, os);
+		} catch (Exception e) {
+			MekHQ.logError(e);
 		}
-		return retVal;
+	}
+
+    public static Factory getFromXML(InputStream is) {
+    	try {
+			return unmarshaller.unmarshal(new StreamSource(is), Factory.class).getValue();
+		} catch(JAXBException e) {
+			MekHQ.logError(e);
+		}
+		return null;
 	}
 }

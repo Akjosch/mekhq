@@ -81,6 +81,8 @@ public final class Planet implements Serializable {
 	private Climate climate;
 	private Integer percentWater;
 	private Integer temperature;
+	/** Radius in km */
+	private Double radius;
     /** Pressure in Earth standard */
 	private Double pressureAtm;
     /** Atmospheric mass compared to Earth's 28.9645 kg/mol */
@@ -159,6 +161,10 @@ public final class Planet implements Serializable {
 
 	public Double getGravity() {
 		return gravity;
+	}
+	
+	public Double getRadius() {
+		return radius;
 	}
 	
 	public String getGravityText() {

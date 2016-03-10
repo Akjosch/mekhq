@@ -7,7 +7,7 @@ import mekhq.Utilities;
 
 /** A point (roughly) on the ecliptic */
 public class OrbitalPoint extends SpaceLocation {
-	private double distance = 0;
+	protected double distance = 0.0;
 	
 	protected OrbitalPoint(Star star, double distance) {
 		super(star);

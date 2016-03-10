@@ -19,6 +19,7 @@ public abstract class SpaceLocation {
 			case "OrbitalPoint": return OrbitalPoint.fromOptions(options);
 			case "JumpPoint": return JumpPoint.fromOptions(options);
 			case "RechargeStation": return RechargeStationPoint.fromOptions(options);
+			case "PlanetarySurfacePoint": return PlanetarySurfacePoint.fromOptions(options);
 			default: return null;
 		}
 	}
