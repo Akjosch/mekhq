@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eras>
+
+<!-- XTRO 1945 fun. Could start in 1931 too (Japanese invasion of Manchuria) -->
+<era><id>WW2</id><name>World War II</name><start>1939</start><end>1945</end></era>
+
+<era><id>SL</id><name>Star League</name><start>2300</start><end>2780</end><availability>0</availability></era>
+
+<era><id>AOW</id><name>Age of War</name><start>2300</start><end>2570</end><parent>SL</parent><numeric>0</numeric><availability>0</availability></era>
+<era><id>ASL</id><name>Age of the Star League</name><start>2571</start><end>2780</end><parent>SL</parent><numeric>2</numeric><availability>0</availability></era>
+<era><id>RW</id><name>Reunification War</name><start>2577</start><end>2597</end><parent>ASL</parent><numeric>1</numeric><availability>0</availability></era>
+
+<era><id>SW</id><name>Succession Wars</name><start>2781</start><end>3049</end><availability>1</availability></era>
+
+<era><id>ESW</id><name>Early Succession Wars</name><start>2781</start><end>2865</end><parent>SW</parent><factionGroup>IS</factionGroup><availability>1</availability></era>
+<era><id>1SW</id><name>First Succession War</name><start>2786</start><end>2821</end><parent>ESW</parent><factionGroup>IS</factionGroup><numeric>3</numeric><availability>1</availability></era>
+<era><id>2SW</id><name>Second Succession War</name><start>2830</start><end>2864</end><parent>ESW</parent><factionGroup>IS</factionGroup><numeric>4</numeric><availability>1</availability></era>
+<era><id>LSW</id><name>Late Succession Wars</name><start>2866</start><end>3049</end><parent>SW</parent><factionGroup>IS</factionGroup><availability>1</availability></era>
+<era><id>3SW</id><name>Third Succession War</name><start>2866</start><end>3025</end><parent>LSW</parent><factionGroup>IS</factionGroup><numeric>5</numeric><availability>1</availability></era>
+<era><id>4SW</id><name>Fourth Succession War</name><start>3028</start><end>3030</end><parent>LSW</parent><factionGroup>IS</factionGroup><numeric>6</numeric><availability>1</availability></era>
+
+<era><id>FY</id><name>The Founding Years</name><start>2800</start><end>2840</end><parent>SW</parent><factionGroup>CLAN</factionGroup><availability>1</availability></era>
+<era><id>ECW</id><name>Exodus Civil War</name><start>2801</start><end>2822</end><parent>FY</parent><factionGroup>CLAN</factionGroup><availability>1</availability></era>
+<era><id>GY</id><name>The Golden Years</name><start>2841</start><end>3049</end><parent>SW</parent><factionGroup>CLAN</factionGroup><availability>1</availability></era>
+
+<era><id>CWE</id><name>Clan Wars</name><start>3050</start><end>3085</end><availability>2</availability></era>
+
+<era><id>CI</id><name>Clan Invasion</name><start>3050</start><end>3061</end><parent>CWE</parent><numeric>7</numeric><availability>2</availability></era>
+<era><id>CW</id><name>Civil War</name><start>3062</start><end>3067</end><parent>CWE</parent><availability>2</availability></era>
+<era><id>JIHAD</id><name>Jihad</name><start>3068</start><end>3085</end><parent>CWE</parent><factionGroup>IS</factionGroup><numeric>8</numeric><availability>2</availability></era>
+<era><id>WOR</id><name>The Wars of Reaving</name><start>3068</start><end>3085</end><parent>CWE</parent><factionGroup>CLAN</factionGroup><numeric>8</numeric><availability>2</availability></era>
+
+<era><id>DA</id><name>The Dark Age</name><start>3086</start><end>3150</end><availability>2</availability></era>
+<era><id>RA</id><name>The Republic Age</name><start>3086</start><end>3130</end><parent>DA</parent><factionGroup>IS</factionGroup><availability>2</availability></era>
+<era><id>LDA</id><name>Late Dark Age</name><start>3131</start><end>3150</end><parent>DA</parent><factionGroup>IS</factionGroup><availability>2</availability></era>
+<era><id>PR</id><name>The Post-Reaving</name><start>3086</start><end>3150</end><parent>DA</parent><factionGroup>CLAN</factionGroup><availability>2</availability></era>
+
+</eras>
