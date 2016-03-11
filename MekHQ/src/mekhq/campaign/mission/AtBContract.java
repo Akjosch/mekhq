@@ -48,6 +48,7 @@ import mekhq.campaign.personnel.Person;
 import mekhq.campaign.personnel.SkillType;
 import mekhq.campaign.rating.IUnitRating;
 import mekhq.campaign.unit.Unit;
+import mekhq.campaign.universe.Era;
 import mekhq.campaign.universe.Faction;
 import mekhq.campaign.universe.RandomFactionGenerator;
 import mekhq.campaign.universe.UnitTableData;
@@ -1221,12 +1222,12 @@ public class AtBContract extends Contract implements Serializable {
 		return employerCode;
 	}
 	
-	public void setEmployerCode(String code, int era) {
+	public void setEmployerCode(String code, Era era) {
 		employerCode = code;
 		setEmployer(getEmployerName(era));
 	}
 	
-	public String getEmployerName(int era) {
+	public String getEmployerName(Era era) {
 		if (mercSubcontract) {
 			return "Mercenary (" +
 					Faction.getFaction(employerCode).getFullName(era) + ")";
@@ -1238,7 +1239,7 @@ public class AtBContract extends Contract implements Serializable {
 		return enemyCode;
 	}
 		
-	public String getEnemyName(int era) {
+	public String getEnemyName(Era era) {
 		return Faction.getFaction(enemyCode).getFullName(era);
 	}
 

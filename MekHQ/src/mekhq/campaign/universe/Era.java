@@ -49,9 +49,9 @@ import mekhq.MekHQ;
 public class Era {
     private final static Object LOADING_LOCK = new Object[0];
     
-    private static Map<String, Era> eraRegistry;
-    private static Map<Integer, Era> numericEras;
-    private static Era defaultEra;
+    private final static Map<String, Era> eraRegistry;
+    private final static Map<Integer, Era> numericEras;
+    public final static Era DEFAULT;
     
     private static boolean initialized = false;
     private static boolean initializing = false;
@@ -78,17 +78,6 @@ public class Era {
     @XmlTransient
     private Set<Era> children;
 
-    public static final int E_AOW   = 0;
-    public static final int E_RW    = 1;
-    public static final int E_SL    = 2;
-    public static final int E_1SW   = 3;
-    public static final int E_2SW   = 4;
-    public static final int E_3SW   = 5;
-    public static final int E_4SW   = 6;
-    public static final int E_CLAN  = 7;
-    public static final int E_JIHAD = 8;
-    public static final int E_NUM   = 9;
-    
     // for JAXB only
     private Era() {
         this("", -1);
@@ -134,10 +123,15 @@ public class Era {
     
     public Era getParentEra() {
         if( null == parent ) {
-            return defaultEra;
+            return DEFAULT;
         }
         Era result = Era.valueOf(parent);
-        return (null != result) ? result : defaultEra;
+        return (null != result) ? result : DEFAULT;
+    }
+    
+    /** @return true if this era or one of its parents is the specified era */
+    public boolean is(Era era) {
+    	return is(era.id);
     }
     
     /** @return true if this era or one of its parents has the specified id */
@@ -187,7 +181,7 @@ public class Era {
     }
 
     public static Era getEra(int year, FactionGroup fg) {
-        return defaultEra.getActualEra(year, fg);
+        return DEFAULT.getActualEra(year, fg);
     }
     
     public static String getEraNameFromYear(int year) {
@@ -306,12 +300,12 @@ public class Era {
         // Default era setup
         eraRegistry = new HashMap<String, Era>();
         numericEras = new HashMap<Integer, Era>();
-        defaultEra = new Era("ALL");
-        defaultEra.name = "All of civilization";
-        defaultEra.parent = null;
-        defaultEra.start = 0;
-        defaultEra.end = 9999;
-        eraRegistry.put(defaultEra.id, defaultEra);
+        DEFAULT = new Era("ALL");
+        DEFAULT.name = "All of civilization";
+        DEFAULT.parent = null;
+        DEFAULT.start = 0;
+        DEFAULT.end = 9999;
+        eraRegistry.put(DEFAULT.id, DEFAULT);
     }
     
     @XmlRootElement(name="eras")

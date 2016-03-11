@@ -115,10 +115,11 @@ public class Faction {
 		return shortname;
 	}
 
-	public String getFullName(int era) {
+	public String getFullName(Era era) {
+		int eraNum = era.getNumeric();
 		String alt = "";
-		if(altNames.length > era) {
-			alt = altNames[era];
+		if(altNames.length > eraNum && eraNum >= 0) {
+			alt = altNames[eraNum];
 		}
 		if(alt.trim().length() == 0) {
 			return fullname;
@@ -143,18 +144,20 @@ public class Faction {
 		return nameGenerator;
 	}
 
-	public String getStartingPlanet(int era) {
-		if(startingPlanet.length > era) {
-			return startingPlanet[era];
+	public String getStartingPlanet(Era era) {
+		int eraNum = era.getNumeric();
+		if(startingPlanet.length > eraNum && eraNum >= 0) {
+			return startingPlanet[eraNum];
 		} else if(startingPlanet.length > 0) {
 			return startingPlanet[startingPlanet.length-1];
 		}
 		return "Terra";
 	}
 
-	public int getEraMod(int era) {
-		if(eraMods.length > era) {
-			return eraMods[era];
+	public int getEraMod(Era era) {
+		int eraNum = era.getNumeric();
+		if(eraMods.length > eraNum && eraNum >= 0) {
+			return eraMods[eraNum];
 		}
 		return 0;
 	}
@@ -211,7 +214,7 @@ public class Faction {
 		return getFactionFromFullNameAndEra(fname, Era.getEra(year));
 	}
 
-	public static Faction getFactionFromFullNameAndEra(String fname, int era) {
+	public static Faction getFactionFromFullNameAndEra(String fname, Era era) {
 		Faction faction = null;
 		for (Faction f : factions.values()) {
 			if (f.getFullName(era).equals(fname)) {
@@ -328,16 +331,6 @@ public class Faction {
 					retVal.color = new Color(colorRed, colorGreen, colorBlue);
 				}
 			}
-		}
-
-		if(retVal.altNames.length < Era.E_NUM) {
-			MekHQ.logMessage(retVal.fullname + " faction did not have a long enough altNames vector");
-		}
-		if(retVal.eraMods.length < Era.E_NUM) {
-			MekHQ.logMessage(retVal.fullname + " faction did not have a long enough eraMods vector");
-		}
-		if(retVal.startingPlanet.length < Era.E_NUM) {
-			MekHQ.logMessage(retVal.fullname + " faction did not have a long enough startingPlanet vector");
 		}
 
 		return retVal;
