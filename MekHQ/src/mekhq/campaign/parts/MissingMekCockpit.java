@@ -28,6 +28,7 @@ import megamek.common.EquipmentType;
 import megamek.common.Mech;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.universe.Era;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -99,36 +100,36 @@ public class MissingMekCockpit extends MissingPart {
 	}
 
 	@Override
-	public int getAvailability(int era) {
+	public int getAvailability(Era era) {
 		switch (type) {
         case Mech.COCKPIT_COMMAND_CONSOLE:
-        	if(era == EquipmentType.ERA_SL) {
+        	if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_C;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_F;
 			} else {
 				return EquipmentType.RATING_E;
 			}
         case Mech.COCKPIT_SMALL:
-        	if(era == EquipmentType.ERA_SL) {
+        	if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_X;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_X;
 			} else {
 				return EquipmentType.RATING_E;
 			}
         case Mech.COCKPIT_TORSO_MOUNTED:
-        	if(era == EquipmentType.ERA_SL) {
+        	if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_X;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_X;
 			} else {
 				return EquipmentType.RATING_F;
 			}
         case Mech.COCKPIT_INDUSTRIAL:
-        	if(era == EquipmentType.ERA_SL) {
+        	if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_B;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_C;
 			} else {
 				return EquipmentType.RATING_C;

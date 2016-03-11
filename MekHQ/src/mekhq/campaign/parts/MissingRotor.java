@@ -26,6 +26,7 @@ import megamek.common.EquipmentType;
 import megamek.common.IArmorState;
 import megamek.common.VTOL;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.universe.Era;
 
 import org.w3c.dom.Node;
 
@@ -61,8 +62,8 @@ public class MissingRotor extends MissingPart {
 	}
 
 	@Override
-	public int getAvailability(int era) {
-		if(era == EquipmentType.ERA_SW) {
+	public int getAvailability(Era era) {
+		if(era.getAvailability() == EquipmentType.ERA_SW) {
 			return EquipmentType.RATING_D;
 		}
 		return EquipmentType.RATING_C;

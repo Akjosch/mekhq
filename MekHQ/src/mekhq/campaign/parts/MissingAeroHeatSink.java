@@ -25,6 +25,7 @@ import megamek.common.Aero;
 import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.universe.Era;
 
 import org.w3c.dom.Node;
 
@@ -91,11 +92,11 @@ public class MissingAeroHeatSink extends MissingPart {
 	}
 
 	@Override
-	public int getAvailability(int era) {
+	public int getAvailability(Era era) {
 		if(type == Aero.HEAT_DOUBLE) {
-		if(era == EquipmentType.ERA_SL) {
+		if(era.getAvailability() == EquipmentType.ERA_SL) {
 			return EquipmentType.RATING_C;
-		} else if(era == EquipmentType.ERA_SW) {
+		} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 			return EquipmentType.RATING_E;
 		} else {
 			return EquipmentType.RATING_D;

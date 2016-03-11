@@ -38,6 +38,7 @@ import mekhq.MekHqXmlUtil;
 import mekhq.Utilities;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.personnel.SkillType;
+import mekhq.campaign.universe.Era;
 import mekhq.campaign.work.IAcquisitionWork;
 import mekhq.campaign.work.Modes;
 
@@ -354,13 +355,13 @@ public class Armor extends Part implements IAcquisitionWork {
 	}
 
 	@Override
-	public int getAvailability(int era) {
+	public int getAvailability(Era era) {
 		switch(type) {
 		case EquipmentType.T_ARMOR_FERRO_FIBROUS:
 		case EquipmentType.T_ARMOR_FERRO_FIBROUS_PROTO:
-			if(era == EquipmentType.ERA_SL) {
+			if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_D;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_F;
 			} else {
 				return EquipmentType.RATING_D;
@@ -368,25 +369,25 @@ public class Armor extends Part implements IAcquisitionWork {
 		case EquipmentType.T_ARMOR_LIGHT_FERRO:
 		case EquipmentType.T_ARMOR_HEAVY_FERRO:
 		case EquipmentType.T_ARMOR_STEALTH:
-			if(era == EquipmentType.ERA_SL) {
+			if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_X;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_X;
 			} else {
 				return EquipmentType.RATING_E;
 			}
 		case EquipmentType.T_ARMOR_INDUSTRIAL:
-			if(era == EquipmentType.ERA_SL) {
+			if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_B;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_C;
 			} else {
 				return EquipmentType.RATING_B;
 			}
 		case EquipmentType.T_ARMOR_COMMERCIAL:
-			if(era == EquipmentType.ERA_SL) {
+			if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_B;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_B;
 			} else {
 				return EquipmentType.RATING_A;
@@ -399,9 +400,9 @@ public class Armor extends Part implements IAcquisitionWork {
 		case EquipmentType.T_ARMOR_FERRO_CARBIDE:
 		case EquipmentType.T_ARMOR_LAMELLOR_FERRO_CARBIDE:
 		case EquipmentType.T_ARMOR_FERRO_LAMELLOR:
-			if(era == EquipmentType.ERA_SL) {
+			if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_X;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_X;
 			} else {
 				return EquipmentType.RATING_F;

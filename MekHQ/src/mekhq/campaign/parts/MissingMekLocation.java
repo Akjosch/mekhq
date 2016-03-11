@@ -29,6 +29,7 @@ import megamek.common.IArmorState;
 import megamek.common.Mech;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.universe.Era;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -186,30 +187,30 @@ public class MissingMekLocation extends MissingPart {
 	}
 
 	@Override
-	public int getAvailability(int era) {
+	public int getAvailability(Era era) {
 		switch(structureType) {
 		case EquipmentType.T_STRUCTURE_ENDO_STEEL:
 		case EquipmentType.T_STRUCTURE_ENDO_PROTOTYPE:
-			if(era == EquipmentType.ERA_SL) {
+			if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_D;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_F;
 			} else {
 				return EquipmentType.RATING_E;
 			}
 		case EquipmentType.T_STRUCTURE_ENDO_COMPOSITE:
-			if(era == EquipmentType.ERA_SL) {
+			if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_X;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_X;
 			} else {
 				return EquipmentType.RATING_F;
 			}
 		case EquipmentType.T_STRUCTURE_REINFORCED:
 		case EquipmentType.T_STRUCTURE_COMPOSITE:
-			if(era == EquipmentType.ERA_SL) {
+			if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_X;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_X;
 			} else {
 				return EquipmentType.RATING_E;

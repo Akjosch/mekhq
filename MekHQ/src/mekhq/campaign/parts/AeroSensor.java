@@ -31,6 +31,7 @@ import megamek.common.TechConstants;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.personnel.SkillType;
+import mekhq.campaign.universe.Era;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -166,7 +167,7 @@ public class AeroSensor extends Part {
 	}
 
 	@Override
-	public int getAvailability(int era) {
+	public int getAvailability(Era era) {
 		//go with ASF sensors
 		return EquipmentType.RATING_C;
 	}

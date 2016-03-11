@@ -29,6 +29,7 @@ import megamek.common.IArmorState;
 import megamek.common.Tank;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.universe.Era;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -86,7 +87,7 @@ public class MissingTurret extends MissingPart {
 	}
 
 	@Override
-	public int getAvailability(int era) {
+	public int getAvailability(Era era) {
 		return EquipmentType.RATING_C;
 	}
 

@@ -30,9 +30,9 @@
 <era><id>JIHAD</id><name>Jihad</name><start>3068</start><end>3085</end><parent>CWE</parent><factionGroup>IS</factionGroup><numeric>8</numeric><availability>2</availability></era>
 <era><id>WOR</id><name>The Wars of Reaving</name><start>3068</start><end>3085</end><parent>CWE</parent><factionGroup>CLAN</factionGroup><numeric>8</numeric><availability>2</availability></era>
 
-<era><id>DA</id><name>The Dark Age</name><start>3086</start><end>3150</end><availability>2</availability></era>
-<era><id>RA</id><name>The Republic Age</name><start>3086</start><end>3130</end><parent>DA</parent><factionGroup>IS</factionGroup><availability>2</availability></era>
-<era><id>LDA</id><name>Late Dark Age</name><start>3131</start><end>3150</end><parent>DA</parent><factionGroup>IS</factionGroup><availability>2</availability></era>
-<era><id>PR</id><name>The Post-Reaving</name><start>3086</start><end>3150</end><parent>DA</parent><factionGroup>CLAN</factionGroup><availability>2</availability></era>
+<era><id>DA</id><name>The Dark Age</name><start>3086</start><end>3150</end><availability>3</availability></era>
+<era><id>RA</id><name>The Republic Age</name><start>3086</start><end>3130</end><parent>DA</parent><factionGroup>IS</factionGroup><availability>3</availability></era>
+<era><id>LDA</id><name>Late Dark Age</name><start>3131</start><end>3150</end><parent>DA</parent><factionGroup>IS</factionGroup><availability>3</availability></era>
+<era><id>PR</id><name>The Post-Reaving</name><start>3086</start><end>3150</end><parent>DA</parent><factionGroup>CLAN</factionGroup><availability>3</availability></era>
 
 </eras>

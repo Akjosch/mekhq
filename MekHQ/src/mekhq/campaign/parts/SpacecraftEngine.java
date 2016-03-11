@@ -35,6 +35,7 @@ import megamek.common.Warship;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.personnel.SkillType;
+import mekhq.campaign.universe.Era;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -149,10 +150,10 @@ public class SpacecraftEngine extends Part {
 	}
 
 	@Override
-	public int getAvailability(int era) {
-		if(era == EquipmentType.ERA_SL) {
+	public int getAvailability(Era era) {
+		if(era.getAvailability() == EquipmentType.ERA_SL) {
 			return EquipmentType.RATING_C;
-		} else if(era == EquipmentType.ERA_SW) {
+		} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 			return EquipmentType.RATING_E;
 		} else {
 			return EquipmentType.RATING_C;

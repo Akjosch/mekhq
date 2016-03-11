@@ -44,6 +44,7 @@ import mekhq.campaign.personnel.Person;
 import mekhq.campaign.personnel.SkillType;
 import mekhq.campaign.unit.TestUnit;
 import mekhq.campaign.unit.Unit;
+import mekhq.campaign.universe.Era;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -415,14 +416,14 @@ public class BattleArmorSuit extends Part {
     }
 
     @Override
-    public int getAvailability(int era) {
+	public int getAvailability(Era era) {
         int chassisAvail = EquipmentType.RATING_E;
         if(weightClass > EntityWeightClass.WEIGHT_ULTRA_LIGHT) {
-            if(era == EquipmentType.ERA_SW) {
+            if(era.getAvailability() == EquipmentType.ERA_SW) {
                 chassisAvail = EquipmentType.RATING_F;
             }
         }
-        else if(era < EquipmentType.ERA_CLAN) {
+        else if(era.getAvailability() < EquipmentType.ERA_CLAN) {
             chassisAvail = EquipmentType.RATING_X;
         }
         if(jumpType == EntityMovementMode.INF_UMU || jumpType == EntityMovementMode.VTOL) {

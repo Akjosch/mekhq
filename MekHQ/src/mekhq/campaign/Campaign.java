@@ -360,7 +360,7 @@ public class Campaign implements Serializable {
         return Era.getEraNameFromYear(calendar.get(Calendar.YEAR));
     }
 
-    public int getEra() {
+    public Era getEra() {
         return Era.getEra(calendar.get(Calendar.YEAR));
     }
 
@@ -5679,7 +5679,7 @@ public class Campaign implements Serializable {
         if (getCampaignOptions().getUseAtB() &&
         		getCampaignOptions().getRestrictPartsByMission() &&
         		acquisition instanceof Part) {
-        	int partAvailability = ((Part)acquisition).getAvailability(Era.convertEra(getEra()));
+        	int partAvailability = ((Part)acquisition).getAvailability(getEra());
     		EquipmentType et = null;
     		if (acquisition instanceof EquipmentPart) {
     			et = ((EquipmentPart)acquisition).getType();

@@ -36,6 +36,7 @@ import megamek.common.Tank;
 import megamek.common.verifier.TestEntity;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.universe.Era;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -164,62 +165,62 @@ public class MissingEnginePart extends MissingPart {
 	}
 
 	@Override
-	public int getAvailability(int era) {
+	public int getAvailability(Era era) {
 	    int year = campaign.getCalendar().get(GregorianCalendar.YEAR);
 		switch(engine.getTechType(year)) {
 		case Engine.COMBUSTION_ENGINE:
-			if(era == EquipmentType.ERA_SL) {
+			if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_A;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_A;
 			} else {
 				return EquipmentType.RATING_A;
 			}
 		case Engine.FUEL_CELL:
-			if(era == EquipmentType.ERA_SL) {
+			if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_C;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_D;
 			} else {
 				return EquipmentType.RATING_D;
 			}
 		case Engine.FISSION:
-			if(era == EquipmentType.ERA_SL) {
+			if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_E;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_E;
 			} else {
 				return EquipmentType.RATING_D;
 			}
 		case Engine.XL_ENGINE:
-			if(era == EquipmentType.ERA_SL) {
+			if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_D;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_F;
 			} else {
 				return EquipmentType.RATING_E;
 			}
 		case Engine.LIGHT_ENGINE:
 		case Engine.COMPACT_ENGINE:
-			if(era == EquipmentType.ERA_SL) {
+			if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_X;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_X;
 			} else {
 				return EquipmentType.RATING_E;
 			}
 		case Engine.XXL_ENGINE:
-			if(era == EquipmentType.ERA_SL) {
+			if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_X;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_X;
 			} else {
 				return EquipmentType.RATING_F;
 			}
 		default:
-			if(era == EquipmentType.ERA_SL) {
+			if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_C;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_E;
 			} else {
 				return EquipmentType.RATING_D;

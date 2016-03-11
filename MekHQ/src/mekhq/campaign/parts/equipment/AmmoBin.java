@@ -255,8 +255,8 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
 	}
 
 	@Override
-	public int getAvailability(int era) {
-		return type.getAvailability(Era.convertEra(era));
+	public int getAvailability(Era era) {
+		return type.getAvailability(era.getAvailability());
 	}
 
 	@Override

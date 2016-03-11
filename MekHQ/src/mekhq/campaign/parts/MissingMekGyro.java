@@ -28,6 +28,7 @@ import megamek.common.EquipmentType;
 import megamek.common.Mech;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.universe.Era;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -110,14 +111,14 @@ public class MissingMekGyro extends MissingPart {
 	}
 
 	@Override
-	public int getAvailability(int era) {
+	public int getAvailability(Era era) {
 		switch(type) {
 		case Mech.GYRO_COMPACT:
 		case Mech.GYRO_HEAVY_DUTY:
 		case Mech.GYRO_XL:
-			if(era == EquipmentType.ERA_SL) {
+			if(era.getAvailability() == EquipmentType.ERA_SL) {
 				return EquipmentType.RATING_X;
-			} else if(era == EquipmentType.ERA_SW) {
+			} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 				return EquipmentType.RATING_X;
 			} else {
 				return EquipmentType.RATING_E;

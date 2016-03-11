@@ -29,6 +29,7 @@ import megamek.common.EquipmentType;
 import megamek.common.Protomech;
 import megamek.common.TechConstants;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.universe.Era;
 
 import org.w3c.dom.Node;
 
@@ -79,8 +80,8 @@ public class MissingProtomekJumpJet extends MissingPart {
     }
 
     @Override
-    public int getAvailability(int era) {
-        if(era == EquipmentType.ERA_CLAN) {
+	public int getAvailability(Era era) {
+        if(era.getAvailability() == EquipmentType.ERA_CLAN) {
             return EquipmentType.RATING_D;
         } else {
             return EquipmentType.RATING_X;

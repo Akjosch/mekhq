@@ -30,6 +30,7 @@ import megamek.common.EquipmentType;
 import megamek.common.TechConstants;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.personnel.SkillType;
+import mekhq.campaign.universe.Era;
 
 import org.w3c.dom.Node;
 
@@ -158,11 +159,11 @@ public class Avionics extends Part {
 	}
 
 	@Override
-	public int getAvailability(int era) {
+	public int getAvailability(Era era) {
 		//go with conventional fighter avionics
-		if(era == EquipmentType.ERA_SL) {
+		if(era.getAvailability() == EquipmentType.ERA_SL) {
 			return EquipmentType.RATING_C;
-		} else if(era == EquipmentType.ERA_SW) {
+		} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 			return EquipmentType.RATING_D;
 		} else {
 			return EquipmentType.RATING_C;

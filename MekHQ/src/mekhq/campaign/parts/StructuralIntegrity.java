@@ -32,6 +32,7 @@ import megamek.common.SmallCraft;
 import megamek.common.TechConstants;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.universe.Era;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -68,7 +69,7 @@ public class StructuralIntegrity extends Part {
 	
 	
 	@Override
-	public int getAvailability(int era) {
+	public int getAvailability(Era era) {
 		if(null != unit && unit.getEntity() instanceof Aero) {
 			if(unit.getEntity() instanceof Dropship || unit.getEntity() instanceof SmallCraft) {
 				return EquipmentType.RATING_D;
@@ -76,9 +77,9 @@ public class StructuralIntegrity extends Part {
 			else if(unit.getEntity() instanceof ConvFighter) {
 				return EquipmentType.RATING_C;
 			} else {
-				if(era == EquipmentType.ERA_SL) {
+				if(era.getAvailability() == EquipmentType.ERA_SL) {
 					return EquipmentType.RATING_C;
-				} else if(era == EquipmentType.ERA_SW) {
+				} else if(era.getAvailability() == EquipmentType.ERA_SW) {
 					return EquipmentType.RATING_D;
 				} else {
 					return EquipmentType.RATING_D;

@@ -32,6 +32,7 @@ import megamek.common.WeaponType;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.unit.Unit;
+import mekhq.campaign.universe.Era;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -131,7 +132,7 @@ public class Turret extends TankLocation {
 	}
 
 	@Override
-	public int getAvailability(int era) {
+	public int getAvailability(Era era) {
 		return EquipmentType.RATING_C;
 	}
 

@@ -31,6 +31,7 @@ import megamek.common.Mech;
 import megamek.common.TechConstants;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.personnel.SkillType;
+import mekhq.campaign.universe.Era;
 
 import org.w3c.dom.Node;
 
@@ -85,7 +86,7 @@ public class MekLifeSupport extends Part {
 	}
 
 	@Override
-	public int getAvailability(int era) {
+	public int getAvailability(Era era) {
 		return EquipmentType.RATING_C;
 	}
 

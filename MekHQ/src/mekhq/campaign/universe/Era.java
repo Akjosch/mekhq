@@ -128,7 +128,7 @@ public class Era {
         return end;
     }
     
-    public boolean isInEra(int year) {
+    public boolean isYearInEra(int year) {
         return (start <= year) && (year <= end);
     }
     
@@ -138,6 +138,17 @@ public class Era {
         }
         Era result = Era.valueOf(parent);
         return (null != result) ? result : defaultEra;
+    }
+    
+    /** @return true if this era or one of its parents has the specified id */
+    public boolean is(String eraId) {
+    	if( null == eraId ) {
+    		return false;
+    	}
+    	if( id.equals(eraId) ) {
+    		return true;
+    	}
+    	return (null != parent) && getParentEra().is(eraId);
     }
     
     public FactionGroup getFactionGroup() {
@@ -156,11 +167,11 @@ public class Era {
         if( null == fg ) {
             fg = FactionGroup.ALL;
         }
-        if( !isInEra(year) || !fg.is(factionGroup) ) {
+        if( !isYearInEra(year) || !fg.is(factionGroup) ) {
             return null;
         }
         for( Era child : children ) {
-            if( child.isInEra(year) && fg.is(child.factionGroup) ) {
+            if( child.isYearInEra(year) && fg.is(child.factionGroup) ) {
                 return child.getActualEra(year, fg);
             }
         }
@@ -235,7 +246,7 @@ public class Era {
             return false;
         }
         // Invariant: parent's year must include this era's year
-        if( !parent.isInEra(era.start) || !parent.isInEra(era.end) ) {
+        if( !parent.isYearInEra(era.start) || !parent.isYearInEra(era.end) ) {
             MekHQ.logError(String.format("Era registry: %s's years [%d-%d] don't fit into its parents [%d-%d]",
                     era.name, era.start, era.end, parent.start, parent.end));
             return false;

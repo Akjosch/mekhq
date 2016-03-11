@@ -25,6 +25,7 @@ import megamek.common.Aero;
 import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.universe.Era;
 
 import org.w3c.dom.Node;
 
@@ -85,7 +86,7 @@ public class MissingLandingGear extends MissingPart {
 	}
 
 	@Override
-	public int getAvailability(int era) {
+	public int getAvailability(Era era) {
 		//go with conventional fighter avionics
 		return EquipmentType.RATING_C;
 	}

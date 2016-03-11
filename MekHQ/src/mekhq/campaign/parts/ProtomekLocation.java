@@ -35,6 +35,7 @@ import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.personnel.SkillType;
+import mekhq.campaign.universe.Era;
 import mekhq.campaign.work.Modes;
 
 import org.w3c.dom.Node;
@@ -239,8 +240,8 @@ public class ProtomekLocation extends Part {
     }
 
     @Override
-    public int getAvailability(int era) {
-        if(era == EquipmentType.ERA_CLAN) {
+	public int getAvailability(Era era) {
+        if(era.getAvailability() == EquipmentType.ERA_CLAN) {
             return EquipmentType.RATING_E;
         } else {
             return EquipmentType.RATING_X;

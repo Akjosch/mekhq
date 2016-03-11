@@ -38,6 +38,7 @@ import mekhq.campaign.Campaign;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.personnel.SkillType;
 import mekhq.campaign.unit.Unit;
+import mekhq.campaign.universe.Era;
 import mekhq.campaign.work.IAcquisitionWork;
 import mekhq.campaign.work.IPartWork;
 import mekhq.campaign.work.Modes;
@@ -423,7 +424,7 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 
 	public abstract int getTechRating();
 
-	public abstract int getAvailability(int era);
+	public abstract int getAvailability(Era era);
 
 
 	public int getTechBase() {

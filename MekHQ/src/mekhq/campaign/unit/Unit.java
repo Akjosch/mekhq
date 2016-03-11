@@ -171,6 +171,7 @@ import mekhq.campaign.parts.equipment.MissingHeatSink;
 import mekhq.campaign.parts.equipment.MissingJumpJet;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.personnel.SkillType;
+import mekhq.campaign.universe.Era;
 import mekhq.campaign.work.IAcquisitionWork;
 import mekhq.campaign.work.IMothballWork;
 import mekhq.campaign.work.Modes;
@@ -3254,7 +3255,7 @@ public class Unit implements MekHqXmlSerializable, IMothballWork {
         return false;
     }
 
-    public int getAvailability(int era) {
+    public int getAvailability(Era era) {
         //take the highest availability of all parts
         int availability = EquipmentType.RATING_A;
         for(Part p : parts) {

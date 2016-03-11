@@ -22,6 +22,7 @@ package mekhq.campaign.work;
 
 import megamek.common.TargetRoll;
 import mekhq.campaign.unit.Unit;
+import mekhq.campaign.universe.Era;
 
 /**
  * 
@@ -65,7 +66,7 @@ public interface IAcquisitionWork extends IWork {
 	
 	public boolean isExtinctIn(int year);
 	
-	public int getAvailability(int era);
+	public int getAvailability(Era era);
 	
 	public String getShoppingListReport(int quantity);
 	
