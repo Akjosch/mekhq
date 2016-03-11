@@ -131,18 +131,18 @@ public class Era {
     
     /** @return true if this era or one of its parents is the specified era */
     public boolean is(Era era) {
-    	return is(era.id);
+        return is(era.id);
     }
     
     /** @return true if this era or one of its parents has the specified id */
     public boolean is(String eraId) {
-    	if( null == eraId ) {
-    		return false;
-    	}
-    	if( id.equals(eraId) ) {
-    		return true;
-    	}
-    	return (null != parent) && getParentEra().is(eraId);
+        if( null == eraId ) {
+            return false;
+        }
+        if( id.equals(eraId) ) {
+            return true;
+        }
+        return (null != parent) && getParentEra().is(eraId);
     }
     
     public FactionGroup getFactionGroup() {
@@ -181,6 +181,7 @@ public class Era {
     }
 
     public static Era getEra(int year, FactionGroup fg) {
+        initializeEras();
         return DEFAULT.getActualEra(year, fg);
     }
     

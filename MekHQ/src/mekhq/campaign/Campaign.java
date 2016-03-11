@@ -150,6 +150,7 @@ import mekhq.campaign.unit.TestUnit;
 import mekhq.campaign.unit.Unit;
 import mekhq.campaign.universe.Era;
 import mekhq.campaign.universe.Faction;
+import mekhq.campaign.universe.FactionGroup;
 import mekhq.campaign.universe.News;
 import mekhq.campaign.universe.NewsItem;
 import mekhq.campaign.universe.Planet;
@@ -357,7 +358,7 @@ public class Campaign implements Serializable {
     }
 
     public String getEraName() {
-        return Era.getEraNameFromYear(calendar.get(Calendar.YEAR));
+        return Era.getEraNameFromYear(calendar.get(Calendar.YEAR), getFaction().isClan() ? FactionGroup.CLAN : FactionGroup.IS);
     }
 
     public Era getEra() {
