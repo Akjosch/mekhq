@@ -2,6 +2,7 @@ package mekhq.campaign.universe;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -50,6 +52,15 @@ public class Star implements Serializable {
 	public static final String LUM_VI          = "VI"; // typically used as a prefix "sd", not as a suffix
 	public static final String LUM_VI_PLUS     = "VI+"; // typically used as a prefix "esd", not as a suffix
 	public static final String LUM_VII         = "VII"; // always used as class designation "D", never as a suffix
+	
+	private static final Set<String> validWhiteDwarfSubclasses = new TreeSet<String>();
+	static {
+		validWhiteDwarfSubclasses.addAll(Arrays.asList("", "A", "B", "O", "Q", "Z",
+					"AB", "AO", "AQ", "AZ", "BO", "BQ", "BZ", "QZ",
+					"ABO", "ABQ", "ABZ", "AOQ", "AOZ", "AQZ", "BOQ", "BOZ", "BQZ", "OQZ",
+					"ABOQ", "ABOZ", "ABQZ", "AOQZ", "BOQZ",
+					"ABOQZ", "C", "X"));
+	}
 	
 	private Double x;
 	private Double y;
@@ -481,7 +492,12 @@ public class Star implements Serializable {
 		if( mainClass.equals("D") && type.length() > 1 && null == parsedLuminosity /* prevent "sdD..." */ ) {
 			// white dwarf
 			parsedLuminosity = LUM_VII;
-			String subTypeString = type.substring(1).replaceAll("^([0-9\\.]*).*?$", "$1");
+			String whiteDwarfVariant = type.substring(1).replaceAll("([A-Z]*).*?$", "$1");
+			if( !validWhiteDwarfSubclasses.contains(whiteDwarfVariant) ) {
+				// Don't just make up D-class variants, that's silly ...
+				return;
+			}
+			String subTypeString = type.substring(1 + whiteDwarfVariant.length()).replaceAll("^([0-9\\.]*).*?$", "$1");
 			try {
 				parsedSubtype = Double.parseDouble(subTypeString);
 			} catch( NumberFormatException nfex ) {
