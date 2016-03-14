@@ -51,11 +51,6 @@ public class PlanetXMLData {
 			Thread.sleep(50);
 		}
 		
-		Planets.getInstance().writeStar(System.out, Planets.getInstance().getStarById("Sol"), true);
-		Planets.getInstance().writeStar(System.out, Planets.getInstance().getStarById("Aquagea"), true);
-		System.out.println("");
-		System.out.println("---");
-		Star thurrock = Planets.getInstance().getStarById("Thurrock");
-		Planets.getInstance().writeStar(System.out, thurrock, true);
+		Planets.getInstance().writeStar(System.out, Planets.getInstance().getStarById("Thurrock"));
 	}
 }

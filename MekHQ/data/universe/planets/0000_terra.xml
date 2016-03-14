@@ -22,6 +22,45 @@ The Sol system contains multiple colonized planets, foremost are Mars and Venus.
 	<planet>
 		<name>Terra</name>
 		<starId>Sol</starId>
+		<sysPos>3</sysPos>
+		<orbitRadius>1.00000011</orbitRadius>
+		<orbitEccentricity>0.0167086</orbitEccentricity>
+		<orbitInclination>1.578690</orbitInclination>
+		<satellites>1</satellites>
+		<satellite>Moon</satellite>
+		<mass>1.0</mass>
+		<radius>1.0</radius>
+		<density>5515</density>
+		<gravity>1.0</gravity>
+		<dayLength>24.0</dayLength>
+		<tilt>23.44</tilt>
+		<class>EARTH</class>
+		<percentWater>75</percentWater>
+		<volcamism>2</volcamism>
+		<tectonics>2</tectonics>
+		<landMass>Asia</landMass>
+		<landMass>Africa</landMass>
+		<landMass>Antarctica</landMass>
+		<landMass>Australia</landMass>
+		<landMass>Europe (Geneva)</landMass>
+		<landMass>North America</landMass>
+		<landMass>South America</landMass>
+		<!-- <landMass>Luna - (Luna City)</landMass> -->
+		<pressureAtm>1.0</pressureAtm>
+		<pressure>3</pressure>
+		<atmosphere>Standard</atmosphere>
+		<atmMass>1.0</atmMass>
+		<albedo>0.33</albedo>
+		<greenhouse>0.12</greenhouse>
+		<temperature>30</temperature>
+		<climate>3</climate>
+		<lifeForm>7</lifeForm>
+		<habitability>7</habitability>
+		<pop>10</pop>
+		<government>Democracy (Representative)</government>
+		<controlRating>5</controlRating>
+		<socioIndustrial>A-A-A-A-A</socioIndustrial>
+		<hpg>A</hpg>
 		<faction>TA</faction>
 		<factionChange>
 			<date>2316-01-01</date>
@@ -63,25 +102,6 @@ The Sol system contains multiple colonized planets, foremost are Mars and Venus.
 			<date>3081-01-01</date>
 			<faction>ROS</faction>
 		</factionChange>
-		<pressure>3</pressure>
-		<gravity>1</gravity>
-		<lifeForm>7</lifeForm>
-		<climate>3</climate>
-		<percentWater>75</percentWater>
-		<temperature>30</temperature>
-		<sysPos>3</sysPos>
-		<orbitRadius>1.00000011</orbitRadius>
-		<socioIndustrial>A-A-A-A-A</socioIndustrial>
-		<satellite>Moon</satellite>
-		<landMass>Asia</landMass>
-		<landMass>Africa</landMass>
-		<landMass>Antarctica</landMass>
-		<landMass>Australia</landMass>
-		<landMass>Europe (Geneva)</landMass>
-		<landMass>North America</landMass>
-		<landMass>South America</landMass>
-		<landMass>Luna - (Luna City)</landMass>
-		<hpg>A</hpg>
 		<poi>
 			<id>Terra/Geneva</id><name>Geneva</name><type>capital</type><lat>46.2</lat><long>6.15</long><alt>0.375</alt>
 		</poi>

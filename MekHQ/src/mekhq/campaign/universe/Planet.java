@@ -66,86 +66,91 @@ import mekhq.adapters.SocioIndustrialDataAdapter;
 public final class Planet implements Serializable {
 	private static final long serialVersionUID = -8699502165157515099L;
 
-	
-	/**
-	 * This is the base faction which the program will fall back on if
-	 * no better faction is found in the faction history given the date
-	 * <p>
-	 * map of [faction code: weight]
-	 */
-	@XmlJavaTypeAdapter(FactionDataAdapter.class)
-	@XmlElement(name = "faction")
-	private Map<String, Integer> factionCodes;
-	private ArrayList<String> garrisonUnits;
-	
+	// Base data
 	private String id;
 	private String name;
 	private String shortName;
 	private String starId;
 	private Integer sysPos;
+	
+	// Orbital information
+	/** Semimajor axis (average distance to parent star), in AU */
+	@XmlElement(name = "orbitRadius")
+	private Double orbitSemimajorAxis = 0.0;
+	private Double orbitEccentricity;
+	/** Degrees to the system's invariable plane */
+	private Double orbitInclination;
 
-	private Integer pressure;
-	private Double gravity;
+	// Stellar neighbourhood
+    @XmlElement(name="satellites")
+	private Integer numSatellites;
+    @XmlElement(name="satellite")
+	private List<String> satellites;
+
+    // Global physical characteristics
 	/** Mass in Earth masses */
 	private Double mass;
 	/** Density in kg/m^3 */
-	private Double density;
-	//fluff
-	@XmlElement(name = "class")
-	private String className;
-    @XmlJavaTypeAdapter(LifeFormAdapter.class)
-	private LifeForm lifeForm;
-    @XmlJavaTypeAdapter(ClimateAdapter.class)
-	private Climate climate;
-	private Integer percentWater;
-	private Integer temperature;
 	/** Radius in Earth radii */
 	private Double radius;
-    /** Pressure in Earth standard */
-	private Double pressureAtm;
-    /** Atmospheric mass compared to Earth's 28.9645 kg/mol */
-	private Double atmMass;
-    /** Atmospheric description */
-	private String atmosphere;
-	private Double albedo;
-	private Double greenhouseEffect;
+	private Double density;
+	private Double gravity;
+	private Double dayLength;
+	private Double tilt;
+	@XmlElement(name = "class")
+	private String className;
+	
+	// Surface description
+	private Integer percentWater;
     @XmlElement(name = "volcamism")
     private Integer volcanicActivity;
     @XmlElement(name = "tectonics")
     private Integer tectonicActivity;
+    @XmlElement(name="landMass")
+	private List<String> landMasses;
+
+    // Atmospheric description
+	/** Pressure in standard pressure (101325 Pa) */
+	private Double pressureAtm;
+	/** Pressure classification */
+	private Integer pressure;
+    /** Atmospheric description */
+	private String atmosphere;
+    /** Atmospheric mass compared to Earth's 28.9645 kg/mol */
+	private Double atmMass;
+	private Double albedo;
+	@XmlElement(name="greenhouse")
+	private Double greenhouseEffect;
+	/** Average surface temperature at equator in °C */
+	private Integer temperature;
+    @XmlJavaTypeAdapter(ClimateAdapter.class)
+	private Climate climate;
+
+    // Ecosphere
+    @XmlJavaTypeAdapter(LifeFormAdapter.class)
+	private LifeForm lifeForm;
     private Integer habitability;
-	private Double dayLength;
-    @XmlJavaTypeAdapter(HPGRatingAdapter.class)
-	private Integer hpg;
-	private String desc;
-	
+    
+    // Human influence
     /** Order of magnitude of the population - 1 */
     @XmlElement(name = "pop")
     public Integer populationRating;
     public String government;
     public Integer controlRating;
-
-	// Orbital data
-	/** Semimajor axis (average distance to parent star), in AU */
-	@XmlElement(name = "orbitRadius")
-	private Double orbitSemimajorAxis = 0.0;
-	private Double orbitEccentricity;
-	private Double orbitInclination;
-
-	//socioindustrial levels
     @XmlJavaTypeAdapter(SocioIndustrialDataAdapter.class)
-	private Planet.SocioIndustrialData socioIndustrial;
-
-	//keep some string information in lists
-    @XmlElement(name="satellite")
-	private List<String> satellites;
-    @XmlElement(name="satellites")
-	private Integer satelliteNum;
-    @XmlElement(name="landMass")
-	private List<String> landMasses;
-
+	private SocioIndustrialData socioIndustrial;
+    @XmlJavaTypeAdapter(HPGRatingAdapter.class)
+	private Integer hpg;
+	/** map of [faction code: weight] */
+	@XmlJavaTypeAdapter(FactionDataAdapter.class)
+	@XmlElement(name = "faction")
+	private Map<String, Integer> factions;
+	private ArrayList<String> garrisonUnits;
     @XmlElement(name="poi")
 	private List<PointOfInterest> pois;
+
+	// Fluff
+	private String desc;
 	
 	/**
 	 * a hash to keep track of dynamic planet changes
@@ -156,20 +161,21 @@ public final class Planet implements Serializable {
 	TreeMap<Date, PlanetaryEvent> events;
 
 	//a hash to keep track of dynamic garrison changes
-	TreeMap<Date,ArrayList<String>> garrisonHistory;
+	TreeMap<Date, ArrayList<String>> garrisonHistory;
 
-	// Old or control data
+	// Old and generation control data
 	/** Mark this planet as not to be included/deleted. Requires a valid id (or name if no id supplied). */
 	@XmlJavaTypeAdapter(BooleanValueAdapter.class)
 	public Boolean delete;
 	/** @deprecated Use "event", which can have any number of changes to the planetary data */
 	@XmlElement(name = "factionChange")
     private List<FactionChange> factionChanges;
+	// For export and import only (lists are easier than maps) */
 	@XmlElement(name = "event")
 	private List<Planet.PlanetaryEvent> eventList;
 
 	public Planet() {
-		this.factionCodes = new HashMap<String, Integer>();
+		this.factions = new HashMap<String, Integer>();
 		this.garrisonUnits = new ArrayList<String>();
 
 		this.satellites = new ArrayList<String>();
@@ -263,6 +269,10 @@ public final class Planet implements Serializable {
 		return orbitInclination;
 	}
 
+	public Double getTilt() {
+		return tilt;
+	}
+	
 	// Date-dependant data
 
 	private PlanetaryEvent getOrCreateEvent(Date when) {
@@ -445,7 +455,7 @@ public final class Planet implements Serializable {
 	
 	/** @return ap of factions and their influences at a given date */
 	public Map<String, Integer> getFactions(Date when) {
-		return getEventData(when, factionCodes, new EventGetter< Map<String, Integer>>() {
+		return getEventData(when, factions, new EventGetter< Map<String, Integer>>() {
 			@Override public  Map<String, Integer> get(PlanetaryEvent e) { return e.faction; }
 		});
 	}
@@ -605,7 +615,7 @@ public final class Planet implements Serializable {
 			shortName = Utilities.nonNull(other.shortName, shortName);
 			climate = Utilities.nonNull(other.climate, climate);
 			desc = Utilities.nonNull(other.desc, desc);
-			factionCodes = Utilities.nonNull(other.factionCodes, factionCodes);
+			factions = Utilities.nonNull(other.factions, factions);
 			gravity = Utilities.nonNull(other.gravity, gravity);
 			hpg = Utilities.nonNull(other.hpg, hpg);
 			landMasses = Utilities.nonNull(other.landMasses, landMasses);
