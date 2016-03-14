@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
@@ -429,7 +430,7 @@ public class Star implements Serializable {
 		return null != spectralType ? getSpectralType(spectralClass, subtype, luminosity) : "?";
 	}
 	
-	protected String validateLuminosity(String lc) {
+	protected static String validateLuminosity(String lc) {
 		// The order of entries here is important
 		if( lc.startsWith("I/II") ) { return LUM_II_EVOLVED; }
 		if( lc.startsWith("I-II") ) { return LUM_II_EVOLVED; }
@@ -459,10 +460,10 @@ public class Star implements Serializable {
 		return null;
 	}
 	
-	/** Includes a parser for spectral type strings */
-	protected void setSpectralType(String type) {
+	/** Parser for spectral type strings */
+	public static SpectralDefinition parseSpectralType(String type) {
 		if( null == type ) {
-			return;
+			return null;
 		}
 		
 		// We make sure to not rewrite the subtype, in case we need whatever special part is behind it
@@ -485,7 +486,7 @@ public class Star implements Serializable {
 		
 		if( type.length() < 1 ) {
 			// We can't parse an empty string
-			return;
+			return null;
 		}
 		String mainClass = type.substring(0, 1);
 		
@@ -495,13 +496,13 @@ public class Star implements Serializable {
 			String whiteDwarfVariant = type.substring(1).replaceAll("([A-Z]*).*?$", "$1");
 			if( !validWhiteDwarfSubclasses.contains(whiteDwarfVariant) ) {
 				// Don't just make up D-class variants, that's silly ...
-				return;
+				return null;
 			}
 			String subTypeString = type.substring(1 + whiteDwarfVariant.length()).replaceAll("^([0-9\\.]*).*?$", "$1");
 			try {
 				parsedSubtype = Double.parseDouble(subTypeString);
 			} catch( NumberFormatException nfex ) {
-				return;
+				return null;
 			}
 			// We're done here, white dwarfs have a spectral class of 0 (and ignore it)
 			parsedSpectralClass = 0;
@@ -511,24 +512,37 @@ public class Star implements Serializable {
 			try {
 				parsedSubtype = Double.parseDouble(subTypeString);
 			} catch( NumberFormatException nfex ) {
-				return;
+				return null;
 			}
 			if( type.length() > 1 + subTypeString.length() && null == parsedLuminosity ) {
 				// We might have a luminosity, try to parse it
 				parsedLuminosity = validateLuminosity(type.substring(1 + subTypeString.length()));
 				if( parsedLuminosity.equals(LUM_VII) ) {
 					// That's not how white dwarfs work
-					return;
+					return null;
 				}
 			}
 		}
-		// See if we have all
+		
 		if( null != parsedSpectralClass && null != parsedSubtype && null != parsedLuminosity ) {
-			spectralType = parsedSpectralType;
-			spectralClass = parsedSpectralClass;
-			subtype = parsedSubtype;
-			luminosity = parsedLuminosity;
+			return new SpectralDefinition(parsedSpectralType, parsedSpectralClass, parsedSubtype, parsedLuminosity);
+		} else {
+			return null;
 		}
+	}
+	
+	/** Includes a parser for spectral type strings */
+	protected void setSpectralType(String type) {
+		SpectralDefinition scDef = Star.parseSpectralType(type);
+		
+		if( null == scDef ) {
+			return;
+		}
+		
+		spectralType = scDef.spectralType;
+		spectralClass = scDef.spectralClass;
+		subtype = scDef.subtype;
+		luminosity = scDef.luminosity;
 	}
 	
 	public static String getSpectralType(Integer spectralClass, Double subtype, String luminosity) {
@@ -1139,6 +1153,21 @@ public class Star implements Serializable {
 	    public Boolean nadirCharge;
 		@XmlJavaTypeAdapter(BooleanValueAdapter.class)
 	    public Boolean zenithCharge;
+	}
+	
+	/** Data class to hold parsed spectral definitions */
+	public static final class SpectralDefinition {
+		public String spectralType;
+		public int spectralClass;
+		public double subtype;
+		public String luminosity;
+		
+		public SpectralDefinition(String spectralType, int spectralClass, double subtype, String luminosity) {
+			this.spectralType = Objects.requireNonNull(spectralType);
+			this.spectralClass = spectralClass;
+			this.subtype = subtype;
+			this.luminosity = Objects.requireNonNull(luminosity);
+		}
 	}
 	
 	// @FunctionalInterface in Java 8
