@@ -297,8 +297,7 @@ public class Utilities {
 				// Try parsing and updating the main list, one by one
 				for( File file : files ) {
 					if( file.isFile() ) {
-						try {
-							FileInputStream fis = new FileInputStream(file);
+						try(FileInputStream fis = new FileInputStream(file)) {
 							parser.parse(fis);
 						} catch(Exception ex) {
 							// Ignore this file then

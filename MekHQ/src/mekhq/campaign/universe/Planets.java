@@ -119,6 +119,7 @@ public class Planets {
         if (!planets.initialized && !planets.initializing) {
             planets.initializing = true;
             planets.loader = new Thread(new Runnable() {
+            	@Override
                 public void run() {
                     planets.initialize();
                 }

@@ -8,8 +8,8 @@ public final class SpectralTypeComparator implements Comparator<String>, Seriali
 
 	@Override
 	public int compare(String sc1, String sc2) {
-		final Star.SpectralDefinition scDef1 = Star.parseSpectralType(sc1);
-		final Star.SpectralDefinition scDef2 = Star.parseSpectralType(sc2);
+		final Star.SpectralDefinition scDef1 = StarUtil.parseSpectralType(sc1);
+		final Star.SpectralDefinition scDef2 = StarUtil.parseSpectralType(sc2);
 		if( scDef1.spectralClass < scDef2.spectralClass ) {
 			return -1;
 		}
