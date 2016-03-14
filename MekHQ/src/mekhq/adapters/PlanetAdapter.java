@@ -6,15 +6,9 @@ import mekhq.campaign.universe.Planet;
 import mekhq.campaign.universe.PlanetXMLData;
 
 public class PlanetAdapter extends XmlAdapter<PlanetXMLData, Planet> {
-
-	/**
-	 * Use Planets.updatePlanets() to add new data to the global registry from XML source
-	 * or Planet.getPlanetFromXMLData() and Star.getStarFromXMLData() to get a new instance
-	 * from an already unmarshalled PlanetXMLData instance.
-	 */
 	@Override
 	public Planet unmarshal(PlanetXMLData v) throws Exception {
-		throw new IllegalArgumentException("No automatic loading of Planet classes");
+		return Planet.getPlanetFromXMLData(v);
 	}
 
 	@Override
@@ -26,6 +20,7 @@ public class PlanetAdapter extends XmlAdapter<PlanetXMLData, Planet> {
 		result.starId = v.getStarId();
 		result.climate = v.getClimate(null);
 		result.desc = v.getDescription();
+		result.className = v.getClassName();
 		result.events = v.getEvents();
 		result.factions = v.getFactions(null);
 		result.gravity = v.getGravity();

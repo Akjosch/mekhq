@@ -6,15 +6,9 @@ import mekhq.campaign.universe.Star;
 import mekhq.campaign.universe.StarXMLData;
 
 public class StarAdapter extends XmlAdapter<StarXMLData, Star> {
-
-	/**
-	 * Use Planets.updatePlanets() to add new data to the global registry from XML source
-	 * or Star.getStarFromXMLData() to get a new instance
-	 * from an already unmarshalled StarXMLData instance.
-	 */
 	@Override
 	public Star unmarshal(StarXMLData v) throws Exception {
-		throw new IllegalArgumentException("No automatic loading of Star classes");
+		return Star.getStarFromXMLData(v);
 	}
 
 	@Override

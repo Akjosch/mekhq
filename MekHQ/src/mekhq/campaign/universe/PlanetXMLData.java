@@ -1,16 +1,23 @@
 package mekhq.campaign.universe;
 
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FilterInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.dom.DOMException;
 
@@ -21,8 +28,11 @@ import mekhq.adapters.DateAdapter;
 import mekhq.adapters.FactionDataAdapter;
 import mekhq.adapters.HPGRatingAdapter;
 import mekhq.adapters.LifeFormAdapter;
+import mekhq.adapters.ObsoleteStarAdapter;
+import mekhq.adapters.PlanetAdapter;
 import mekhq.adapters.SocioIndustrialDataAdapter;
 import mekhq.adapters.SpectralClassAdapter;
+import mekhq.adapters.StarAdapter;
 import mekhq.campaign.JumpPath;
 
 /**
@@ -130,21 +140,52 @@ public class PlanetXMLData {
 		MekHQ.getInstance().readPreferences();
 		Faction.generateFactions();
 		@SuppressWarnings("unused")
-		Map<String, Star> stars = Planets.getInstance().getStars();
+		Map<String, Star> starsLoaded = Planets.getInstance().getStars();
 		while( !Planets.getInstance().isInitialized() ) {
 			Thread.sleep(50);
 		}
-
-		Star start = Planets.getInstance().getStarById("Aquagea");
-		Planet startPlanet = Planets.getInstance().getPlanetById("Aquagea V");
-		Star end = Planets.getInstance().getStarById("Thurrock");
-		JumpPath path = new JumpPath();
-		path.addLocation(startPlanet);
-		path.addLocation(start.getPreferredJumpPoint());
-		path.addLocation(end.getPreferredJumpPoint());
-		
-		path.writeToXml(new PrintWriter(System.out), 0);
+		try(FileInputStream fis = new FileInputStream(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/planets.xml")) {
+			JAXBContext context = JAXBContext.newInstance(LocalPlanetList.class, LocalStarList.class);
+			Unmarshaller unmarshaller = context.createUnmarshaller();
+			// JAXB unmarshaller closes the stream. Bad JAXB. BAD.
+			InputStream is = new FilterInputStream(fis) {
+				@Override
+				public void close() { /* ignore */ }
+			};
+			
+			LocalPlanetList planets = unmarshaller.unmarshal(new StreamSource(is), LocalPlanetList.class).getValue();
+			for( Planet p : planets.list ) {
+				System.out.println(p.getId());
+			}
+			
+			fis.getChannel().position(0);
+			
+			LocalStarList stars = unmarshaller.unmarshal(new StreamSource(is), LocalStarList.class).getValue();
+			for( Star s : stars.obsoleteList ) {
+				System.out.println(s.getId());
+			}
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
+
+	@XmlRootElement(name="planets")
+	private static final class LocalPlanetList {
+		@XmlElement(name="planet")
+		@XmlJavaTypeAdapter(PlanetAdapter.class)
+		public List<Planet> list;
+	}
+	
+	@XmlRootElement(name="planets")
+	private static final class LocalStarList {
+		@XmlElement(name="planet")
+		@XmlJavaTypeAdapter(ObsoleteStarAdapter.class)
+		public List<Star> obsoleteList;
+		@XmlElement(name="star")
+		@XmlJavaTypeAdapter(StarAdapter.class)
+		public List<Star> list;
+	}
+	
 
     public static final class FactionChange {
     	@XmlJavaTypeAdapter(DateAdapter.class)

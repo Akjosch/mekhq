@@ -77,6 +77,7 @@ public final class Planet implements Serializable {
 	private Integer pressure;
 	private Double gravity;
 	//fluff
+	private String className;
 	private LifeForm lifeForm;
 	private Climate climate;
 	private Integer percentWater;
@@ -125,6 +126,7 @@ public final class Planet implements Serializable {
 	//a hash to keep track of dynamic garrison changes
 	TreeMap<Date,ArrayList<String>> garrisonHistory;
 
+
 	public Planet() {
 		this.factionCodes = new HashMap<String, Integer>();
 		this.garrisonUnits = new ArrayList<String>();
@@ -159,6 +161,10 @@ public final class Planet implements Serializable {
 		return id;
 	}
 
+	public String getClassName() {
+		return className;
+	}
+	
 	public Double getGravity() {
 		return gravity;
 	}
@@ -168,7 +174,7 @@ public final class Planet implements Serializable {
 	}
 	
 	public String getGravityText() {
-		return null != gravity ? gravity.toString() + "g" : "fit for humans";
+		return null != gravity ? gravity.toString() + "g" : "unknown";
 	}
 
 	public Double getOrbitSemimajorAxis() {
@@ -452,7 +458,7 @@ public final class Planet implements Serializable {
 	/** @return the average travel time from low orbit to the jump point at 1g, in Terran days */
 	public double getTimeToJumpPoint(double acceleration) {
 		//based on the formula in StratOps
-		return Math.sqrt((getDistanceToJumpPoint()*1000)/(9.8*acceleration))/43200;
+		return Math.sqrt((getDistanceToJumpPoint()*1000)/(Utilities.G*acceleration))/43200;
 	}
 
 	/** @return the average distance to the system's jump point in km */
@@ -579,6 +585,7 @@ public final class Planet implements Serializable {
 		result.name = data.name;
 		result.shortName = data.shortName;
 		result.starId = data.starId;
+		result.className = data.className;
 		result.climate = data.climate;
 		result.desc = data.desc;
 		result.factionCodes = data.factions;
