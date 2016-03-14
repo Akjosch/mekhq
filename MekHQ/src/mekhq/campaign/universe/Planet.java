@@ -167,10 +167,6 @@ public final class Planet implements Serializable {
     private List<FactionChange> factionChanges;
 	@XmlElement(name = "event")
 	private List<Planet.PlanetaryEvent> eventList;
-	
-	
-	// Stuff to ignore
-	public Object xcood, ycood, spectralClass, subtype, luminosity, nadirCharge, zenithCharge;
 
 	public Planet() {
 		this.factionCodes = new HashMap<String, Integer>();

@@ -39,10 +39,6 @@ public class PlanetXMLData {
     public Double subtype;
     public String luminosity;
     public String desc;
-    
-    // Ignore everything else
-	@XmlAnyElement(lax=true)
-	public List<Object> others;
 
     /** For testing only 
      * @throws InterruptedException */
