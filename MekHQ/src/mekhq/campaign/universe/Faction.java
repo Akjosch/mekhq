@@ -405,7 +405,7 @@ public class Faction {
 			Utilities.parseXMLFiles(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/factions",
 					new FileParser() {
 						@Override
-						public void parse(InputStream is) {
+						public void parse(FileInputStream is) {
 							updateFactions(is);
 						}
 					});

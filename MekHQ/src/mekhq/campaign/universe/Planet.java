@@ -126,6 +126,8 @@ public final class Planet implements Serializable {
 	//a hash to keep track of dynamic garrison changes
 	TreeMap<Date,ArrayList<String>> garrisonHistory;
 
+	/** Mark this planets as to be deleted */
+	public Boolean delete;
 
 	public Planet() {
 		this.factionCodes = new HashMap<String, Integer>();
@@ -629,12 +631,14 @@ public final class Planet implements Serializable {
 				}
 			}
 		}
+		// Deletion marker
+		result.delete = data.delete;
 		return result;
 	}
 	
 	@Override
 	public int hashCode() {
-		return 37 + Objects.hashCode(id);
+		return Objects.hashCode(id);
 	}
 
 	@Override
@@ -642,11 +646,11 @@ public final class Planet implements Serializable {
 		if( this == obj ) {
 			return true;
 		}
-		if( obj instanceof Planet ) {
-			final Planet other = (Planet)obj;
-			return Objects.equals(id, other.id);
+		if((null == obj) || (getClass() != obj.getClass())) {
+			return false;
 		}
-		return false;
+		final Planet other = (Planet)obj;
+		return Objects.equals(id, other.id);
 	}
 
 	/* Unused anyway ...

@@ -7,8 +7,13 @@ import mekhq.campaign.universe.Star;
 
 public class ObsoleteStarAdapter extends XmlAdapter<PlanetXMLData, Star> {
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public Star unmarshal(PlanetXMLData v) throws Exception {
+		if( null != v.starId || null == v.xCoord || null == v.yCoord ) {
+			// New type planet or incomplete star; ignore
+			throw new IllegalArgumentException("Not a star");
+		}
 		return Star.getStarFromXMLData(v);
 	}
 

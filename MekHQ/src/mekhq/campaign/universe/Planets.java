@@ -1,6 +1,8 @@
 package mekhq.campaign.universe;
 
 import java.io.FileInputStream;
+import java.io.FilterInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
@@ -19,6 +21,10 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import javax.xml.transform.stream.StreamSource;
 
 import org.w3c.dom.DOMException;
@@ -26,6 +32,7 @@ import org.w3c.dom.DOMException;
 import mekhq.FileParser;
 import mekhq.MekHQ;
 import mekhq.Utilities;
+import mekhq.adapters.ObsoleteStarAdapter;
 import mekhq.adapters.PlanetAdapter;
 import mekhq.adapters.StarAdapter;
 
@@ -48,8 +55,8 @@ public class Planets {
 	private static Unmarshaller unmarshaller;
 	static {
 		try {
-			JAXBContext context = JAXBContext.newInstance(PlanetListXMLData.class,
-					StarXMLData.class, PlanetXMLData.class, Planet.class, Star.class);
+			JAXBContext context = JAXBContext.newInstance(
+					LocalPlanetList.class, LocalStarList.class, Planet.class, Star.class);
 			marshaller = context.createMarshaller();
 			marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
 			unmarshaller = context.createUnmarshaller();
@@ -154,56 +161,56 @@ public class Planets {
         return initialized;
     }
 
-	private void updatePlanets(InputStream source) {
+	private void updatePlanets(FileInputStream source) {
 		try {
-			PlanetListXMLData list = unmarshaller.unmarshal(
-					new StreamSource(source), PlanetListXMLData.class).getValue();
+			// JAXB unmarshaller closes the stream it doesn't own. Bad JAXB. BAD.
+			InputStream is = new FilterInputStream(source) {
+				@Override
+				public void close() { /* ignore */ }
+			};
 			
-			// Run through the explicitly defined stars first
-			for( Object obj : list.objects ) {
-				if( obj instanceof StarXMLData ) {
-					Star star = Star.getStarFromXMLData((StarXMLData)obj);
-					// Get the previous version if there is any
-					Star oldStar = starList.get(star.getId());
-					if( null == oldStar ) {
-						starList.put(star.getId(), star);
-					} else {
-						// Update with new data
-						oldStar.copyDataFrom(star);
-					}
+			LocalStarList stars = unmarshaller.unmarshal(
+					new StreamSource(is), LocalStarList.class).getValue();
+			
+			// Run through the stars first
+			for( Star star : stars.list ) {
+				// Get the previous version if there is any
+				Star oldStar = starList.get(star.getId());
+				if( null == oldStar ) {
+					starList.put(star.getId(), star);
+				} else {
+					// Update with new data
+					oldStar.copyDataFrom(star);
 				}
 			}
 			
+			// Reset the file stream
+			source.getChannel().position(0);
+
+			LocalPlanetList planets = unmarshaller.unmarshal(
+					new StreamSource(is), LocalPlanetList.class).getValue();
+
 			// Run through the list again, this time creating and updating planets as we go
-			for( Object obj : list.objects ) {
-				if( obj instanceof PlanetXMLData ) {
-					Planet planet = Planet.getPlanetFromXMLData((PlanetXMLData)obj);
-
-					// First check if we aren't supposed to delete this one
-					Boolean deleteThisPlanet = ((PlanetXMLData)obj).delete;
-					if( null != deleteThisPlanet && deleteThisPlanet ) {
-						planetList.remove(planet.getId());
-						continue;
-					}
-
-					Planet oldPlanet = planetList.get(planet.getId());
-					if( null == oldPlanet ) {
-						planetList.put(planet.getId(), planet);
-					} else {
-						// Update with new data
-						oldPlanet.copyDataFrom(planet);
-						planet = oldPlanet;
-					}
-					// If the planet (after merging) still has a null starId, it's an "old style"
-					// entry and we need to use its id for the starId too.
-					if( null == planet.getStarId() ) {
-						planet.setStarId(planet.getId());
-					}
-					// Check if we need to create a star from the planet data (old-style planetary info)
-					if( !starList.containsKey(planet.getStarId()) ) {
-						Star star = Star.getStarFromXMLData((PlanetXMLData)obj);
-						starList.put(star.getId(), star);
-					}
+			for( Planet planet : planets.list ) {
+				Planet oldPlanet = planetList.get(planet.getId());
+				if( null == oldPlanet ) {
+					planetList.put(planet.getId(), planet);
+				} else {
+					// Update with new data
+					oldPlanet.copyDataFrom(planet);
+					planet = oldPlanet;
+				}
+				// If the planet (after merging) still has a null starId, it's an "old style"
+				// entry and we need to use its id for the starId too.
+				if( null == planet.getStarId() ) {
+					planet.setStarId(planet.getId());
+				}
+			}
+			
+			// Process planet deletions
+			for( String planetId : planets.toDelete ) {
+				if( null != planetId ) {
+					planetList.remove(planetId);
 				}
 			}
 			
@@ -229,6 +236,8 @@ public class Planets {
 			// but right now that'd be just too much work for too little reward.
 			// In the future, this could be reported as data consistency error.
 		} catch (JAXBException e) {
+			MekHQ.logError(e);
+		} catch(IOException e) {
 			MekHQ.logError(e);
 		}
 	}
@@ -262,10 +271,8 @@ public class Planets {
 			starGrid.clear();
 			
 			// Step 2: Read the default file
-			try {
-				FileInputStream fis = new FileInputStream(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/planets.xml");
+			try(FileInputStream fis = new FileInputStream(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/planets.xml")) {
 				updatePlanets(fis);
-				fis.close();
 			} catch (Exception ex) {
 				MekHQ.logError(ex);
 			}
@@ -274,7 +281,7 @@ public class Planets {
 			Utilities.parseXMLFiles(MekHQ.getPreference(MekHQ.DATA_DIR) + "/universe/planets",
 					new FileParser() {
 						@Override
-						public void parse(InputStream is) {
+						public void parse(FileInputStream is) {
 							updatePlanets(is);
 						}
 					});
@@ -316,7 +323,7 @@ public class Planets {
 
 	public void writePlanet(OutputStream out, Planet planet) {
 		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(PlanetListXMLData.class, StarXMLData.class, PlanetXMLData.class, Planet.class, Star.class);
+			JAXBContext jaxbContext = JAXBContext.newInstance(StarXMLData.class, PlanetXMLData.class, Planet.class, Star.class);
 			Marshaller marshaller = jaxbContext.createMarshaller();
 			marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
 			marshaller.marshal(new PlanetAdapter().marshal(planet), out);
@@ -326,6 +333,56 @@ public class Planets {
 		}
 	}
 	
+	@XmlRootElement(name="planets")
+	private static final class LocalPlanetList {
+		@XmlElement(name="planet")
+		@XmlJavaTypeAdapter(PlanetAdapter.class)
+		public List<Planet> list;
+		
+		@XmlTransient
+		public List<String> toDelete;
+		
+		@SuppressWarnings("unused")
+		private void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
+			toDelete = new ArrayList<String>();
+			if( null == list ) {
+				list = new ArrayList<Planet>();
+			} else {
+				// Fill in the "toDelete" list
+				List<Planet> filteredList = new ArrayList<Planet>(list.size());
+				for( Planet planet : list ) {
+					if( null != planet.delete && planet.delete && null != planet.getId() ) {
+						toDelete.add(planet.getId());
+					} else {
+						filteredList.add(planet);
+					}
+				}
+				list = filteredList;
+			}
+		}
+	}
+	
+	@XmlRootElement(name="planets")
+	private static final class LocalStarList {
+		@XmlElement(name="planet")
+		@XmlJavaTypeAdapter(ObsoleteStarAdapter.class)
+		public List<Star> obsoleteList;
+		@XmlElement(name="star")
+		@XmlJavaTypeAdapter(StarAdapter.class)
+		public List<Star> list;
+		
+		@SuppressWarnings("unused")
+		private void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
+			if( null == list ) {
+				list = new ArrayList<Star>();
+			}
+			if( null != obsoleteList ) {
+				list.addAll(obsoleteList);
+				obsoleteList = new ArrayList<Star>();
+			}
+		}
+	}
+
 	/*
 	public static Planet createNewSystem() {
 	    Planet planet = new Planet();
