@@ -16,12 +16,22 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import mekhq.Utilities;
 import mekhq.adapters.BooleanValueAdapter;
 import mekhq.adapters.DateAdapter;
+import mekhq.adapters.SpectralClassAdapter;
 
+@XmlRootElement(name="star")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Star implements Serializable {
 	private static final long serialVersionUID = -5089854102647097334L;
 	
@@ -63,7 +73,9 @@ public class Star implements Serializable {
 					"ABOQZ", "C", "X"));
 	}
 	
+	@XmlElement(name = "xcood")
 	private Double x;
+	@XmlElement(name = "ycood")
 	private Double y;
 
 	private String id;
@@ -71,23 +83,31 @@ public class Star implements Serializable {
 	private String shortName;
 	
 	//star type
+	@XmlJavaTypeAdapter(SpectralClassAdapter.class)
 	private Integer spectralClass;
 	private Double subtype;
 	private String luminosity;
 	private String spectralType;
 	
-	// Amount of planets.
+	/** Amount of planets */
+    @XmlElement(name="planets")
 	private Integer numPlanets;
-	// Amount of minor planets, asteroids and the like
+	/** Amount of minor planets, asteroids and the like */
+    @XmlElement(name="minorPlanets")
 	private Integer numMinorPlanets;
 	// planets - list of planets in a given orbit; can (and often is) partially empty
 	// This list is by the planet's ID, not instance, to help the GC and not create circular references
+	@XmlTransient
 	private List<String> planetOrbits = new ArrayList<String>();
 	// planets - all the planets orbiting around this star, even if they have no orbit set
+	@XmlTransient
 	private Set<String> planets = new HashSet<String>();
+    @XmlElement(name="defaultPlanet")
 	private String defaultPlanetId;
 	
+	@XmlJavaTypeAdapter(BooleanValueAdapter.class)
 	private Boolean nadirCharge;
+	@XmlJavaTypeAdapter(BooleanValueAdapter.class)
 	private Boolean zenithCharge;
 	
 	/**
@@ -95,6 +115,7 @@ public class Star implements Serializable {
 	 * <p>
 	 * sorted map of [date of change: change information]
 	 */
+	@XmlTransient
 	private TreeMap<Date, StellarEvent> events;
 
 	// Fluff
@@ -104,6 +125,12 @@ public class Star implements Serializable {
 	private Double radius; // radius in solar radii (695700 km)
 
 	private String desc;
+	
+	/** Mark this star to have a procedurally generated spectral class, based on its ID. This has no effect if the class is specified. */
+	@XmlJavaTypeAdapter(BooleanValueAdapter.class)
+	public Boolean generateType;
+	@XmlElement(name = "event")
+	private List<StellarEvent> eventList;
 	
 	// Constants
 	
@@ -596,9 +623,9 @@ public class Star implements Serializable {
 		}
 	}
 	
-	private final int[] rechargeHoursT = new int[]{
+	private final static int[] rechargeHoursT = new int[]{
 			7973, 13371, 21315, 35876, 70424, 134352, 215620, 32188, 569703, 892922};
-	private final int[] rechargeHoursL = new int[]{
+	private final static int[] rechargeHoursL = new int[]{
 			512, 616, 717, 901, 1142, 1462, 1767, 2325, 3617, 5038};
 	
 	/** Recharge time in hours using solar radiation alone (at jump point and 100% efficiency) */
@@ -625,6 +652,49 @@ public class Star implements Serializable {
 		}
 		return (getMinLifeZone(spectralClass, subtype) + getMaxLifeZone(spectralClass, subtype)) / 2;
 	}	
+
+	@SuppressWarnings("unused")
+	private void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
+		if( null == id ) {
+			id = name;
+		}
+		
+		// Spectral classification: use spectralType if available, else the separate values
+		if( null != spectralType ) {
+			setSpectralType(spectralType);
+		} else {
+			spectralType = getSpectralType(spectralClass, subtype, luminosity);
+		}
+		nadirCharge = Utilities.nonNull(nadirCharge, false);
+		zenithCharge = Utilities.nonNull(zenithCharge, false);
+		preparePlanetsList(null != numPlanets ? numPlanets.intValue() : 0);
+		
+		// Fill up events
+		events = new TreeMap<Date, StellarEvent>();
+		if( null != eventList ) {
+			for( StellarEvent event : eventList ) {
+				if( null != event && null != event.date ) {
+					events.put(event.date, event);
+				}
+			}
+			eventList.clear();
+		}
+		eventList = null;
+
+		// Generator part, if requested
+		if( null != generateType && generateType && null == spectralType ) {
+			setSpectralType(generateSpectralType(new Random(id.hashCode() + 133773), true));
+		}
+	}
+	
+	@SuppressWarnings("unused")
+	private boolean beforeMarshal(Marshaller marshaller) {
+		// Fill up our event list from the internal data type
+		if( null != events ) {
+			eventList = new ArrayList<StellarEvent>(events.values());
+		}
+		return true;
+	}
 
 	/**
 	 * Copy data (but not the id) from another star.
@@ -1057,46 +1127,10 @@ public class Star implements Serializable {
 			defaultPlanetId = planet.getId();
 		}
 	}
-	
-	/**
-	 * Create a Star object from the data gathered in a &lt;star&gt; element
-	 */
-	public static Star getStarFromXMLData(StarXMLData data) {
-		Star result = new Star();
-		result.name = data.name;
-		result.shortName = data.shortName;
-		result.id = null != data.id ? data.id : data.name;
-		result.defaultPlanetId = data.defaultPlanetId;
-		result.x = data.xCoord;
-		result.y = data.yCoord;
-		// Spectral classification: use spectralType if available, else the separate values
-		if( null != data.spectralType ) {
-			result.setSpectralType(data.spectralType);
-		} else {
-			result.spectralClass = data.spectralClass;
-			result.subtype = data.subtype;
-			result.luminosity = data.luminosity;
-			result.spectralType = getSpectralType(data.spectralClass, data.subtype, data.luminosity);
-		}
-		result.nadirCharge = null != data.nadirCharge ? data.nadirCharge.booleanValue() : false;
-		result.zenithCharge = null != data.zenithCharge ? data.zenithCharge.booleanValue() : false;
-		result.numPlanets = data.numPlanets;
-		result.numMinorPlanets = data.numMinorPlanets;
-		result.preparePlanetsList(null != result.numPlanets ? result.numPlanets.intValue() : 0);
-		result.mass = data.mass;
-		result.lum = data.lum;
-		result.temperature = data.temperature;
-		result.radius = data.radius;
-		if( null != data.generateType && data.generateType && null == result.spectralType ) {
-			result.setSpectralType(generateSpectralType(new Random(result.id.hashCode() + 133773), true));
-		}
-		return result;
-	}
 
 	/**
 	 * Create a Star object from the data gathered in a &lt;planet&gt; element (old style)
 	 */
-	@SuppressWarnings("deprecation")
 	public static Star getStarFromXMLData(PlanetXMLData data) {
 		Star result = new Star();
 		result.name = data.name;

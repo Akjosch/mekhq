@@ -21,6 +21,7 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAnyElement;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -33,8 +34,6 @@ import mekhq.FileParser;
 import mekhq.MekHQ;
 import mekhq.Utilities;
 import mekhq.adapters.ObsoleteStarAdapter;
-import mekhq.adapters.PlanetAdapter;
-import mekhq.adapters.StarAdapter;
 
 public class Planets {
 	private final static Object LOADING_LOCK = new Object[0];
@@ -58,8 +57,11 @@ public class Planets {
 			JAXBContext context = JAXBContext.newInstance(
 					LocalPlanetList.class, LocalStarList.class, Planet.class, Star.class);
 			marshaller = context.createMarshaller();
-			marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
+			marshaller.setProperty(Marshaller.JAXB_FRAGMENT, Boolean.TRUE);
+			marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 			unmarshaller = context.createUnmarshaller();
+			// For debugging only!
+			// unmarshaller.setEventHandler(new javax.xml.bind.helpers.DefaultValidationEventHandler());
 		} catch(JAXBException e) {
 			MekHQ.logError(e);
 		}
@@ -244,6 +246,7 @@ public class Planets {
 	
 	public void generatePlanets() throws DOMException, ParseException {
 		MekHQ.logMessage("Starting load of planetary data from XML...");
+		long currentTime = System.currentTimeMillis();
 		synchronized (LOADING_LOCK) {
 			// Step 1: Initialize variables.
 			if( null == planetList ) {
@@ -301,7 +304,8 @@ public class Planets {
 			}
 			done();
 		}
-		MekHQ.logMessage("Loaded a total of " + starList.size() + " stars and " + planetList.size() + " planets");
+		MekHQ.logMessage(String.format("Loaded a total of %d stars and %d planets in %.2fs.",
+				starList.size(), planetList.size(), (System.currentTimeMillis() - currentTime) / 1000.0));
 	}
 	
 	public void writeStar(OutputStream out, Star star) {
@@ -310,10 +314,10 @@ public class Planets {
 
 	public void writeStar(OutputStream out, Star star, boolean includePlanets) {
 		try {
-			marshaller.marshal(new StarAdapter().marshal(star), out);
+			marshaller.marshal(star, out);
 			if( includePlanets ) {
 				for( Planet planet : star.getPlanets() ) {
-					marshaller.marshal(new PlanetAdapter().marshal(planet), out);
+					marshaller.marshal(planet, out);
 				}
 			}
 		} catch (Exception e) {
@@ -323,24 +327,23 @@ public class Planets {
 
 	public void writePlanet(OutputStream out, Planet planet) {
 		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(StarXMLData.class, PlanetXMLData.class, Planet.class, Star.class);
-			Marshaller marshaller = jaxbContext.createMarshaller();
-			marshaller.setProperty("jaxb.fragment", Boolean.TRUE);
-			marshaller.marshal(new PlanetAdapter().marshal(planet), out);
+			marshaller.marshal(planet, out);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			MekHQ.logError(e);
 		}
 	}
 	
 	@XmlRootElement(name="planets")
 	private static final class LocalPlanetList {
 		@XmlElement(name="planet")
-		@XmlJavaTypeAdapter(PlanetAdapter.class)
 		public List<Planet> list;
 		
 		@XmlTransient
 		public List<String> toDelete;
+		
+		// Ignore <star> entries
+		@XmlAnyElement(lax=true)
+		public List<Object> others;
 		
 		@SuppressWarnings("unused")
 		private void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
@@ -368,18 +371,29 @@ public class Planets {
 		@XmlJavaTypeAdapter(ObsoleteStarAdapter.class)
 		public List<Star> obsoleteList;
 		@XmlElement(name="star")
-		@XmlJavaTypeAdapter(StarAdapter.class)
 		public List<Star> list;
 		
 		@SuppressWarnings("unused")
 		private void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
-			if( null == list ) {
-				list = new ArrayList<Star>();
+			List<Star> finalList = new ArrayList<Star>();
+			if( null != list ) {
+				for( Star star : list ) {
+					if( null != star ) {
+						finalList.add(star);
+					}
+				}
+				list.clear();
 			}
 			if( null != obsoleteList ) {
-				list.addAll(obsoleteList);
+				for( Star star : obsoleteList ) {
+					if( null != star ) {
+						finalList.add(star);
+					}
+				}
+				obsoleteList.clear();
 				obsoleteList = new ArrayList<Star>();
 			}
+			list = finalList;
 		}
 	}
 

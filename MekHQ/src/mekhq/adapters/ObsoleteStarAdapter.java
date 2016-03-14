@@ -7,19 +7,18 @@ import mekhq.campaign.universe.Star;
 
 public class ObsoleteStarAdapter extends XmlAdapter<PlanetXMLData, Star> {
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public Star unmarshal(PlanetXMLData v) throws Exception {
-		if( null != v.starId || null == v.xCoord || null == v.yCoord ) {
+		if( null == v.xCoord || null == v.yCoord ) {
 			// New type planet or incomplete star; ignore
-			throw new IllegalArgumentException("Not a star");
+			return null;
 		}
 		return Star.getStarFromXMLData(v);
 	}
 
 	@Override
 	public PlanetXMLData marshal(Star v) throws Exception {
-		throw new IllegalArgumentException("Loading obsolete star definition is read-only");
+		throw new IllegalArgumentException("Obsolete star definitions are read-only");
 	}
 
 }

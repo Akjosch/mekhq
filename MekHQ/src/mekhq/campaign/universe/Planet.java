@@ -33,19 +33,25 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import megamek.common.EquipmentType;
 import megamek.common.PlanetaryConditions;
 import mekhq.Utilities;
+import mekhq.adapters.BooleanValueAdapter;
 import mekhq.adapters.ClimateAdapter;
 import mekhq.adapters.DateAdapter;
 import mekhq.adapters.FactionDataAdapter;
 import mekhq.adapters.HPGRatingAdapter;
 import mekhq.adapters.LifeFormAdapter;
 import mekhq.adapters.SocioIndustrialDataAdapter;
-import mekhq.campaign.universe.PlanetXMLData.FactionChange;
 
 
 /**
@@ -55,6 +61,8 @@ import mekhq.campaign.universe.PlanetXMLData.FactionChange;
  *
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
+@XmlRootElement(name="planet")
+@XmlAccessorType(XmlAccessType.FIELD)
 public final class Planet implements Serializable {
 	private static final long serialVersionUID = -8699502165157515099L;
 
@@ -65,6 +73,8 @@ public final class Planet implements Serializable {
 	 * <p>
 	 * map of [faction code: weight]
 	 */
+	@XmlJavaTypeAdapter(FactionDataAdapter.class)
+	@XmlElement(name = "faction")
 	private Map<String, Integer> factionCodes;
 	private ArrayList<String> garrisonUnits;
 	
@@ -76,13 +86,20 @@ public final class Planet implements Serializable {
 
 	private Integer pressure;
 	private Double gravity;
+	/** Mass in Earth masses */
+	private Double mass;
+	/** Density in kg/m^3 */
+	private Double density;
 	//fluff
+	@XmlElement(name = "class")
 	private String className;
+    @XmlJavaTypeAdapter(LifeFormAdapter.class)
 	private LifeForm lifeForm;
+    @XmlJavaTypeAdapter(ClimateAdapter.class)
 	private Climate climate;
 	private Integer percentWater;
 	private Integer temperature;
-	/** Radius in km */
+	/** Radius in Earth radii */
 	private Double radius;
     /** Pressure in Earth standard */
 	private Double pressureAtm;
@@ -92,28 +109,42 @@ public final class Planet implements Serializable {
 	private String atmosphere;
 	private Double albedo;
 	private Double greenhouseEffect;
-    @XmlElement(name = "volcamisn")
+    @XmlElement(name = "volcamism")
     private Integer volcanicActivity;
     @XmlElement(name = "tectonics")
     private Integer tectonicActivity;
     private Integer habitability;
 	private Double dayLength;
+    @XmlJavaTypeAdapter(HPGRatingAdapter.class)
 	private Integer hpg;
 	private String desc;
 	
+    /** Order of magnitude of the population - 1 */
+    @XmlElement(name = "pop")
+    public Integer populationRating;
+    public String government;
+    public Integer controlRating;
+
 	// Orbital data
 	/** Semimajor axis (average distance to parent star), in AU */
+	@XmlElement(name = "orbitRadius")
 	private Double orbitSemimajorAxis = 0.0;
 	private Double orbitEccentricity;
 	private Double orbitInclination;
 
 	//socioindustrial levels
+    @XmlJavaTypeAdapter(SocioIndustrialDataAdapter.class)
 	private Planet.SocioIndustrialData socioIndustrial;
 
 	//keep some string information in lists
+    @XmlElement(name="satellite")
 	private List<String> satellites;
+    @XmlElement(name="satellites")
+	private Integer satelliteNum;
+    @XmlElement(name="landMass")
 	private List<String> landMasses;
 
+    @XmlElement(name="poi")
 	private List<PointOfInterest> pois;
 	
 	/**
@@ -121,13 +152,25 @@ public final class Planet implements Serializable {
 	 * <p>
 	 * sorted map of [date of change: change information]
 	 */
+	@XmlTransient
 	TreeMap<Date, PlanetaryEvent> events;
 
 	//a hash to keep track of dynamic garrison changes
 	TreeMap<Date,ArrayList<String>> garrisonHistory;
 
-	/** Mark this planets as to be deleted */
+	// Old or control data
+	/** Mark this planet as not to be included/deleted. Requires a valid id (or name if no id supplied). */
+	@XmlJavaTypeAdapter(BooleanValueAdapter.class)
 	public Boolean delete;
+	/** @deprecated Use "event", which can have any number of changes to the planetary data */
+	@XmlElement(name = "factionChange")
+    private List<FactionChange> factionChanges;
+	@XmlElement(name = "event")
+	private List<Planet.PlanetaryEvent> eventList;
+	
+	
+	// Stuff to ignore
+	public Object xcood, ycood, spectralClass, subtype, luminosity, nadirCharge, zenithCharge;
 
 	public Planet() {
 		this.factionCodes = new HashMap<String, Integer>();
@@ -169,6 +212,14 @@ public final class Planet implements Serializable {
 	
 	public Double getGravity() {
 		return gravity;
+	}
+	
+	public Double getMass() {
+		return mass;
+	}
+	
+	public Double getDensity() {
+		return density;
 	}
 	
 	public Double getRadius() {
@@ -510,6 +561,42 @@ public final class Planet implements Serializable {
 		pois.add(poi);
 	}
 	
+	@SuppressWarnings("unused")
+	private void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
+		if( null == id ) {
+			id = name;
+		}
+		// Fill up events
+		events = new TreeMap<Date, PlanetaryEvent>();
+		if( null != eventList ) {
+			for( PlanetaryEvent event : eventList ) {
+				if( null != event && null != event.date ) {
+					events.put(event.date, event);
+				}
+			}
+			eventList.clear();
+		}
+		eventList = null;
+		// Merge faction change events into the event data
+		if( null != factionChanges ) {
+			for( FactionChange change : factionChanges ) {
+				if( null != change && null != change.date ) {
+					PlanetaryEvent event = getOrCreateEvent(change.date);
+					event.faction = change.faction;
+				}
+			}
+			factionChanges.clear();
+		}
+		factionChanges = null;
+	}
+	
+	@SuppressWarnings("unused")
+	private boolean beforeMarshal(Marshaller marshaller) {
+		// Fill up our event list from the internal data type
+		eventList = new ArrayList<PlanetaryEvent>(events.values());
+		return true;
+	}
+	
 	/**
 	 * Copy all but id from the other planet. Update event list. Events with the
 	 * same date as others already in the list get overwritten, others added.
@@ -580,62 +667,6 @@ public final class Planet implements Serializable {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
-	public static Planet getPlanetFromXMLData(PlanetXMLData data) {
-		Planet result = new Planet();
-		result.id = null != data.id ? data.id : data.name;
-		result.name = data.name;
-		result.shortName = data.shortName;
-		result.starId = data.starId;
-		result.className = data.className;
-		result.climate = data.climate;
-		result.desc = data.desc;
-		result.factionCodes = data.factions;
-		result.gravity = data.gravity;
-		result.hpg = data.hpg;
-		result.landMasses = data.landMasses;
-		result.lifeForm = data.lifeForm;
-		result.orbitSemimajorAxis = data.orbitSemimajorAxis;
-		result.orbitEccentricity = data.orbitEccentricity;
-		result.orbitInclination = data.orbitInclination;
-		result.percentWater = data.percentWater;
-		result.pressure = data.pressure;
-		result.pressureAtm = data.pressureAtm;
-		result.atmMass = data.atmMass;
-		result.atmosphere = data.atmosphere;
-		result.albedo = data.albedo;
-		result.greenhouseEffect = data.greenhouseEffect;
-		result.volcanicActivity = data.volcanicActivity;
-		result.tectonicActivity = data.tectonicActivity;
-		result.habitability = data.habitability;
-		result.dayLength = data.dayLength;
-		result.satellites = data.satellites;
-		result.sysPos = data.sysPos;
-		result.temperature = data.temperature;
-		result.socioIndustrial = data.socioIndustrial;
-		result.pois = data.pois;
-		if( null != data.events ) {
-			result.events = new TreeMap<Date, PlanetaryEvent>();
-			for( PlanetaryEvent event : data.events ) {
-				if( null != event && null != event.date ) {
-					result.events.put(event.date, event);
-				}
-			}
-		}
-		// Merge faction change events into the event data
-		if( null != data.factionChanges ) {
-			for( FactionChange change : data.factionChanges ) {
-				if( null != change && null != change.date ) {
-					PlanetaryEvent event = result.getOrCreateEvent(change.date);
-					event.faction = change.faction;
-				}
-			}
-		}
-		// Deletion marker
-		result.delete = data.delete;
-		return result;
-	}
-	
 	@Override
 	public int hashCode() {
 		return Objects.hashCode(id);
@@ -904,6 +935,22 @@ public final class Planet implements Serializable {
 		public Integer habitability;
 	}
 	
+    public static final class FactionChange {
+    	@XmlJavaTypeAdapter(DateAdapter.class)
+    	public Date date;
+    	@XmlJavaTypeAdapter(FactionDataAdapter.class)
+    	public Map<String, Integer> faction;
+    	
+    	@Override
+    	public String toString() {
+    		StringBuilder sb = new StringBuilder();
+    		sb.append("{");
+   			sb.append("date=").append(date).append(",");
+   			sb.append("faction=").append(faction).append("}");
+   			return sb.toString();
+    	}
+    }
+
 	/**
 	 * Some point of interest on the planetary surface or very close to it (city, factory, garrison).
 	 * <p>
