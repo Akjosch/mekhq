@@ -72,15 +72,15 @@ public class Star implements Serializable {
 		Star result = new Star();
 		result.name = data.name;
 		result.shortName = data.shortName;
-		result.id = null != data.id ? data.id : data.name;
+		result.id = Utilities.nonNull(data.id, data.name);
 		result.x = data.xCoord;
 		result.y = data.yCoord;
 		result.spectralClass = data.spectralClass;
 		result.subtype = data.subtype;
 		result.luminosity = data.luminosity;
 		result.spectralType = StarUtil.getSpectralType(data.spectralClass, data.subtype, data.luminosity);
-		result.nadirCharge = null != data.nadirCharge ? data.nadirCharge.booleanValue() : false;
-		result.zenithCharge = null != data.zenithCharge ? data.zenithCharge.booleanValue() : false;
+		result.nadirCharge = Utilities.nonNull(data.nadirCharge, Boolean.FALSE);
+		result.zenithCharge = Utilities.nonNull(data.zenithCharge, Boolean.FALSE);
 		if( null == result.spectralType ) {
 			result.setSpectralType(StarUtil.generateSpectralType(new Random(result.id.hashCode() + 133773), true));
 		}
@@ -587,28 +587,28 @@ public class Star implements Serializable {
 
 	/**
 	 * Copy data (but not the id) from another star.
-	 * TODO: Planets.
+	 * <p>
+	 * Planet lists aren't changed; they need to be updated on the planet's side.
 	 */
 	public void copyDataFrom(Star other) {
 		if( null != other ) {
-			name = null != other.name ? other.name : name;
-			shortName = null != other.shortName ? other.shortName : shortName;
-			x = null != other.x ? other.x : x;
-			y = null != other.y ? other.y : y;
-			spectralClass = null != other.spectralClass ? other.spectralClass : spectralClass;
-			subtype = null != other.subtype ? other.subtype : subtype;
-			luminosity = null != other.luminosity ? other.luminosity : luminosity;
-			nadirCharge = null != other.nadirCharge ? other.nadirCharge : nadirCharge;
-			zenithCharge = null != other.zenithCharge ? other.zenithCharge : zenithCharge;
-			// Spectral classification: Use spectralType where available, and the others only where it's null
-			spectralType = null != other.spectralType ? other.spectralType : spectralType;
-			numPlanets = null != other.numPlanets ? other.numPlanets : numPlanets;
-			numMinorPlanets = null != other.numMinorPlanets ? other.numMinorPlanets : numMinorPlanets;
-			mass = null != other.mass ? other.mass : mass;
-			lum = null != other.lum ? other.lum : lum;
-			temperature = null != other.temperature ? other.temperature : temperature;
-			radius = null != other.radius ? other.radius : radius;
-			defaultPlanetId = null != other.defaultPlanetId ? other.defaultPlanetId : defaultPlanetId;
+			name = Utilities.nonNull(other.name, name);
+			shortName = Utilities.nonNull(other.shortName, shortName);
+			x = Utilities.nonNull(other.x, x);
+			y = Utilities.nonNull(other.y, y);
+			spectralType = Utilities.nonNull(other.spectralType, spectralType);
+			spectralClass =Utilities.nonNull(other.spectralClass, spectralClass);
+			subtype = Utilities.nonNull(other.subtype, subtype);
+			luminosity = Utilities.nonNull(other.luminosity, luminosity);
+			mass = Utilities.nonNull(other.mass, mass);
+			lum = Utilities.nonNull(other.lum, lum);
+			temperature = Utilities.nonNull(other.temperature, temperature);
+			radius = Utilities.nonNull(other.radius, radius);
+			numPlanets = Utilities.nonNull(other.numPlanets, numPlanets);
+			numMinorPlanets = Utilities.nonNull(other.numMinorPlanets, numMinorPlanets);
+			defaultPlanetId = Utilities.nonNull(other.defaultPlanetId, defaultPlanetId);
+			nadirCharge = Utilities.nonNull(other.nadirCharge, nadirCharge);
+			zenithCharge = Utilities.nonNull(other.zenithCharge, zenithCharge);
 			preparePlanetsList(null != numPlanets ? numPlanets.intValue() : 0);
 			if( null != other.events ) {
 				for( StellarEvent event : other.getEvents() ) {
