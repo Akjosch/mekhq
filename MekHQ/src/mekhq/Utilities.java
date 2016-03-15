@@ -88,36 +88,35 @@ import mekhq.campaign.unit.Unit;
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class Utilities {
-	private static final int MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
-	
-	// A bunch of important astronomical constants
-	/** Speed of light in a vacuum in km/s (only really important for non-hyperspace comms and sensors) */
-	public static final double C = 299792.458;
-	/** Julian year length in seconds (IAU standard astronomical year) */
-	public static final double Y_JULIAN = 365.25 * 86400;
-	/**
-	 * Light year in km (IAU standard as the speed of light times 365.25-day Julian Year,
-	 * also ISO 80000-3 Annex C
-	 */
-	public static final double LY = C * Y_JULIAN;
-	/** Astronomical unit in km (IAU standard, also ISO 80000-3 Annex C) */
-	public static final double AU = 149597870.7;
-	/** Standard gravity in m/s^2 (ISO 80000-3) */
-	public static final double G = 9.80665;
-	/** Solar luminosity in W */
-	public static final double SOLAR_LUM = 3.846e26;
-	/** Solar mass in kg */
-	public static final double SOLAR_MASS = 1.98855e30;
-	/** Solar radius in km */
-	public static final double SOLAR_RADIUS = 695700.0;
-	/** Gravitational constant (in m^3 kg^-1 s^-2 */
-	public static final double GRAV_CONSTANT = 6.673848e-11;
+    private static final int MILLISECONDS_IN_DAY = 1000 * 60 * 60 * 24;
+    
+    // A bunch of important astronomical constants
+    /** Speed of light in a vacuum in km/s (only really important for non-hyperspace comms and sensors) */
+    public static final double C = 299792.458;
+    /** Julian year length in seconds (IAU standard astronomical year) */
+    public static final double Y_JULIAN = 365.25 * 86400;
+    /**
+     * Light year in km (IAU standard as the speed of light times 365.25-day Julian Year,
+     * also ISO 80000-3 Annex C
+     */
+    public static final double LY = C * Y_JULIAN;
+    /** Astronomical unit in km (IAU standard, also ISO 80000-3 Annex C) */
+    public static final double AU = 149597870.7;
+    /** Standard gravity in m/s^2 (ISO 80000-3) */
+    public static final double G = 9.80665;
+    /** Solar luminosity in W */
+    public static final double SOLAR_LUM = 3.846e26;
+    /** Solar mass in kg */
+    public static final double SOLAR_MASS = 1.98855e30;
+    /** Solar radius in km */
+    public static final double SOLAR_RADIUS = 695700.0;
+    /** Gravitational constant (in m^3 kg^-1 s^-2 */
+    public static final double GRAV_CONSTANT = 6.673848e-11;
 
-	// A couple of arrays for use in the getLevelName() method
+    // A couple of arrays for use in the getLevelName() method
     private static int[]    arabicNumbers = { 1000,  900,  500,  400,  100,   90,
         50,   40,   10,    9,    5,    4,    1 };
-    private static String[] romanNumerals = { "M",  "CM",  "D",  "CD", "C",  "XC",
-      "L",  "XL",  "X",  "IX", "V",  "IV", "I" };
+    private static String[] romanNumerals = "M,CM,D,CD,C,XC,L,XL,X,IX,V,IV,I".split(","); //$NON-NLS-1$ //$NON-NLS-2$
 
     public static int roll3d6() {
         Vector<Integer> rolls = new Vector<Integer>();
@@ -132,29 +131,29 @@ public class Utilities {
      * Roll a certain number of dice with a certain number of faces
      */
     public static int dice(int num, int faces) {
-    	int result = 0;
+        int result = 0;
 
-    	// Roll however many dice as necessary
-    	for (int i = 0; i < num; i++) {
+        // Roll however many dice as necessary
+        for (int i = 0; i < num; i++) {
             result += Compute.randomInt(faces) + 1;
         }
 
-    	return result;
+        return result;
     }
 
     /**
      * Get a random element out of a collection, with equal probability
      */
     public static <T> T getRandomItem(Collection<? extends T> collection) {
-    	if( null == collection || collection.isEmpty() ) {
-    		return null;
-    	}
-    	int index = Compute.randomInt(collection.size());
-    	Iterator<? extends T> iterator = collection.iterator();
-    	for( int i = 0; i < index; ++ i ) {
-    		iterator.next();
-    	}
-    	return iterator.next();
+        if( null == collection || collection.isEmpty() ) {
+            return null;
+        }
+        int index = Compute.randomInt(collection.size());
+        Iterator<? extends T> iterator = collection.iterator();
+        for( int i = 0; i < index; ++ i ) {
+            iterator.next();
+        }
+        return iterator.next();
     }
     
     public static ArrayList<AmmoType> getMunitionsFor(Entity entity, AmmoType cur_atype, int techLvl) {
@@ -173,13 +172,13 @@ public class Utilities {
 
             int lvl = atype.getTechLevel(entity.getTechLevelYear());
             if(lvl < 0) {
-            	lvl = 0;
+                lvl = 0;
             }
             if(techLvl < Utilities.getSimpleTechLevel(lvl)) {
-            	continue;
+                continue;
             }
             if(TechConstants.isClan(cur_atype.getTechLevel(entity.getTechLevelYear())) != TechConstants.isClan(lvl)) {
-            	continue;
+                continue;
             }
 
             // Only Protos can use Proto-specific ammo
@@ -199,9 +198,9 @@ public class Utilities {
             // Battle Armor ammo can't be selected at all.
             // All other ammo types need to match on rack size and tech.
             if ((atype.getRackSize() == cur_atype.getRackSize())
-            		&& (atype.hasFlag(AmmoType.F_BATTLEARMOR) == cur_atype.hasFlag(AmmoType.F_BATTLEARMOR))
-            		&& (atype.hasFlag(AmmoType.F_ENCUMBERING) == cur_atype.hasFlag(AmmoType.F_ENCUMBERING))
-            		&& (atype.getTonnage(entity) == cur_atype.getTonnage(entity))) {
+                    && (atype.hasFlag(AmmoType.F_BATTLEARMOR) == cur_atype.hasFlag(AmmoType.F_BATTLEARMOR))
+                    && (atype.hasFlag(AmmoType.F_ENCUMBERING) == cur_atype.hasFlag(AmmoType.F_ENCUMBERING))
+                    && (atype.getTonnage(entity) == cur_atype.getTonnage(entity))) {
                 atypes.add(atype);
             }
         }
@@ -221,194 +220,194 @@ public class Utilities {
     }
 
 
-	public static String getCurrencyString(long value) {
-		NumberFormat numberFormat = DecimalFormat.getIntegerInstance();
-		String text = numberFormat.format(value) + " C-Bills";
-		return text;
-	}
+    public static String getCurrencyString(long value) {
+        NumberFormat numberFormat = DecimalFormat.getIntegerInstance();
+        String text = numberFormat.format(value) + " C-Bills";
+        return text;
+    }
 
-	/**
-	 * Returns the last file modified in a directory and all subdirectories
-	 * that conforms to a FilenameFilter
-	 * @param dir
-	 * @param filter
-	 * @return
-	 */
-	public static File lastFileModified(String dir, FilenameFilter filter) {
+    /**
+     * Returns the last file modified in a directory and all subdirectories
+     * that conforms to a FilenameFilter
+     * @param dir
+     * @param filter
+     * @return
+     */
+    public static File lastFileModified(String dir, FilenameFilter filter) {
         File fl = new File(dir);
         File[] files = fl.listFiles(filter);
         long lastMod = Long.MIN_VALUE;
         File choice = null;
         for (File file : files) {
-        	if (file.lastModified() > lastMod) {
-        		choice = file;
-        		lastMod = file.lastModified();
-        	}
+            if (file.lastModified() > lastMod) {
+                choice = file;
+                lastMod = file.lastModified();
+            }
         }
         //ok now we need to recursively search any subdirectories, so see if they
         //contain more recent files
         files = fl.listFiles();
         for(File file : files) {
-        	if(!file.isDirectory()) {
-        		continue;
-        	}
-        	File subFile =  lastFileModified(file.getPath(), filter);
-        	if (null != subFile && subFile.lastModified() > lastMod) {
-        		choice = subFile;
-        		lastMod = subFile.lastModified();
-        	}
+            if(!file.isDirectory()) {
+                continue;
+            }
+            File subFile =  lastFileModified(file.getPath(), filter);
+            if (null != subFile && subFile.lastModified() > lastMod) {
+                choice = subFile;
+                lastMod = subFile.lastModified();
+            }
         }
         return choice;
     }
 
-	public static File[] getAllFiles(String dir, FilenameFilter filter) {
-		File fl = new File(dir);
+    public static File[] getAllFiles(String dir, FilenameFilter filter) {
+        File fl = new File(dir);
         File[] files = fl.listFiles(filter);
         return files;
-	}
-	
-	public static void parseXMLFiles(String dirName, FileParser parser) {
-		parseXMLFiles(dirName, parser, false);
-	}
-	
-	/**
-	 * Run through the directory and call parser.parse(fis) for each XML file found.
-	 */
-	public static void parseXMLFiles(String dirName, FileParser parser, boolean recurse) {
-		if( null == dirName || null == parser ) {
-			throw new NullPointerException();
-		}
-		File dir = new File(dirName);
-		if( dir.isDirectory() ) {
-			File[] files = dir.listFiles(new FilenameFilter() {
-				@Override
-				public boolean accept(File dir, String name) {
-					return name.toLowerCase(Locale.ROOT).endsWith(".xml");
-				}
-			});
-			if( null != files && files.length > 0 ) {
-				// Case-insensitive sorting. Yes, even on Windows. Deal with it.
-				Arrays.sort(files, new Comparator<File>() {
-					@Override
-					public int compare(File f1, File f2) {
-						return f1.getPath().compareTo(f2.getPath());
-					}
-				});
-				// Try parsing and updating the main list, one by one
-				for( File file : files ) {
-					if( file.isFile() ) {
-						try(FileInputStream fis = new FileInputStream(file)) {
-							parser.parse(fis);
-						} catch(Exception ex) {
-							// Ignore this file then
-							MekHQ.logError("Exception trying to parse " + file.getPath() + " - ignoring.");
-							MekHQ.logError(ex);
-						}
-					}
-				}
-			}
-			
-			if( !recurse ) {
-				// We're done
-				return;
-			}
-			
-			// Get subdirectories too
-			File[] dirs = dir.listFiles();
-			if( null != dirs && dirs.length > 0 ) {
-				Arrays.sort(dirs, new Comparator<File>() {
-					@Override
-					public int compare(File f1, File f2) {
-						return f1.getPath().compareTo(f2.getPath());
-					}
-				});
-				for( File subDirectory : dirs ) {
-					if( subDirectory.isDirectory() ) {
-						parseXMLFiles(subDirectory.getPath(), parser, recurse);
-					}
-				}
-			}
+    }
+    
+    public static void parseXMLFiles(String dirName, FileParser parser) {
+        parseXMLFiles(dirName, parser, false);
+    }
+    
+    /**
+     * Run through the directory and call parser.parse(fis) for each XML file found.
+     */
+    public static void parseXMLFiles(String dirName, FileParser parser, boolean recurse) {
+        if( null == dirName || null == parser ) {
+            throw new NullPointerException();
+        }
+        File dir = new File(dirName);
+        if( dir.isDirectory() ) {
+            File[] files = dir.listFiles(new FilenameFilter() {
+                @Override
+                public boolean accept(File dir, String name) {
+                    return name.toLowerCase(Locale.ROOT).endsWith(".xml"); //$NON-NLS-1$
+                }
+            });
+            if( null != files && files.length > 0 ) {
+                // Case-insensitive sorting. Yes, even on Windows. Deal with it.
+                Arrays.sort(files, new Comparator<File>() {
+                    @Override
+                    public int compare(File f1, File f2) {
+                        return f1.getPath().compareTo(f2.getPath());
+                    }
+                });
+                // Try parsing and updating the main list, one by one
+                for( File file : files ) {
+                    if( file.isFile() ) {
+                        try(FileInputStream fis = new FileInputStream(file)) {
+                            parser.parse(fis);
+                        } catch(Exception ex) {
+                            // Ignore this file then
+                            MekHQ.logError("Exception trying to parse " + file.getPath() + " - ignoring."); //$NON-NLS-1$ //$NON-NLS-2$
+                            MekHQ.logError(ex);
+                        }
+                    }
+                }
+            }
+            
+            if( !recurse ) {
+                // We're done
+                return;
+            }
+            
+            // Get subdirectories too
+            File[] dirs = dir.listFiles();
+            if( null != dirs && dirs.length > 0 ) {
+                Arrays.sort(dirs, new Comparator<File>() {
+                    @Override
+                    public int compare(File f1, File f2) {
+                        return f1.getPath().compareTo(f2.getPath());
+                    }
+                });
+                for( File subDirectory : dirs ) {
+                    if( subDirectory.isDirectory() ) {
+                        parseXMLFiles(subDirectory.getPath(), parser, recurse);
+                    }
+                }
+            }
 
-		}
-	}
+        }
+    }
 
-	public static ArrayList<String> getAllVariants(Entity en, int year, CampaignOptions options) {
-		ArrayList<String> variants = new ArrayList<String>();
-		for(MechSummary summary : MechSummaryCache.getInstance().getAllMechs()) {
-			// If this isn't the same chassis, is our current unit, or is a different weight we continue
-			if(!en.getChassis().equalsIgnoreCase(summary.getChassis())
-					|| en.getModel().equalsIgnoreCase(summary.getModel())
-					|| summary.getTons() != en.getWeight()) {
-				continue;
-			}
-			// If we only allow canon units and this isn't canon we continue
-			if(!summary.isCanon() && options.allowCanonOnly()) {
-				continue;
-			}
-			// If we're limiting by year and aren't to this unit's year yet we continue
-			if(options.limitByYear() && summary.getYear() > year) {
-				continue;
-			}
-			// If the tech level doesn't meet the game's tech level we continue
-			if(options.getTechLevel() < Utilities.getSimpleTechLevel(summary.getType())) {
-				continue;
-			}
-			// Otherwise, we can offer it for selection
-			variants.add(summary.getModel());
-		}
-		return variants;
-	}
+    public static ArrayList<String> getAllVariants(Entity en, int year, CampaignOptions options) {
+        ArrayList<String> variants = new ArrayList<String>();
+        for(MechSummary summary : MechSummaryCache.getInstance().getAllMechs()) {
+            // If this isn't the same chassis, is our current unit, or is a different weight we continue
+            if(!en.getChassis().equalsIgnoreCase(summary.getChassis())
+                    || en.getModel().equalsIgnoreCase(summary.getModel())
+                    || summary.getTons() != en.getWeight()) {
+                continue;
+            }
+            // If we only allow canon units and this isn't canon we continue
+            if(!summary.isCanon() && options.allowCanonOnly()) {
+                continue;
+            }
+            // If we're limiting by year and aren't to this unit's year yet we continue
+            if(options.limitByYear() && summary.getYear() > year) {
+                continue;
+            }
+            // If the tech level doesn't meet the game's tech level we continue
+            if(options.getTechLevel() < Utilities.getSimpleTechLevel(summary.getType())) {
+                continue;
+            }
+            // Otherwise, we can offer it for selection
+            variants.add(summary.getModel());
+        }
+        return variants;
+    }
 
-	public static int generateExpLevel(int bonus) {
-		int roll = Compute.d6(2) + bonus;
-		if(roll < 2) {
-			return SkillType.EXP_ULTRA_GREEN;
-		}
-		if(roll < 6) {
-			return SkillType.EXP_GREEN;
-		}
-		else if(roll < 10) {
-			return SkillType.EXP_REGULAR;
-		}
-		else if(roll < 12) {
-			return SkillType.EXP_VETERAN;
-		}
-		else {
-			return SkillType.EXP_ELITE;
-		}
-	}
+    public static int generateExpLevel(int bonus) {
+        int roll = Compute.d6(2) + bonus;
+        if(roll < 2) {
+            return SkillType.EXP_ULTRA_GREEN;
+        }
+        if(roll < 6) {
+            return SkillType.EXP_GREEN;
+        }
+        else if(roll < 10) {
+            return SkillType.EXP_REGULAR;
+        }
+        else if(roll < 12) {
+            return SkillType.EXP_VETERAN;
+        }
+        else {
+            return SkillType.EXP_ELITE;
+        }
+    }
 
     public static Person findCommander(Entity entity, ArrayList<Person> vesselCrew, ArrayList<Person> gunners, ArrayList<Person> drivers, Person navigator) {
-    	//take first by rank
-    	//if rank is tied, take gunners over drivers
-    	//if two of the same type are tie rank, take the first one
-    	int bestRank = -1;
-    	Person commander = null;
-    	for(Person p : vesselCrew) {
-    		if(null != p && p.getRankNumeric() > bestRank) {
-    			commander = p;
-    			bestRank = p.getRankNumeric();
-    		}
-    	}
-    	for(Person p : gunners) {
-    		if(p.getRankNumeric() > bestRank) {
-    			commander = p;
-    			bestRank = p.getRankNumeric();
-    		}
-    	}
-    	for(Person p : drivers) {
-    		if(null != p && p.getRankNumeric() > bestRank) {
-    			commander = p;
-    			bestRank = p.getRankNumeric();
-    		}
-    	}
-    	if(navigator != null) {
-    		if(null != navigator && navigator.getRankNumeric() > bestRank) {
-    			commander = navigator;
-    			bestRank = navigator.getRankNumeric();
-    		}
-    	}
-    	return commander;
+        //take first by rank
+        //if rank is tied, take gunners over drivers
+        //if two of the same type are tie rank, take the first one
+        int bestRank = -1;
+        Person commander = null;
+        for(Person p : vesselCrew) {
+            if(null != p && p.getRankNumeric() > bestRank) {
+                commander = p;
+                bestRank = p.getRankNumeric();
+            }
+        }
+        for(Person p : gunners) {
+            if(p.getRankNumeric() > bestRank) {
+                commander = p;
+                bestRank = p.getRankNumeric();
+            }
+        }
+        for(Person p : drivers) {
+            if(null != p && p.getRankNumeric() > bestRank) {
+                commander = p;
+                bestRank = p.getRankNumeric();
+            }
+        }
+        if(navigator != null) {
+            if(null != navigator && navigator.getRankNumeric() > bestRank) {
+                commander = navigator;
+                bestRank = navigator.getRankNumeric();
+            }
+        }
+        return commander;
     }
 
     /*
@@ -421,415 +420,415 @@ public class Utilities {
      * 6: target + 2
      */
     public static int randomSkillFromTarget(int target) {
-    	int dice = Compute.d6();
-    	if (dice == 1) {
-    		target -= 2;
-    	} else if (dice == 2) {
-    		target -= 1;
-    	} else if (dice == 5) {
-    		target += 1;
-    	} else if (dice == 6) {
-    		target += 2;
-    	}
-    	return Math.max(target, 0);
+        int dice = Compute.d6();
+        if (dice == 1) {
+            target -= 2;
+        } else if (dice == 2) {
+            target -= 1;
+        } else if (dice == 5) {
+            target += 1;
+        } else if (dice == 6) {
+            target += 2;
+        }
+        return Math.max(target, 0);
     }
 
     /*
      * If an infantry platoon or vehicle crew took damage, perform the personnel injuries
      */
     public static ArrayList<Person> doCrewInjuries(Entity e, Campaign c, ArrayList<Person> newCrew) {
-    	int casualties = 0;
-		if(null != e && e instanceof Infantry) {
-			e.applyDamage();
-			casualties = newCrew.size() - ((Infantry)e).getShootingStrength();
-			for (Person p : newCrew) {
-				for (int i = 0; i < casualties; i++) {
-					if(Compute.d6(2) >= 7) {
-						int hits = c.getCampaignOptions().getMinimumHitsForVees();
-					    if (c.getCampaignOptions().useAdvancedMedical() || c.getCampaignOptions().useRandomHitsForVees()) {
-					        int range = 6 - hits;
-	                        hits = hits + Compute.randomInt(range);
-	                    }
-	                    p.setHits(hits);
-					} else {
-						p.setHits(6);
-					}
-				}
-			}
-		}
+        int casualties = 0;
+        if(null != e && e instanceof Infantry) {
+            e.applyDamage();
+            casualties = newCrew.size() - ((Infantry)e).getShootingStrength();
+            for (Person p : newCrew) {
+                for (int i = 0; i < casualties; i++) {
+                    if(Compute.d6(2) >= 7) {
+                        int hits = c.getCampaignOptions().getMinimumHitsForVees();
+                        if (c.getCampaignOptions().useAdvancedMedical() || c.getCampaignOptions().useRandomHitsForVees()) {
+                            int range = 6 - hits;
+                            hits = hits + Compute.randomInt(range);
+                        }
+                        p.setHits(hits);
+                    } else {
+                        p.setHits(6);
+                    }
+                }
+            }
+        }
 
-		return newCrew;
+        return newCrew;
     }
 
     public static boolean isDeadCrew(Entity e) {
-		if (Compute.getFullCrewSize(e) == 0 || e.getCrew().isDead()) {
-			return true;
-		}
+        if (Compute.getFullCrewSize(e) == 0 || e.getCrew().isDead()) {
+            return true;
+        }
 
-		return false;
+        return false;
     }
 
-	public static ArrayList<Person> generateRandomCrewWithCombinedSkill(Unit unit, Campaign c, boolean addToUnit) {
+    public static ArrayList<Person> generateRandomCrewWithCombinedSkill(Unit unit, Campaign c, boolean addToUnit) {
         ArrayList<Person> newCrew = new ArrayList<Person>();
         Crew oldCrew = unit.getEntity().getCrew();
-		String commanderName = oldCrew.getName();
-		int averageGunnery = 0;
-		int averagePiloting = 0;
-		ArrayList<Person> drivers = new ArrayList<Person>();
-		ArrayList<Person> gunners = new ArrayList<Person>();
-		ArrayList<Person> vesselCrew = new ArrayList<Person>();
-		Person navigator = null;
-		int totalGunnery = 0;
-		int totalPiloting = 0;
-		drivers.clear();
-		gunners.clear();
-		vesselCrew.clear();
-		navigator = null;
+        String commanderName = oldCrew.getName();
+        int averageGunnery = 0;
+        int averagePiloting = 0;
+        ArrayList<Person> drivers = new ArrayList<Person>();
+        ArrayList<Person> gunners = new ArrayList<Person>();
+        ArrayList<Person> vesselCrew = new ArrayList<Person>();
+        Person navigator = null;
+        int totalGunnery = 0;
+        int totalPiloting = 0;
+        drivers.clear();
+        gunners.clear();
+        vesselCrew.clear();
+        navigator = null;
 
-		// If the entire crew is dead, we don't want to generate them.
-		// Actually, we do because they might not be truly dead - this will be the case for BA for example
-		// Also, the user may choose to GM make them un-dead in the resolve scenario dialog. I am disabling
-		// this because it is causing problems for BA.
-		/*if (isDeadCrew(unit.getEntity())) {
-			return new ArrayList<Person>();
-		}*/
+        // If the entire crew is dead, we don't want to generate them.
+        // Actually, we do because they might not be truly dead - this will be the case for BA for example
+        // Also, the user may choose to GM make them un-dead in the resolve scenario dialog. I am disabling
+        // this because it is causing problems for BA.
+        /*if (isDeadCrew(unit.getEntity())) {
+            return new ArrayList<Person>();
+        }*/
 
-		// Generate solo crews
-		if (unit.usesSoloPilot()) {
-			Person p = null;
-			if(unit.getEntity() instanceof Mech) {
-    			p = c.newPerson(Person.T_MECHWARRIOR);
-    			p.addSkill(SkillType.S_PILOT_MECH, SkillType.getType(SkillType.S_PILOT_MECH).getTarget() - oldCrew.getPiloting(), 0);
-    			p.addSkill(SkillType.S_GUN_MECH, SkillType.getType(SkillType.S_GUN_MECH).getTarget() - oldCrew.getGunnery(), 0);
-    		}
-    		else if(unit.getEntity() instanceof Aero) {
-    			p = c.newPerson(Person.T_AERO_PILOT);
-    			p.addSkill(SkillType.S_PILOT_AERO, SkillType.getType(SkillType.S_PILOT_AERO).getTarget() - oldCrew.getPiloting(), 0);
-    			p.addSkill(SkillType.S_GUN_AERO, SkillType.getType(SkillType.S_GUN_AERO).getTarget() - oldCrew.getGunnery(), 0);
-    		}
-    		else if(unit.getEntity() instanceof ConvFighter) {
-    			p = c.newPerson(Person.T_CONV_PILOT);
-    			p.addSkill(SkillType.S_PILOT_JET, SkillType.getType(SkillType.S_PILOT_JET).getTarget() - oldCrew.getPiloting(), 0);
-    			p.addSkill(SkillType.S_GUN_JET, SkillType.getType(SkillType.S_GUN_JET).getTarget() - oldCrew.getPiloting(), 0);
-    		}
-    		else if(unit.getEntity() instanceof Protomech) {
-    			p = c.newPerson(Person.T_PROTO_PILOT);
-    			//p.addSkill(SkillType.S_PILOT_PROTO, SkillType.getType(SkillType.S_PILOT_PROTO).getTarget() - oldCrew.getPiloting(), 0);
-    			p.addSkill(SkillType.S_GUN_PROTO, SkillType.getType(SkillType.S_GUN_PROTO).getTarget() - oldCrew.getGunnery(), 0);
-    		}
-    		else if(unit.getEntity() instanceof VTOL) {
-    			p = c.newPerson(Person.T_VTOL_PILOT);
-    			p.addSkill(SkillType.S_PILOT_VTOL, SkillType.getType(SkillType.S_PILOT_VTOL).getTarget() - oldCrew.getPiloting(), 0);
-    			p.addSkill(SkillType.S_GUN_VEE, SkillType.getType(SkillType.S_GUN_VEE).getTarget() - oldCrew.getGunnery(), 0);
-    		}
-    		else {
-    			//assume tanker if we got here
-    			p = c.newPerson(Person.T_GVEE_DRIVER);
-    			p.addSkill(SkillType.S_PILOT_GVEE, SkillType.getType(SkillType.S_PILOT_GVEE).getTarget() - oldCrew.getPiloting(), 0);
-    			p.addSkill(SkillType.S_GUN_VEE, SkillType.getType(SkillType.S_GUN_VEE).getTarget() - oldCrew.getGunnery(), 0);
-    		}
-			drivers.add(p);
-		} else {
-			// Generate drivers for multi-crewed vehicles.
+        // Generate solo crews
+        if (unit.usesSoloPilot()) {
+            Person p = null;
+            if(unit.getEntity() instanceof Mech) {
+                p = c.newPerson(Person.T_MECHWARRIOR);
+                p.addSkill(SkillType.S_PILOT_MECH, SkillType.getType(SkillType.S_PILOT_MECH).getTarget() - oldCrew.getPiloting(), 0);
+                p.addSkill(SkillType.S_GUN_MECH, SkillType.getType(SkillType.S_GUN_MECH).getTarget() - oldCrew.getGunnery(), 0);
+            }
+            else if(unit.getEntity() instanceof Aero) {
+                p = c.newPerson(Person.T_AERO_PILOT);
+                p.addSkill(SkillType.S_PILOT_AERO, SkillType.getType(SkillType.S_PILOT_AERO).getTarget() - oldCrew.getPiloting(), 0);
+                p.addSkill(SkillType.S_GUN_AERO, SkillType.getType(SkillType.S_GUN_AERO).getTarget() - oldCrew.getGunnery(), 0);
+            }
+            else if(unit.getEntity() instanceof ConvFighter) {
+                p = c.newPerson(Person.T_CONV_PILOT);
+                p.addSkill(SkillType.S_PILOT_JET, SkillType.getType(SkillType.S_PILOT_JET).getTarget() - oldCrew.getPiloting(), 0);
+                p.addSkill(SkillType.S_GUN_JET, SkillType.getType(SkillType.S_GUN_JET).getTarget() - oldCrew.getPiloting(), 0);
+            }
+            else if(unit.getEntity() instanceof Protomech) {
+                p = c.newPerson(Person.T_PROTO_PILOT);
+                //p.addSkill(SkillType.S_PILOT_PROTO, SkillType.getType(SkillType.S_PILOT_PROTO).getTarget() - oldCrew.getPiloting(), 0);
+                p.addSkill(SkillType.S_GUN_PROTO, SkillType.getType(SkillType.S_GUN_PROTO).getTarget() - oldCrew.getGunnery(), 0);
+            }
+            else if(unit.getEntity() instanceof VTOL) {
+                p = c.newPerson(Person.T_VTOL_PILOT);
+                p.addSkill(SkillType.S_PILOT_VTOL, SkillType.getType(SkillType.S_PILOT_VTOL).getTarget() - oldCrew.getPiloting(), 0);
+                p.addSkill(SkillType.S_GUN_VEE, SkillType.getType(SkillType.S_GUN_VEE).getTarget() - oldCrew.getGunnery(), 0);
+            }
+            else {
+                //assume tanker if we got here
+                p = c.newPerson(Person.T_GVEE_DRIVER);
+                p.addSkill(SkillType.S_PILOT_GVEE, SkillType.getType(SkillType.S_PILOT_GVEE).getTarget() - oldCrew.getPiloting(), 0);
+                p.addSkill(SkillType.S_GUN_VEE, SkillType.getType(SkillType.S_GUN_VEE).getTarget() - oldCrew.getGunnery(), 0);
+            }
+            drivers.add(p);
+        } else {
+            // Generate drivers for multi-crewed vehicles.
 
-			//Uggh, BA are a nightmare. The getTotalDriverNeeds will adjust for missing/destroyed suits
-			//but we cant change that because lots of other stuff needs that to be right, so we will hack
-			//it here to make it the starting squad size
-			int driversNeeded  = unit.getTotalDriverNeeds();
-			if(unit.getEntity() instanceof BattleArmor && !addToUnit) {
-				driversNeeded = ((BattleArmor)unit.getEntity()).getSquadSize();
-			}
-			while(drivers.size() < driversNeeded) {
-	    		Person p = null;
-	    		if(unit.getEntity() instanceof SmallCraft || unit.getEntity() instanceof Jumpship) {
-	    			p = c.newPerson(Person.T_SPACE_PILOT);
-	    			p.addSkill(SkillType.S_PILOT_SPACE, randomSkillFromTarget(SkillType.getType(SkillType.S_PILOT_SPACE).getTarget() - oldCrew.getPiloting()), 0);
-	    			totalPiloting += p.getSkill(SkillType.S_PILOT_SPACE).getFinalSkillValue();
-	    		}
-	    		else if(unit.getEntity() instanceof BattleArmor) {
-	    			p = c.newPerson(Person.T_BA);
-	    			p.addSkill(SkillType.S_GUN_BA, randomSkillFromTarget(SkillType.getType(SkillType.S_GUN_BA).getTarget() - oldCrew.getGunnery()), 0);
-	    			totalGunnery += p.getSkill(SkillType.S_GUN_BA).getFinalSkillValue();
-	    		}
-	    		else if(unit.getEntity() instanceof Infantry) {
-	    			p = c.newPerson(Person.T_INFANTRY);
-	    			p.addSkill(SkillType.S_SMALL_ARMS, randomSkillFromTarget(SkillType.getType(SkillType.S_SMALL_ARMS).getTarget() - oldCrew.getGunnery()), 0);
-	    			totalGunnery += p.getSkill(SkillType.S_SMALL_ARMS).getFinalSkillValue();
-	    		}
-	    		else if(unit.getEntity() instanceof VTOL) {
-	    			p = c.newPerson(Person.T_VTOL_PILOT);
-	    			p.addSkill(SkillType.S_PILOT_VTOL, SkillType.getType(SkillType.S_PILOT_VTOL).getTarget() - oldCrew.getPiloting(), 0);
-	    			p.addSkill(SkillType.S_GUN_VEE, SkillType.getType(SkillType.S_GUN_VEE).getTarget() - oldCrew.getGunnery(), 0);
-	    		}
-	    		else {
-	    			//assume tanker if we got here
-	    			p = c.newPerson(Person.T_GVEE_DRIVER);
-	    			p.addSkill(SkillType.S_PILOT_GVEE, SkillType.getType(SkillType.S_PILOT_GVEE).getTarget() - oldCrew.getPiloting(), 0);
-	    			p.addSkill(SkillType.S_GUN_VEE, SkillType.getType(SkillType.S_GUN_VEE).getTarget() - oldCrew.getGunnery(), 0);
-	    		}
-	    		drivers.add(p);
-	    	}
+            //Uggh, BA are a nightmare. The getTotalDriverNeeds will adjust for missing/destroyed suits
+            //but we cant change that because lots of other stuff needs that to be right, so we will hack
+            //it here to make it the starting squad size
+            int driversNeeded  = unit.getTotalDriverNeeds();
+            if(unit.getEntity() instanceof BattleArmor && !addToUnit) {
+                driversNeeded = ((BattleArmor)unit.getEntity()).getSquadSize();
+            }
+            while(drivers.size() < driversNeeded) {
+                Person p = null;
+                if(unit.getEntity() instanceof SmallCraft || unit.getEntity() instanceof Jumpship) {
+                    p = c.newPerson(Person.T_SPACE_PILOT);
+                    p.addSkill(SkillType.S_PILOT_SPACE, randomSkillFromTarget(SkillType.getType(SkillType.S_PILOT_SPACE).getTarget() - oldCrew.getPiloting()), 0);
+                    totalPiloting += p.getSkill(SkillType.S_PILOT_SPACE).getFinalSkillValue();
+                }
+                else if(unit.getEntity() instanceof BattleArmor) {
+                    p = c.newPerson(Person.T_BA);
+                    p.addSkill(SkillType.S_GUN_BA, randomSkillFromTarget(SkillType.getType(SkillType.S_GUN_BA).getTarget() - oldCrew.getGunnery()), 0);
+                    totalGunnery += p.getSkill(SkillType.S_GUN_BA).getFinalSkillValue();
+                }
+                else if(unit.getEntity() instanceof Infantry) {
+                    p = c.newPerson(Person.T_INFANTRY);
+                    p.addSkill(SkillType.S_SMALL_ARMS, randomSkillFromTarget(SkillType.getType(SkillType.S_SMALL_ARMS).getTarget() - oldCrew.getGunnery()), 0);
+                    totalGunnery += p.getSkill(SkillType.S_SMALL_ARMS).getFinalSkillValue();
+                }
+                else if(unit.getEntity() instanceof VTOL) {
+                    p = c.newPerson(Person.T_VTOL_PILOT);
+                    p.addSkill(SkillType.S_PILOT_VTOL, SkillType.getType(SkillType.S_PILOT_VTOL).getTarget() - oldCrew.getPiloting(), 0);
+                    p.addSkill(SkillType.S_GUN_VEE, SkillType.getType(SkillType.S_GUN_VEE).getTarget() - oldCrew.getGunnery(), 0);
+                }
+                else {
+                    //assume tanker if we got here
+                    p = c.newPerson(Person.T_GVEE_DRIVER);
+                    p.addSkill(SkillType.S_PILOT_GVEE, SkillType.getType(SkillType.S_PILOT_GVEE).getTarget() - oldCrew.getPiloting(), 0);
+                    p.addSkill(SkillType.S_GUN_VEE, SkillType.getType(SkillType.S_GUN_VEE).getTarget() - oldCrew.getGunnery(), 0);
+                }
+                drivers.add(p);
+            }
 
-			// Regenerate as needed to balance
-			if (drivers.size() != 0) {
-				averageGunnery = (int)Math.round(((double)totalGunnery)/drivers.size());
-				averagePiloting = (int)Math.round(((double)totalPiloting)/drivers.size());
-				if (unit.getEntity() instanceof SmallCraft || unit.getEntity() instanceof Jumpship) {
-					while (averagePiloting != oldCrew.getPiloting()) {
-						totalPiloting = 0;
-						for (Person p : drivers) {
-							p.addSkill(SkillType.S_PILOT_SPACE, randomSkillFromTarget(SkillType.getType(SkillType.S_PILOT_SPACE).getTarget() - oldCrew.getPiloting()), 0);
-							totalPiloting += p.getSkill(SkillType.S_PILOT_SPACE).getFinalSkillValue();
-						}
-						averagePiloting = (int)Math.round(((double)totalPiloting)/drivers.size());
-					}
-				} else if (unit.getEntity() instanceof BattleArmor) {
-					while (averageGunnery != oldCrew.getGunnery()) {
-						totalGunnery = 0;
-						for (Person p : drivers) {
-							p.addSkill(SkillType.S_GUN_BA, randomSkillFromTarget(SkillType.getType(SkillType.S_GUN_BA).getTarget() - oldCrew.getGunnery()), 0);
-							totalGunnery += p.getSkill(SkillType.S_GUN_BA).getFinalSkillValue();
-						}
-						averageGunnery = (int)Math.round(((double)totalGunnery)/drivers.size());
-					}
-				} else if (unit.getEntity() instanceof Infantry) {
-					while (averageGunnery != oldCrew.getGunnery()) {
-						totalGunnery = 0;
-						for (Person p : drivers) {
-							p.addSkill(SkillType.S_SMALL_ARMS, randomSkillFromTarget(SkillType.getType(SkillType.S_SMALL_ARMS).getTarget() - oldCrew.getGunnery()), 0);
-							totalGunnery += p.getSkill(SkillType.S_SMALL_ARMS).getFinalSkillValue();
-						}
-						averageGunnery = (int)Math.round(((double)totalGunnery)/drivers.size());
-					}
-				}
-			}
-			if(!unit.usesSoldiers()) {
-				// Generate gunners for multi-crew vehicles
-		    	while(gunners.size() < unit.getTotalGunnerNeeds()) {
-		    		Person p = null;
-		    		if (unit.getEntity() instanceof SmallCraft || unit.getEntity() instanceof Jumpship) {
-		    			p = c.newPerson(Person.T_SPACE_GUNNER);
-		    			p.addSkill(SkillType.S_GUN_SPACE, randomSkillFromTarget(SkillType.getType(SkillType.S_GUN_SPACE).getTarget() - oldCrew.getGunnery()), 0);
-		    			totalGunnery += p.getSkill(SkillType.S_GUN_SPACE).getFinalSkillValue();
-		    		} else {
-		    			//assume tanker if we got here
-		    			p = c.newPerson(Person.T_VEE_GUNNER);
-		    			p.addSkill(SkillType.S_GUN_VEE, randomSkillFromTarget(SkillType.getType(SkillType.S_GUN_VEE).getTarget() - oldCrew.getGunnery()), 0);
-		    			totalGunnery += p.getSkill(SkillType.S_GUN_VEE).getFinalSkillValue();
-		    		}
-		    		gunners.add(p);
-		    	}
+            // Regenerate as needed to balance
+            if (drivers.size() != 0) {
+                averageGunnery = (int)Math.round(((double)totalGunnery)/drivers.size());
+                averagePiloting = (int)Math.round(((double)totalPiloting)/drivers.size());
+                if (unit.getEntity() instanceof SmallCraft || unit.getEntity() instanceof Jumpship) {
+                    while (averagePiloting != oldCrew.getPiloting()) {
+                        totalPiloting = 0;
+                        for (Person p : drivers) {
+                            p.addSkill(SkillType.S_PILOT_SPACE, randomSkillFromTarget(SkillType.getType(SkillType.S_PILOT_SPACE).getTarget() - oldCrew.getPiloting()), 0);
+                            totalPiloting += p.getSkill(SkillType.S_PILOT_SPACE).getFinalSkillValue();
+                        }
+                        averagePiloting = (int)Math.round(((double)totalPiloting)/drivers.size());
+                    }
+                } else if (unit.getEntity() instanceof BattleArmor) {
+                    while (averageGunnery != oldCrew.getGunnery()) {
+                        totalGunnery = 0;
+                        for (Person p : drivers) {
+                            p.addSkill(SkillType.S_GUN_BA, randomSkillFromTarget(SkillType.getType(SkillType.S_GUN_BA).getTarget() - oldCrew.getGunnery()), 0);
+                            totalGunnery += p.getSkill(SkillType.S_GUN_BA).getFinalSkillValue();
+                        }
+                        averageGunnery = (int)Math.round(((double)totalGunnery)/drivers.size());
+                    }
+                } else if (unit.getEntity() instanceof Infantry) {
+                    while (averageGunnery != oldCrew.getGunnery()) {
+                        totalGunnery = 0;
+                        for (Person p : drivers) {
+                            p.addSkill(SkillType.S_SMALL_ARMS, randomSkillFromTarget(SkillType.getType(SkillType.S_SMALL_ARMS).getTarget() - oldCrew.getGunnery()), 0);
+                            totalGunnery += p.getSkill(SkillType.S_SMALL_ARMS).getFinalSkillValue();
+                        }
+                        averageGunnery = (int)Math.round(((double)totalGunnery)/drivers.size());
+                    }
+                }
+            }
+            if(!unit.usesSoldiers()) {
+                // Generate gunners for multi-crew vehicles
+                while(gunners.size() < unit.getTotalGunnerNeeds()) {
+                    Person p = null;
+                    if (unit.getEntity() instanceof SmallCraft || unit.getEntity() instanceof Jumpship) {
+                        p = c.newPerson(Person.T_SPACE_GUNNER);
+                        p.addSkill(SkillType.S_GUN_SPACE, randomSkillFromTarget(SkillType.getType(SkillType.S_GUN_SPACE).getTarget() - oldCrew.getGunnery()), 0);
+                        totalGunnery += p.getSkill(SkillType.S_GUN_SPACE).getFinalSkillValue();
+                    } else {
+                        //assume tanker if we got here
+                        p = c.newPerson(Person.T_VEE_GUNNER);
+                        p.addSkill(SkillType.S_GUN_VEE, randomSkillFromTarget(SkillType.getType(SkillType.S_GUN_VEE).getTarget() - oldCrew.getGunnery()), 0);
+                        totalGunnery += p.getSkill(SkillType.S_GUN_VEE).getFinalSkillValue();
+                    }
+                    gunners.add(p);
+                }
 
-		    	// Regenerate gunners as needed to balance
-		    	if (gunners.size() != 0) {
-		    		averageGunnery = (int)Math.round(((double)totalGunnery)/gunners.size());
-		    		if (unit.getEntity() instanceof Tank) {
-						while (averageGunnery != oldCrew.getGunnery()) {
-							totalGunnery = 0;
-							for (Person p : gunners) {
-								p.addSkill(SkillType.S_GUN_VEE, randomSkillFromTarget(SkillType.getType(SkillType.S_GUN_VEE).getTarget() - oldCrew.getGunnery()), 0);
-								totalGunnery += p.getSkill(SkillType.S_GUN_VEE).getFinalSkillValue();
-							}
-							averageGunnery = (int)Math.round(((double)totalGunnery)/gunners.size());
-						}
-		    		} else if (unit.getEntity() instanceof SmallCraft || unit.getEntity() instanceof Jumpship) {
-						while (averageGunnery != oldCrew.getGunnery()) {
-							totalGunnery = 0;
-							for (Person p : gunners) {
-								p.addSkill(SkillType.S_GUN_SPACE, randomSkillFromTarget(SkillType.getType(SkillType.S_GUN_SPACE).getTarget() - oldCrew.getGunnery()), 0);
-								totalGunnery += p.getSkill(SkillType.S_GUN_SPACE).getFinalSkillValue();
-							}
-							averageGunnery = (int)Math.round(((double)totalGunnery)/gunners.size());
-						}
-		    		}
-		    	}
-			}
-		}
+                // Regenerate gunners as needed to balance
+                if (gunners.size() != 0) {
+                    averageGunnery = (int)Math.round(((double)totalGunnery)/gunners.size());
+                    if (unit.getEntity() instanceof Tank) {
+                        while (averageGunnery != oldCrew.getGunnery()) {
+                            totalGunnery = 0;
+                            for (Person p : gunners) {
+                                p.addSkill(SkillType.S_GUN_VEE, randomSkillFromTarget(SkillType.getType(SkillType.S_GUN_VEE).getTarget() - oldCrew.getGunnery()), 0);
+                                totalGunnery += p.getSkill(SkillType.S_GUN_VEE).getFinalSkillValue();
+                            }
+                            averageGunnery = (int)Math.round(((double)totalGunnery)/gunners.size());
+                        }
+                    } else if (unit.getEntity() instanceof SmallCraft || unit.getEntity() instanceof Jumpship) {
+                        while (averageGunnery != oldCrew.getGunnery()) {
+                            totalGunnery = 0;
+                            for (Person p : gunners) {
+                                p.addSkill(SkillType.S_GUN_SPACE, randomSkillFromTarget(SkillType.getType(SkillType.S_GUN_SPACE).getTarget() - oldCrew.getGunnery()), 0);
+                                totalGunnery += p.getSkill(SkillType.S_GUN_SPACE).getFinalSkillValue();
+                            }
+                            averageGunnery = (int)Math.round(((double)totalGunnery)/gunners.size());
+                        }
+                    }
+                }
+            }
+        }
 
-		boolean nameset = false;
-    	while(vesselCrew.size() < unit.getTotalCrewNeeds()) {
-    		Person p = c.newPerson(Person.T_SPACE_CREW);
-    		if (!nameset) {
-    		    p.setName(commanderName);
-    		    nameset = true;
-    		}
-			vesselCrew.add(p);
-    	}
+        boolean nameset = false;
+        while(vesselCrew.size() < unit.getTotalCrewNeeds()) {
+            Person p = c.newPerson(Person.T_SPACE_CREW);
+            if (!nameset) {
+                p.setName(commanderName);
+                nameset = true;
+            }
+            vesselCrew.add(p);
+        }
 
-    	if(unit.canTakeNavigator()) {
-    		Person p = c.newPerson(Person.T_NAVIGATOR);
-    		navigator = p;
-    	}
+        if(unit.canTakeNavigator()) {
+            Person p = c.newPerson(Person.T_NAVIGATOR);
+            navigator = p;
+        }
 
-		for (Person p : drivers) {
+        for (Person p : drivers) {
             if (!nameset) {
                 p.setName(commanderName);
                 nameset = true;
             }
             if(addToUnit) {
-				if(unit.usesSoloPilot() || unit.usesSoldiers()) {
-					unit.addPilotOrSoldier(p);
-				} else {
-					unit.addDriver(p);
-				}
+                if(unit.usesSoloPilot() || unit.usesSoldiers()) {
+                    unit.addPilotOrSoldier(p);
+                } else {
+                    unit.addDriver(p);
+                }
             }
-		}
-		newCrew.addAll(drivers);
+        }
+        newCrew.addAll(drivers);
 
-		for (Person p : gunners) {
+        for (Person p : gunners) {
             if (!nameset) {
                 p.setName(commanderName);
                 nameset = true;
             }
             if(addToUnit) {
-				if (!(unit.usesSoloPilot() || unit.usesSoldiers()) && unit.canTakeMoreGunners()) {
-					unit.addGunner(p);
-				}
+                if (!(unit.usesSoloPilot() || unit.usesSoldiers()) && unit.canTakeMoreGunners()) {
+                    unit.addGunner(p);
+                }
             }
-		}
+        }
         newCrew.addAll(gunners);
 
-		for (Person p : vesselCrew) {
+        for (Person p : vesselCrew) {
             if (!nameset) {
                 p.setName(commanderName);
                 nameset = true;
             }
             if(addToUnit) {
-				if (!(unit.usesSoloPilot() || unit.usesSoldiers()) && unit.canTakeMoreVesselCrew()) {
-					unit.addVesselCrew(p);
-				}
+                if (!(unit.usesSoloPilot() || unit.usesSoldiers()) && unit.canTakeMoreVesselCrew()) {
+                    unit.addVesselCrew(p);
+                }
             }
-		}
+        }
         newCrew.addAll(vesselCrew);
 
-		if (navigator != null & unit.canTakeNavigator()) {
+        if (navigator != null & unit.canTakeNavigator()) {
             if (!nameset) {
                 navigator.setName(commanderName);
                 nameset = true;
             }
-			if(addToUnit) {
-				unit.setNavigator(navigator);
-			}
-	        newCrew.add(navigator);
-		}
-		if(addToUnit) {
-			unit.resetPilotAndEntity();
-		}
-		return newCrew;
-	}
+            if(addToUnit) {
+                unit.setNavigator(navigator);
+            }
+            newCrew.add(navigator);
+        }
+        if(addToUnit) {
+            unit.resetPilotAndEntity();
+        }
+        return newCrew;
+    }
 
-	public static int generateRandomExp() {
-		int roll = Compute.randomInt(100);
-		if (roll < 20) { // 20% chance of a randomized xp
-			return (Compute.randomInt(8) + 1);
-		} else if (roll < 40) { // 20% chance of 3 xp
-			return 3;
-		} else if (roll < 60) { // 20% chance of 2 xp
-			return 2;
-		} else if (roll < 80) { // 20% chance of 1 xp
-			return 1;
-		}
-		return 0; // 20% chance of no xp
-	}
+    public static int generateRandomExp() {
+        int roll = Compute.randomInt(100);
+        if (roll < 20) { // 20% chance of a randomized xp
+            return (Compute.randomInt(8) + 1);
+        } else if (roll < 40) { // 20% chance of 3 xp
+            return 3;
+        } else if (roll < 60) { // 20% chance of 2 xp
+            return 2;
+        } else if (roll < 80) { // 20% chance of 1 xp
+            return 1;
+        }
+        return 0; // 20% chance of no xp
+    }
 
-	public static int rollSpecialAbilities(int bonus) {
-		int roll = Compute.d6(2) + bonus;
-		if(roll < 10) {
-			return 0;
-		}
-		else if(roll < 12) {
-			return 1;
-		}
-		else {
-			return 2;
-		}
-	}
+    public static int rollSpecialAbilities(int bonus) {
+        int roll = Compute.d6(2) + bonus;
+        if(roll < 10) {
+            return 0;
+        }
+        else if(roll < 12) {
+            return 1;
+        }
+        else {
+            return 2;
+        }
+    }
 
-	public static boolean rollProbability(int prob) {
-		return Compute.randomInt(100) <= prob;
-	}
+    public static boolean rollProbability(int prob) {
+        return Compute.randomInt(100) <= prob;
+    }
 
-	public static int getAgeByExpLevel(int expLevel, boolean clan) {
-		int baseage = 19;
-		int ndice = 1;
-		switch(expLevel) {
-		case(SkillType.EXP_REGULAR):
-			ndice = 2;
-			break;
-		case(SkillType.EXP_VETERAN):
-			ndice = 3;
-			break;
-		case(SkillType.EXP_ELITE):
-			ndice = 4;
-			break;
-		}
+    public static int getAgeByExpLevel(int expLevel, boolean clan) {
+        int baseage = 19;
+        int ndice = 1;
+        switch(expLevel) {
+        case(SkillType.EXP_REGULAR):
+            ndice = 2;
+            break;
+        case(SkillType.EXP_VETERAN):
+            ndice = 3;
+            break;
+        case(SkillType.EXP_ELITE):
+            ndice = 4;
+            break;
+        }
 
-		int age = baseage;
-		while(ndice > 0) {
-			int roll = Compute.d6();
-			//reroll all sixes once
-			if(roll == 6) {
-				roll += (Compute.d6()-1);
-			}
-			if(clan) {
-			    roll = (int)Math.ceil(roll/2.0);
-			}
-			age += roll;
-			ndice--;
-		}
-		return age;
-	}
+        int age = baseage;
+        while(ndice > 0) {
+            int roll = Compute.d6();
+            //reroll all sixes once
+            if(roll == 6) {
+                roll += (Compute.d6()-1);
+            }
+            if(clan) {
+                roll = (int)Math.ceil(roll/2.0);
+            }
+            age += roll;
+            ndice--;
+        }
+        return age;
+    }
 
-	public static String getOptionDisplayName(IOption option) {
-		String name = option.getDisplayableNameWithValue();
-		name = name.replaceAll("\\(.+?\\)", "");
-		if(option.getType() == IOption.CHOICE) {
-			name += " - " + option.getValue();
-		}
-		return name;
-	}
+    public static String getOptionDisplayName(IOption option) {
+        String name = option.getDisplayableNameWithValue();
+        name = name.replaceAll("\\(.+?\\)", ""); //$NON-NLS-1$ //$NON-NLS-2$
+        if(option.getType() == IOption.CHOICE) {
+            name += " - " + option.getValue(); //$NON-NLS-1$
+        }
+        return name;
+    }
 
-	public static String printIntegerArray(int[] array) {
-		String values = "";
-		for(int i = 0; i < array.length; i++) {
-			values += Integer.toString(array[i]);
-			if(i < (array.length-1)) {
-				values += ",";
-			}
-		}
-		return values;
-	}
-
-	public static String printDoubleArray(double[] array) {
-        String values = "";
+    public static String printIntegerArray(int[] array) {
+        String values = ""; //$NON-NLS-1$
         for(int i = 0; i < array.length; i++) {
-            values += Double.toString(array[i]);
+            values += Integer.toString(array[i]);
             if(i < (array.length-1)) {
-                values += ",";
+                values += ","; //$NON-NLS-1$
             }
         }
         return values;
     }
 
-	public static String printBooleanArray(boolean[] array) {
-		String values = "";
-		for(int i = 0; i < array.length; i++) {
-			values += Boolean.toString(array[i]);
-			if(i < (array.length-1)) {
-				values += ",";
-			}
-		}
-		return values;
-	}
+    public static String printDoubleArray(double[] array) {
+        String values = ""; //$NON-NLS-1$
+        for(int i = 0; i < array.length; i++) {
+            values += Double.toString(array[i]);
+            if(i < (array.length-1)) {
+                values += ","; //$NON-NLS-1$
+            }
+        }
+        return values;
+    }
 
-	public static int getSimpleTechLevel(int level) {
-	    switch(level) {
-	    case TechConstants.T_ALLOWED_ALL:
-	    case TechConstants.T_INTRO_BOXSET:
-	        return CampaignOptions.TECH_INTRO;
-	    case TechConstants.T_IS_TW_NON_BOX:
-	    case TechConstants.T_CLAN_TW:
-	    case TechConstants.T_IS_TW_ALL:
+    public static String printBooleanArray(boolean[] array) {
+        String values = ""; //$NON-NLS-1$
+        for(int i = 0; i < array.length; i++) {
+            values += Boolean.toString(array[i]);
+            if(i < (array.length-1)) {
+                values += ","; //$NON-NLS-1$
+            }
+        }
+        return values;
+    }
+
+    public static int getSimpleTechLevel(int level) {
+        switch(level) {
+        case TechConstants.T_ALLOWED_ALL:
+        case TechConstants.T_INTRO_BOXSET:
+            return CampaignOptions.TECH_INTRO;
+        case TechConstants.T_IS_TW_NON_BOX:
+        case TechConstants.T_CLAN_TW:
+        case TechConstants.T_IS_TW_ALL:
         case TechConstants.T_TW_ALL:
             return CampaignOptions.TECH_STANDARD;
         case TechConstants.T_IS_ADVANCED:
@@ -845,38 +844,38 @@ public class Utilities {
             return CampaignOptions.TECH_UNKNOWN;
         default:
             return CampaignOptions.TECH_INTRO;
-	    }
-	}
+        }
+    }
 
-	//copied from http://www.roseindia.net/java/beginners/copyfile.shtml
-	public static void copyfile(File inFile, File outFile){
-		try{
-			InputStream in = new FileInputStream(inFile);
+    //copied from http://www.roseindia.net/java/beginners/copyfile.shtml
+    public static void copyfile(File inFile, File outFile){
+        try{
+            InputStream in = new FileInputStream(inFile);
 
-			//For Append the file.
-			//  OutputStream out = new FileOutputStream(f2,true);
+            //For Append the file.
+            //  OutputStream out = new FileOutputStream(f2,true);
 
-			//For Overwrite the file.
-			OutputStream out = new FileOutputStream(outFile);
+            //For Overwrite the file.
+            OutputStream out = new FileOutputStream(outFile);
 
-			byte[] buf = new byte[1024];
-			int len;
-			while ((len = in.read(buf)) > 0){
-				out.write(buf, 0, len);
-			}
-			in.close();
-			out.close();
-			System.out.println("File copied.");
-		}
-		catch(FileNotFoundException ex){
-			System.out.println(ex.getMessage() + " in the specified directory.");
-		}
-		catch(IOException e){
-			System.out.println(e.getMessage());
-		}
-	}
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0){
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+            System.out.println("File copied."); //$NON-NLS-1$
+        }
+        catch(FileNotFoundException ex){
+            System.out.println(ex.getMessage() + " in the specified directory."); //$NON-NLS-1$
+        }
+        catch(IOException e){
+            System.out.println(e.getMessage());
+        }
+    }
 
-	public static void unscrambleEquipmentNumbers(Unit unit) {
+    public static void unscrambleEquipmentNumbers(Unit unit) {
         ArrayList<Integer> equipNums = new ArrayList<Integer>();
         for(Mounted m : unit.getEntity().getEquipment()) {
             equipNums.add(unit.getEntity().getEquipmentNum(m));
@@ -978,9 +977,9 @@ public class Utilities {
         }
     }
 
-	public static int getDaysBetween(Date date1, Date date2) {
-	    return (int) ((date2.getTime() - date1.getTime()) / MILLISECONDS_IN_DAY );
-	}
+    public static int getDaysBetween(Date date1, Date date2) {
+        return (int) ((date2.getTime() - date1.getTime()) / MILLISECONDS_IN_DAY );
+    }
 
     /**
      * Calculates the number of days between start and end dates, taking
@@ -1014,72 +1013,72 @@ public class Utilities {
         return (endTime - startTime) / MILLISECONDS_IN_DAY;
     }
 
-	public static int getDiffFullYears(Date date, GregorianCalendar b) {
-	    GregorianCalendar a = new GregorianCalendar();
-	    a.setTime(date);
-	    int diff = b.get(GregorianCalendar.YEAR) - a.get(GregorianCalendar.YEAR);
-	    if (a.get(GregorianCalendar.MONTH) > b.get(GregorianCalendar.MONTH) ||
-	        (a.get(GregorianCalendar.MONTH) == b.get(GregorianCalendar.MONTH) && a.get(GregorianCalendar.DATE) > b.get(GregorianCalendar.DATE))) {
-	        diff--;
-	    }
-	    return diff;
-	}
+    public static int getDiffFullYears(Date date, GregorianCalendar b) {
+        GregorianCalendar a = new GregorianCalendar();
+        a.setTime(date);
+        int diff = b.get(GregorianCalendar.YEAR) - a.get(GregorianCalendar.YEAR);
+        if (a.get(GregorianCalendar.MONTH) > b.get(GregorianCalendar.MONTH) ||
+            (a.get(GregorianCalendar.MONTH) == b.get(GregorianCalendar.MONTH) && a.get(GregorianCalendar.DATE) > b.get(GregorianCalendar.DATE))) {
+            diff--;
+        }
+        return diff;
+    }
 
-	public static int getDiffPartialYears(Date date, GregorianCalendar b) {
-	    GregorianCalendar a = new GregorianCalendar();
-	    a.setTime(date);
-	    int diff = b.get(GregorianCalendar.YEAR) - a.get(GregorianCalendar.YEAR);
-	    if (diff == 0 && countDaysBetween(a.getTime(), b.getTime()) > 0) {
-	    	return 1;
-	    }
-	    return diff;
-	}
+    public static int getDiffPartialYears(Date date, GregorianCalendar b) {
+        GregorianCalendar a = new GregorianCalendar();
+        a.setTime(date);
+        int diff = b.get(GregorianCalendar.YEAR) - a.get(GregorianCalendar.YEAR);
+        if (diff == 0 && countDaysBetween(a.getTime(), b.getTime()) > 0) {
+            return 1;
+        }
+        return diff;
+    }
 
-	/**
-	 * export a jtable to TSV
-	 * code derived from:
-	 * https://sites.google.com/site/teachmemrxymon/java/export-records-from-jtable-to-ms-excel
-	 * @param table
-	 * @param file
-	 */
-	public static void exportTabletoCSV(JTable table, File file){
-	    try{
-	        TableModel model = table.getModel();
-	        FileWriter csv = new FileWriter(file);
+    /**
+     * export a jtable to TSV
+     * code derived from:
+     * https://sites.google.com/site/teachmemrxymon/java/export-records-from-jtable-to-ms-excel
+     * @param table
+     * @param file
+     */
+    public static void exportTabletoCSV(JTable table, File file){
+        try{
+            TableModel model = table.getModel();
+            FileWriter csv = new FileWriter(file);
 
-	        for(int i = 0; i < model.getColumnCount(); i++) {
-	            String s = model.getColumnName(i);
-	            if(null == s) {
-                    s = "";
+            for(int i = 0; i < model.getColumnCount(); i++) {
+                String s = model.getColumnName(i);
+                if(null == s) {
+                    s = ""; //$NON-NLS-1$
                 }
-                if (s.contains("\"")) {
-                    s = s.replace("\"", "\"\"");
+                if (s.contains("\"")) { //$NON-NLS-1$
+                    s = s.replace("\"", "\"\""); //$NON-NLS-1$ //$NON-NLS-2$
                 }
-                s = "\"" + s + "\"";
-                csv.write(s+",");
-	        }
-	        csv.write("\n");
+                s = "\"" + s + "\"";  //$NON-NLS-1$//$NON-NLS-2$
+                csv.write(s+","); //$NON-NLS-1$
+            }
+            csv.write("\n"); //$NON-NLS-1$
 
-	        for(int i=0; i< model.getRowCount(); i++) {
-	            for(int j=0; j < model.getColumnCount(); j++) {
-	                String s = model.getValueAt(i,j).toString();
-	                if(null == s) {
-	                    s = "";
-	                }
-	                if (s.contains("\"")) {
-	                    s = s.replace("\"", "\"\"");
-	                }
-	                s = "\"" + s + "\"";
-	                csv.write(s+",");
-	            }
-	            csv.write("\n");
-	        }
-	        csv.close();
+            for(int i=0; i< model.getRowCount(); i++) {
+                for(int j=0; j < model.getColumnCount(); j++) {
+                    String s = model.getValueAt(i,j).toString();
+                    if(null == s) {
+                        s = ""; //$NON-NLS-1$
+                    }
+                    if (s.contains("\"")) { //$NON-NLS-1$
+                        s = s.replace("\"", "\"\""); //$NON-NLS-1$ //$NON-NLS-2$
+                    }
+                    s = "\"" + s + "\""; //$NON-NLS-1$ //$NON-NLS-2$
+                    csv.write(s+","); //$NON-NLS-1$
+                }
+                csv.write("\n"); //$NON-NLS-1$
+            }
+            csv.close();
 
-	    }catch(IOException e){ System.out.println(e); }
-	}
+        }catch(IOException e){ System.out.println(e); }
+    }
 
-	public static Vector<String> splitString(String str, String sep) {
+    public static Vector<String> splitString(String str, String sep) {
         StringTokenizer st = new StringTokenizer(str, sep);
         Vector<String> output = new Vector<String>();
         while(st.hasMoreTokens()) {
@@ -1089,37 +1088,37 @@ public class Utilities {
     }
 
     public static String combineString(Collection<String> vec, String sep) {
-    	if( null == vec || null == sep ) {
-    		return null;
-    	}
-    	StringBuilder sb = new StringBuilder();
-    	boolean first = true;
-    	for( String part : vec ) {
-    		if( first ) {
-    			first = false;
-    		} else {
-    			sb.append(sep);
-    		}
-    		sb.append(part);
-    	}
+        if( null == vec || null == sep ) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for( String part : vec ) {
+            if( first ) {
+                first = false;
+            } else {
+                sb.append(sep);
+            }
+            sb.append(part);
+        }
         return sb.toString();
     }
 
     public static String getRomanNumeralsFromArabicNumber(int level, boolean checkZero) {
-    	// If we're 0, then we just return an empty string
-    	if (checkZero && level == 0) {
-    		return "";
-    	}
+        // If we're 0, then we just return an empty string
+        if (checkZero && level == 0) {
+            return ""; //$NON-NLS-1$
+        }
 
-    	// Roman numeral, prepended with a space for display purposes
-    	String roman = " ";
+        // Roman numeral, prepended with a space for display purposes
+        String roman = " "; //$NON-NLS-1$
         int num = level+1;
 
         for (int i = 0; i < arabicNumbers.length; i++) {
-			while (num > arabicNumbers[i]) {
-				roman += romanNumerals[i];
-				num -= arabicNumbers[i];
-			}
+            while (num > arabicNumbers[i]) {
+                roman += romanNumerals[i];
+                num -= arabicNumbers[i];
+            }
         }
 
         return roman;
@@ -1127,27 +1126,27 @@ public class Utilities {
 
     // TODO: Optionize this to allow user to choose roman or arabic numerals
     public static int getArabicNumberFromRomanNumerals(String name) {
-    	// If we're 0, then we just return an empty string
-    	if (name.equals("")) {
-    		return 0;
-    	}
+        // If we're 0, then we just return an empty string
+        if (name.equals("")) { //$NON-NLS-1$
+            return 0;
+        }
 
-    	// Roman numeral, prepended with a space for display purposes
-    	int arabic = 0;
+        // Roman numeral, prepended with a space for display purposes
+        int arabic = 0;
         String roman = name;
 
         for (int i = 0; i < roman.length(); i++) {
-        	int num = romanNumerals.toString().indexOf(roman.charAt(i));
-        	if (i < roman.length()) {
-        		int temp = romanNumerals.toString().indexOf(roman.charAt(i+1));
-        		// If this is a larger number, then we need to combine them
-        		if (temp > num) {
-        			num = temp - num;
-        			i++;
-        		}
-        	}
+            int num = romanNumerals.toString().indexOf(roman.charAt(i));
+            if (i < roman.length()) {
+                int temp = romanNumerals.toString().indexOf(roman.charAt(i+1));
+                // If this is a larger number, then we need to combine them
+                if (temp > num) {
+                    num = temp - num;
+                    i++;
+                }
+            }
 
-        	arabic += num;
+            arabic += num;
         }
 
         return arabic-1;
@@ -1155,60 +1154,60 @@ public class Utilities {
 
     public static Map<String, Integer> sortMapByValue(Map<String, Integer> unsortMap, boolean highFirst) {
 
-		// Convert Map to List
-		List<Map.Entry<String, Integer>> list =
-			new LinkedList<Map.Entry<String, Integer>>(unsortMap.entrySet());
+        // Convert Map to List
+        List<Map.Entry<String, Integer>> list =
+            new LinkedList<Map.Entry<String, Integer>>(unsortMap.entrySet());
 
-		// Sort list with comparator, to compare the Map values
-		Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
-			public int compare(Map.Entry<String, Integer> o1,
+        // Sort list with comparator, to compare the Map values
+        Collections.sort(list, new Comparator<Map.Entry<String, Integer>>() {
+            public int compare(Map.Entry<String, Integer> o1,
                                            Map.Entry<String, Integer> o2) {
-				return (o1.getValue()).compareTo(o2.getValue());
-			}
-		});
+                return (o1.getValue()).compareTo(o2.getValue());
+            }
+        });
 
-		// Convert sorted map back to a Map
-		Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
-		if(highFirst) {
-			ListIterator<Map.Entry<String, Integer>> li = list.listIterator(list.size());
-			while(li.hasPrevious()) {
-				Map.Entry<String, Integer> entry = li.previous();
-				sortedMap.put(entry.getKey(), entry.getValue());
-			}
-		} else {
-			for (Iterator<Map.Entry<String, Integer>> it = list.iterator(); it.hasNext();) {
-				Map.Entry<String, Integer> entry = it.next();
-				sortedMap.put(entry.getKey(), entry.getValue());
-			}
-		}
+        // Convert sorted map back to a Map
+        Map<String, Integer> sortedMap = new LinkedHashMap<String, Integer>();
+        if(highFirst) {
+            ListIterator<Map.Entry<String, Integer>> li = list.listIterator(list.size());
+            while(li.hasPrevious()) {
+                Map.Entry<String, Integer> entry = li.previous();
+                sortedMap.put(entry.getKey(), entry.getValue());
+            }
+        } else {
+            for (Iterator<Map.Entry<String, Integer>> it = list.iterator(); it.hasNext();) {
+                Map.Entry<String, Integer> entry = it.next();
+                sortedMap.put(entry.getKey(), entry.getValue());
+            }
+        }
 
-		return sortedMap;
-	}
+        return sortedMap;
+    }
 
     public static boolean isLikelyCapture(Entity en) {
-    	//most of these conditions are now controlled better in en.canEscape, but there
-    	//are some additional ones we want to add
-    	if(!en.canEscape()) {
-    		return true;
-    	}
-    	return en.isDestroyed()
-    	        || en.isDoomed()
-    	        || en.isStalled()
-    	        || en.isStuck();
+        //most of these conditions are now controlled better in en.canEscape, but there
+        //are some additional ones we want to add
+        if(!en.canEscape()) {
+            return true;
+        }
+        return en.isDestroyed()
+                || en.isDoomed()
+                || en.isStalled()
+                || en.isStuck();
     }
 
     /** @return linear interpolation value between min and max */
-	public static double lerp(double min, double max, double f) {
-		return min * (1.0 - f) + max * f;
-	}
+    public static double lerp(double min, double max, double f) {
+        return min * (1.0 - f) + max * f;
+    }
 
     /** @return linear interpolation value between min and max */
-	public static int lerp(int min, int max, double f) {
-		return (int)Math.round(min * (1.0 - f) + max * f);
-	}
+    public static int lerp(int min, int max, double f) {
+        return (int)Math.round(min * (1.0 - f) + max * f);
+    }
 
-	/** @return the first argument if it's not null, else the second argument */
-	public static <T> T nonNull(T first, T second) {
-		return null != first ? first : second;
-	}
+    /** @return the first argument if it's not null, else the second argument */
+    public static <T> T nonNull(T first, T second) {
+        return null != first ? first : second;
+    }
 }
