@@ -46,7 +46,7 @@ public class Star implements Serializable {
 	public static final int SPECTRAL_Y = 9;
 	// Spectral class "D" (white dwarfs) are determined by their luminosity "VII" - the number is here for sorting
 	public static final int SPECTRAL_D = 99;
-	// TODO: Wolf-Rayet stars ("W"), protostars ("Y"), carbon stars ("C"), S-type stars ("S"), 
+	// TODO: Wolf-Rayet stars ("W"), carbon stars ("C"), S-type stars ("S"), 
 	
 	public static final String LUM_0           = "0";
 	public static final String LUM_IA          = "Ia";
@@ -693,12 +693,6 @@ public class Star implements Serializable {
 		}
 	}
 
-	
-
-	// Generation
-	
-	
-	
 	// Classes
 	
 	/** A class representing some event, possibly changing stellar information */

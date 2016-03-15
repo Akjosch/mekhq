@@ -90,9 +90,9 @@ public final class Planet implements Serializable {
     // Global physical characteristics
 	/** Mass in Earth masses */
 	private Double mass;
-	/** Density in kg/m^3 */
 	/** Radius in Earth radii */
 	private Double radius;
+	/** Density in kg/m^3 */
 	private Double density;
 	private Double gravity;
 	private Double dayLength;
@@ -110,10 +110,10 @@ public final class Planet implements Serializable {
 	private List<String> landMasses;
 
     // Atmospheric description
-	/** Pressure in standard pressure (101325 Pa) */
-	private Double pressureAtm;
 	/** Pressure classification */
 	private Integer pressure;
+	/** Pressure in standard pressure (101325 Pa) */
+	private Double pressureAtm;
     /** Atmospheric description */
 	private String atmosphere;
     /** Atmospheric mass compared to Earth's 28.9645 kg/mol */
