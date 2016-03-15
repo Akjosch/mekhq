@@ -6,15 +6,15 @@ import java.util.Date;
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 public class DateAdapter extends XmlAdapter<String, Date> {
-	private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
 
-	@Override
-	public Date unmarshal(final String xml) throws Exception {
-		return dateFormat.parse(xml);
-	}
+    @Override
+    public Date unmarshal(final String xml) throws Exception {
+        return dateFormat.parse(xml);
+    }
 
-	@Override
-	public String marshal(final Date object) throws Exception {
-		return dateFormat.format(object);
-	}
+    @Override
+    public String marshal(final Date object) throws Exception {
+        return dateFormat.format(object);
+    }
 }
