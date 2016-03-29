@@ -110,6 +110,8 @@ public class Utilities {
     public static final double SOLAR_MASS = 1.98855e30;
     /** Solar radius in km */
     public static final double SOLAR_RADIUS = 695700.0;
+    /** Effective solar temperature in K */
+    public static final double SOLAR_TEMP = 5778.0;
     /** Gravitational constant (in m^3 kg^-1 s^-2 */
     public static final double GRAV_CONSTANT = 6.673848e-11;
 

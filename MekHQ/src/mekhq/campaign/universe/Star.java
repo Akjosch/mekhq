@@ -88,6 +88,14 @@ public class Star implements Serializable {
         if( null == result.spectralType ) {
             result.setSpectralType(StarUtil.generateSpectralType(new Random(result.id.hashCode() + 133773), true));
         }
+        // We don't have some other data here, so we generate it based on the ID
+        Random generator = new Random(result.id.hashCode() + 137733);
+        result.temperature = StarUtil.generateTemperature(generator, result.spectralClass, result.subtype);
+        result.lum = StarUtil.generateLuminosity(generator, result.spectralClass, result.subtype);
+        result.radius = Math.sqrt(result.lum) / result.temperature / result.temperature * Utilities.SOLAR_TEMP * Utilities.SOLAR_TEMP;
+        result.lum = StarUtil.generateLuminosity(generator, result.spectralClass, result.subtype);
+        result.mass = StarUtil.generateMass(generator, result.spectralClass, result.subtype);
+        
         return result;
     }
 
