@@ -11,6 +11,62 @@ import mekhq.campaign.universe.Star.SpectralDefinition;
 
 /** Static method only helper class for stars */
 public final class StarUtil {
+    // Temperature, mass, luminosity and size are all linked together. When modifying those tables,
+    // make VERY sure you don't accidentally break the inherent inequalities
+    // (stars becoming smaller, dimmer, cooler and so on in one direction)
+    
+    // Temperature ranges for generation only. "Real" stars can lie outside of those.
+    private static final int[] TEMPERATURE_RANGES = new int[]{
+        65000, // Above class O
+        57500, 53500, 50000, 46500, 43500, 40500, 37500, 34500, 31500, 30000, // Class O
+        27000, 25000, 23000, 21000, 19500, 18000, 16500, 14000, 12000, 10000, // Class B
+        9700, 9450, 9300, 9000, 8800, 8500, 8250, 8000, 7750, 7500, // Class A
+        7350, 7200, 7050, 6900, 6800, 6650, 6500, 6350, 6200, 6000, // Class F
+        5900, 5800, 5700, 5600, 5500, 5400, 5350, 5300, 5250, 5200, // Class G
+        5100, 5000, 4900, 4800, 4650, 4500, 4300, 4100, 3900, 3700, // Class K
+        3600, 3400, 3250, 3100, 2950, 2800, 2700, 2600, 2500, 2400, // Class M
+        2290, 2180, 2070, 1960, 1850, 1740, 1630, 1520, 1410, 1300, // Class L
+        1200, 1100, 1000, 900, 800, 700, 650, 600, 550, 500 // Class T
+    };
+
+    // Mass ranges in solar masses for generation purpose
+    private static final double[] MIN_MASS = new double[] {
+        2437.5, 1235, 837.5, 538.2, 371, 234.3, 151.2, 94.9, 57.72, 35.25, // Class O
+        23.1, 15.6, 11.85, 8.08, 6.561, 5.494, 4.7891, 4.0338, 3.3012, 2.6628, // Class B
+        2.091, 1.938, 1.8662, 1.7802, 1.74, 1.6965, 1.672, 1.584, 1.5575, 1.513, // Class A
+        1.44, 1.395, 1.35, 1.305, 1.26, 1.215, 1.17, 1.125, 1.08, 1.035, // Class F
+        0.99, 0.945, 0.9, 0.8775, 0.855, 0.8325, 0.81, 0.7875, 0.765, 0.7875, // Class G
+        0.712, 0.68975, 0.66, 0.638, 0.609, 0.5655, 0.516, 0.4945, 0.4675, 0.44625, // Class K
+        0.42, 0.378, 0.332, 0.2905, 0.2255, 0.164, 0.1215, 0.081, 0.072, 0.06, // Class M
+        0.044, 0.036, 0.0296, 0.0248, 0.0216, 0.0176, 0.0152, 0.01275, 0.0126, 0.01183, // Class L
+        0.01104, 0.010695, 0.01034, 0.01026, 0.010176, 0.010088, 0.009996, 0.0099, 0.009702, 0.009504 // Class T
+    };
+    
+    private static final double[] MAX_MASS = new double[] {
+        5062.5, 2565, 1662.5, 1021.8, 689, 425.7, 268.8, 165.1, 98.28, 58.75, // Class O
+        36.9, 24.4, 18.15, 12.12, 9.639, 7.906, 6.7509, 5.6862, 4.5588, 3.6772, // Class B
+        2.829, 2.622, 2.4738, 2.3598, 2.26, 2.2035, 2.128, 2.016, 1.9425, 1.887, // Class A
+        1.76, 1.705, 1.65, 1.595, 1.54, 1.485, 1.43, 1.375, 1.32, 1.265, // Class F
+        1.21, 1.155, 1.1, 1.0725, 1.045, 1.0175, 0.99, 0.9625, 0.935, 0.9625, // Class G
+        0.888, 0.86025, 0.84, 0.812, 0.791, 0.7345, 0.684, 0.6555, 0.6325, 0.60375, // Class K
+        0.58, 0.522, 0.468, 0.4095, 0.3245, 0.236, 0.1785, 0.119, 0.108, 0.09, // Class M
+        0.066, 0.054, 0.0444, 0.0372, 0.0324, 0.0264, 0.0228, 0.01725, 0.0154, 0.01417, // Class L
+        0.01296, 0.012305, 0.01166, 0.01134, 0.011024, 0.010712, 0.010404, 0.0101, 0.009898, 0.009696 // Class T 
+    };
+    
+    // Average luminosity in terms of Solar luminosity. O-class stars are BRIGHT. Generated values are +/-10% of this.
+    private static final double[] AVG_LUMINOSITY = new double[] {
+        12000000, 6000000, 4000000, 2500000, 1700000, 1050000, 670000, 410000, 250000, 150000, // Class O
+        96000, 64000, 19600, 4890, 2290, 1160, 692, 380, 180, 85, // Class B
+        35, 27, 22.5, 19, 16, 13.8, 12, 10.6, 9.7, 8.85, // Class A
+        7.5, 6.56, 5.8, 5.2, 4.4, 3.75, 3.13, 2.62, 2.41, 2.03, // Class F
+        1.72, 1.46, 1.23, 1.15, 0.98, 0.84, 0.76, 0.68, 0.65, 0.59, // Class G
+        0.543, 0.475, 0.41, 0.355, 0.31, 0.257, 0.211, 0.187, 0.155, 0.125, // Class K
+        0.1, 0.0535, 0.0321, 0.0178, 0.0106, 0.0063, 0.0045, 0.0016, 0.0008, 0.0006, // Class M
+        0.00025, 0.00017, 0.00012, 0.00008, 0.000055, 0.000035, 0.000025, 0.000015, 0.000009, 0.000006, // Class L
+        0.0000035, 0.000002, 0.0000012, 0.0000007, 0.00000035, 0.00000018, 0.00000011, 0.00000007, 0.00000004, 0.000000025 // Class T          
+    };
+    
     //taken from Dropships and Jumpships sourcebook, pg. 17. L- and T-classes estimated
     private static final double[] DISTANCE_TO_JUMP_POINT = new double[]{
         Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY,
@@ -33,6 +89,11 @@ public final class StarUtil {
         27962033.0, 27691862.0, 27419029.0, 27143454.0, 26865052.0
     };
     
+    // Slightly modified IO Beta table
+    private static final int[] REALISTIC_SPECTRAL_TYPE = new int[]{
+            Star.SPECTRAL_F, Star.SPECTRAL_M, Star.SPECTRAL_G, Star.SPECTRAL_K, Star.SPECTRAL_M,
+            Star.SPECTRAL_M, Star.SPECTRAL_M, Star.SPECTRAL_M, Star.SPECTRAL_M, Star.SPECTRAL_L, -1};
+
     private static final int[] HOT_SPECTRAL_TYPE = new int[]{
         Star.SPECTRAL_B, Star.SPECTRAL_B, Star.SPECTRAL_A, Star.SPECTRAL_A, Star.SPECTRAL_A,
         Star.SPECTRAL_F, Star.SPECTRAL_F, Star.SPECTRAL_F, Star.SPECTRAL_F, Star.SPECTRAL_F, Star.SPECTRAL_F};
@@ -40,27 +101,6 @@ public final class StarUtil {
     private static final int[] LIFEFRIENDLY_SPECTRAL_TYPE = new int[]{
         Star.SPECTRAL_M, Star.SPECTRAL_M, Star.SPECTRAL_M, Star.SPECTRAL_K, Star.SPECTRAL_K,
         Star.SPECTRAL_G, Star.SPECTRAL_G, Star.SPECTRAL_F, Star.SPECTRAL_F, Star.SPECTRAL_F, Star.SPECTRAL_F};
-    
-    private static final double[] MAX_LIFE_ZONE = new double[]{
-        Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY,
-        Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY,
-        38242858157.0, 27996060437.0, 19446165689.0, 14055635525.0, 9618642836.0, // Class B
-         6845813319.0,  5287484468.0,  4040050000.0,  2919693648.0, 2192651135.0,
-        1650159810.0, 1409868505.0, 1261665328.0, 1080550276.0, 968144204.0, // Class A
-         828744231.0,  781060241.0,  702062818.0,  663604476.0, 597953886.0,
-        566377913.0, 514811189.0, 490291699.0, 446744826.0, 426385389.0, // Class F
-        389234826.0, 355605301.0, 325346923.0, 312035911.0, 286380918.0,
-        263609029.0, 242869224.0, 199629657.0, 186594212.0, 175399766.0, // Class G
-        167822075.0, 158854972.0, 150108291.0, 142701962.0, 135419349.0,
-        128218049.0, 105827610.0, 89287631.0, 76400524.0, 65978008.0, // Class K
-         58795714.0,  53743641.0, 49297586.0, 46062946.0, 42690748.0,
-        39244426.0, 33187574.0, 27680951.0, 21613496.0, 18377700.0, // Class M
-        15048294.0, 11772898.0,  8929569.0,  6594932.0,  4638276.0,
-        4572412.0, 4079942.0, 3621114.0, 3194956.0, 2800492.0, // Class L
-        2436749.0, 2102753.0, 1797530.0, 1520107.0, 1269509.0,
-        1062395.0, 876476.0, 710946.0, 565001.0, 437836.0, // Class T
-         328645.0, 277705.0, 231795.0, 190715.0, 154262.0
-    };
     
     private static final double[] MIN_LIFE_ZONE = new double[]{
         Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY,
@@ -83,11 +123,28 @@ public final class StarUtil {
          147711.0, 124816.0, 104182.0,  85718.0,  69334.0    
     };
     
-    // Slightly modified IO Beta table
-    private static final int[] REALISTIC_SPECTRAL_TYPE = new int[]{
-            Star.SPECTRAL_F, Star.SPECTRAL_M, Star.SPECTRAL_G, Star.SPECTRAL_K, Star.SPECTRAL_M,
-            Star.SPECTRAL_M, Star.SPECTRAL_M, Star.SPECTRAL_M, Star.SPECTRAL_M, Star.SPECTRAL_L, -1};
-    
+    private static final double[] MAX_LIFE_ZONE = new double[]{
+        Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY,
+        Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY,
+        38242858157.0, 27996060437.0, 19446165689.0, 14055635525.0, 9618642836.0, // Class B
+         6845813319.0,  5287484468.0,  4040050000.0,  2919693648.0, 2192651135.0,
+        1650159810.0, 1409868505.0, 1261665328.0, 1080550276.0, 968144204.0, // Class A
+         828744231.0,  781060241.0,  702062818.0,  663604476.0, 597953886.0,
+        566377913.0, 514811189.0, 490291699.0, 446744826.0, 426385389.0, // Class F
+        389234826.0, 355605301.0, 325346923.0, 312035911.0, 286380918.0,
+        263609029.0, 242869224.0, 199629657.0, 186594212.0, 175399766.0, // Class G
+        167822075.0, 158854972.0, 150108291.0, 142701962.0, 135419349.0,
+        128218049.0, 105827610.0, 89287631.0, 76400524.0, 65978008.0, // Class K
+         58795714.0,  53743641.0, 49297586.0, 46062946.0, 42690748.0,
+        39244426.0, 33187574.0, 27680951.0, 21613496.0, 18377700.0, // Class M
+        15048294.0, 11772898.0,  8929569.0,  6594932.0,  4638276.0,
+        4572412.0, 4079942.0, 3621114.0, 3194956.0, 2800492.0, // Class L
+        2436749.0, 2102753.0, 1797530.0, 1520107.0, 1269509.0,
+        1062395.0, 876476.0, 710946.0, 565001.0, 437836.0, // Class T
+         328645.0, 277705.0, 231795.0, 190715.0, 154262.0
+    };
+        
+
     private static final int[] RECHARGE_HOURS_CLASS_L = new int[]{
             512, 616, 717, 901, 1142, 1462, 1767, 2325, 3617, 5038};
 
@@ -95,13 +152,14 @@ public final class StarUtil {
             7973, 13371, 21315, 35876, 70424, 134352, 215620, 32188, 569703, 892922};
     
     private static final Set<String> VALID_WHITE_DWARF_SUBCLASSES = new TreeSet<String>();
-
     static {
         VALID_WHITE_DWARF_SUBCLASSES.addAll(Arrays.asList("", //$NON-NLS-1$
             "A,B,O,Q,Z,AB,AO,AQ,AZ,BO,BQ,BZ,QZ,ABO,ABQ,ABZ,AOQ,AOZ,AQZ,BOQ," //$NON-NLS-1$
             + "BOZ,BQZ,OQZ,ABOQ,ABOZ,ABQZ,AOQZ,BOQZ,ABOQZ,C,X".split(","))); //$NON-NLS-1$ //$NON-NLS-2$
     }
 
+    // Generators
+    
     public static String generateSpectralType(Random rnd, boolean lifeFriendly) {
         int spectralType;
         if( lifeFriendly ) {
@@ -115,6 +173,92 @@ public final class StarUtil {
         // Slightly weighted towards the higher numbers
         int subType = (int)Math.floor(Utilities.lerp(0.0, 10.0, Math.pow(rnd.nextDouble(), 0.8)));
         return getSpectralType(spectralType, subType * 1.0, Star.LUM_V);
+    }
+
+    public static double generateTemperature(Random rnd, int spectral, double subtype) {
+        return Utilities.lerp(getMinTemperature(spectral, subtype), getMaxTemperature(spectral, subtype), rnd.nextDouble());
+    }
+    
+    public static double generateMass(Random rnd, int spectral, double subtype) {
+        return Utilities.lerp(getMinMass(spectral, subtype), getMaxMass(spectral, subtype), rnd.nextDouble());
+    }
+
+    public static double generateLuminosity(Random rnd, int spectral, double subtype) {
+        return getAvgLuminosity(spectral, subtype) * (rnd.nextDouble() * 0.2 + 0.9);
+    }
+
+    // Temperature data
+    
+    private static double getTemperatureRange(int spectralTypeNumber) {
+        if((spectralTypeNumber >= 0) && (spectralTypeNumber < TEMPERATURE_RANGES.length)) {
+            return TEMPERATURE_RANGES[spectralTypeNumber];
+        }
+        return 0.0;
+    }
+
+    public static double getMinTemperature(int spectralTypeNumber) {
+        return getTemperatureRange(spectralTypeNumber + 1);
+    }
+
+    public static double getMinTemperature(int spectral, double subtype) {
+        int spectralTypeNumber = spectral * 10 + (int)subtype;
+        double remainder = subtype - (int)subtype;
+        return Utilities.lerp(getMinTemperature(spectralTypeNumber), getMinTemperature(spectralTypeNumber), remainder);
+    }
+
+    public static double getMaxTemperature(int spectralTypeNumber) {
+        return getTemperatureRange(spectralTypeNumber);
+    }
+
+
+    public static double getMaxTemperature(int spectral, double subtype) {
+        int spectralTypeNumber = spectral * 10 + (int)subtype;
+        double remainder = subtype - (int)subtype;
+        return Utilities.lerp(getMaxTemperature(spectralTypeNumber), getMaxTemperature(spectralTypeNumber), remainder);
+    }
+
+
+    // Mass data
+    
+    public static double getMinMass(int spectralTypeNumber) {
+        if((spectralTypeNumber >= 0) && (spectralTypeNumber < MIN_MASS.length)) {
+            return MIN_MASS[spectralTypeNumber];
+        }
+        return 0.0;
+    }
+    
+    public static double getMinMass(int spectral, double subtype) {
+        int spectralTypeNumber = spectral * 10 + (int)subtype;
+        double remainder = subtype - (int)subtype;
+        return Utilities.lerp(getMinMass(spectralTypeNumber), getMinMass(spectralTypeNumber), remainder);
+    }
+
+    public static double getMaxMass(int spectralTypeNumber) {
+        if((spectralTypeNumber >= 0) && (spectralTypeNumber < MAX_MASS.length)) {
+            return MAX_MASS[spectralTypeNumber];
+        }
+        return 0.0;
+    }
+    
+    public static double getMaxMass(int spectral, double subtype) {
+        int spectralTypeNumber = spectral * 10 + (int)subtype;
+        double remainder = subtype - (int)subtype;
+        return Utilities.lerp(getMaxMass(spectralTypeNumber), getMaxMass(spectralTypeNumber), remainder);
+    }
+    
+    // Luminosity data
+    
+    public static double getAvgLuminosity(int spectralTypeNumber) {
+        if((spectralTypeNumber >= 0) && (spectralTypeNumber < AVG_LUMINOSITY.length)) {
+            return AVG_LUMINOSITY[spectralTypeNumber];
+        }
+        return 0.0;
+    }
+    
+    public static double getAvgLuminosity(int spectral, double subtype) {
+        int spectralTypeNumber = spectral * 10 + (int)subtype;
+        double remainder = subtype - (int)subtype;
+        return Utilities.lerp(getAvgLuminosity(spectralTypeNumber), getAvgLuminosity(spectralTypeNumber), remainder);
     }
 
     public static double getDistanceToJumpPoint(int spectralTypeNumber) {
