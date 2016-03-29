@@ -26,12 +26,12 @@ public abstract class PlanetaryClass {
 						// Minor planets and big asteroids
 						new CarbonaceousPlanetoid(), new IcePlanetoid(), new SilicatePlanetoid(),
 						new MetallicPlanetoid(), new GravelPlanetoid(), new SulfurPlanetoid(),
-						// Terrestials
-						new DesertPlanet(), new EarthlikePlanet(),new GreenhousePlanet(), new HellPlanet(),
+						// Terrestrials
+						new DesertPlanet(), new EarthlikePlanet(), new GreenhousePlanet(), new HellPlanet(),
 						new FrozenRockPlanet(), new AirlessRockPlanet(), new DryRockPlanet(),
 						new RockyCorePlanet(), new WaterIcePlanet(), new AmmoniaIcePlanet(),
 						new MethaneIcePlanet(), new IronPlanet(), new LavaPlanet(), new OceanPlanet(),
-						// Giant terrestials
+						// Giant terrestrials
 						new CthonianPlanet(), new GasDwarf(), new HighPressurePlanet(),
 						new ExtremeGreenhousePlanet(),
 						// Gas giants

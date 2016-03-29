@@ -987,6 +987,6 @@ public final class Planet implements Serializable {
     
     /** BT planet types */
     public static enum PlanetaryType {
-        SMALL_ASTEROID, MEDIUM_ASTEROID, DWARF_TERRESTIAL, TERRESTIAL, GIANT_TERRESTIAL, GAS_GIANT, ICE_GIANT;
+        SMALL_ASTEROID, MEDIUM_ASTEROID, DWARF_TERRESTRIAL, TERRESTRIAL, GIANT_TERRESTRIAL, GAS_GIANT, ICE_GIANT;
     }
 }
