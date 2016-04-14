@@ -24,7 +24,9 @@ package mekhq.campaign.parts;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.UUID;
 
 import org.w3c.dom.NamedNodeMap;
@@ -39,6 +41,7 @@ import mekhq.MekHqXmlSerializable;
 import mekhq.MekHqXmlUtil;
 import mekhq.Version;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Component;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.personnel.SkillType;
 import mekhq.campaign.unit.Unit;
@@ -175,6 +178,8 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 	//only relevant for acquisitionable parts
 	protected int daysToWait;
 	protected int replacementId;
+	
+	Map<Class<? extends Component>, Component> components = new HashMap<>();
 
 	public Part() {
 		this(0, null);
@@ -202,6 +207,38 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 		this.isTeamSalvaging = false;
 	}
 
+	/** @return the component associated with this Part, or <code>null</code> */
+	@SuppressWarnings("unchecked")
+    public <T extends Component> T get(Class<T> cls) {
+	    if(components.containsKey(cls)) {
+	        return (T) components.get(cls);
+	    }
+	    return (T) null;
+	}
+	
+	/** Add a component to this part. Only one component of a given class per part possible. */
+	public void add(Component component) {
+	    Class<? extends Component> componentClass = component.getClass();
+	    Component oldComponent = components.put(componentClass, component);
+	    if(null != oldComponent) {
+	        oldComponent.setOwner(null);
+	    }
+	    component.setOwner(this);
+	}
+	
+	/** Remove a given component class */
+	public void remove(Class<? extends Component> cls) {
+	    Component oldComponent = components.remove(cls);
+        if(null != oldComponent) {
+            oldComponent.setOwner(null);
+        }
+	}
+	
+	/** @return <code>true</code> is this part has the given component class, <code>false</code> otherwise */
+	public boolean has(Class<? extends Component> cls) {
+	    return components.containsKey(cls);
+	}
+	
 	public static String getQualityName(int quality, boolean reverse) {
         switch(quality) {
         case QUALITY_A:
