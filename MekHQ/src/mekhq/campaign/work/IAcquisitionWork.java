@@ -37,8 +37,6 @@ public interface IAcquisitionWork extends IWork {
 	
 	public String getAcquisitionDesc();
 	
-	public Unit getUnit();
-	
 	public int getDaysToWait();
 	public void resetDaysToWait();
 	public void decrementDaysToWait();

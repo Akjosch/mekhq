@@ -23,17 +23,17 @@ package mekhq.campaign.parts;
 
 import java.io.PrintWriter;
 
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import megamek.common.Aero;
 import megamek.common.Compute;
-import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import megamek.common.TechConstants;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -49,20 +49,22 @@ public class AeroHeatSink extends Part {
 	private int type;
 	
 	public AeroHeatSink() {
-    	this(0, Aero.HEAT_SINGLE, null);
+    	this(Aero.HEAT_SINGLE, null);
     }
     
-    public AeroHeatSink(int tonnage, int type, Campaign c) {
-        super(tonnage, c);
-        this.name = "Aero Heat Sink";
+    public AeroHeatSink(int type, Campaign c) {
+        super(c);
+        this.name = "Aero Heat Sink"; //$NON-NLS-1$
         this.type = type;
         if(type == Aero.HEAT_DOUBLE) {
-            this.name = "Aero Double Heat Sink";
+            this.name = "Aero Double Heat Sink"; //$NON-NLS-1$
         }
+        add(new Installable());
     }
     
+    @Override
     public AeroHeatSink clone() {
-    	AeroHeatSink clone = new AeroHeatSink(getUnitTonnage(), type, campaign);
+    	AeroHeatSink clone = new AeroHeatSink(type, campaign);
         clone.copyBaseData(this);
     	return clone;
     }
@@ -70,11 +72,12 @@ public class AeroHeatSink extends Part {
 	@Override
 	public void updateConditionFromEntity(boolean checkForDestruction) {
 		int priorHits = hits;
-		if(null != unit && unit.getEntity() instanceof Aero && hits == 0) {
+		Aero aero = get(Installable.class).getEntity(Aero.class);
+		if(null != aero && hits == 0) {
 			//ok this is really ugly, but we don't track individual heat sinks, so I have no idea of
 			//a better way to do it
-			int hsDamage = ((Aero)unit.getEntity()).getHeatSinkHits();
-			for(Part part : unit.getParts()) {
+			int hsDamage = aero.getHeatSinkHits();
+			for(Part part : get(Installable.class).getUnit().getParts()) {
 				if(hsDamage == 0) {
 					break;
 				}
@@ -111,28 +114,27 @@ public class AeroHeatSink extends Part {
 
 	@Override
 	public void updateConditionFromPart() {
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			if(hits == 0) {
-				Aero a = (Aero)unit.getEntity();
-				a.setHeatSinks(Math.min(a.getHeatSinks()+1, a.getOHeatSinks()));
-			}
+	    Aero a = get(Installable.class).getEntity(Aero.class);
+		if((null != a) && (hits == 0)) {
+			a.setHeatSinks(Math.min(a.getHeatSinks() + 1, a.getOHeatSinks()));
 		}
-		
 	}
 
 	@Override
 	public void fix() {
 		super.fix();
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			((Aero)unit.getEntity()).setHeatSinks(((Aero)unit.getEntity()).getHeatSinks()+1);
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+		if(null != aero) {
+		    aero.setHeatSinks(aero.getHeatSinks() + 1);
 		}
 	}
 
 	@Override
 	public void remove(boolean salvage) {
-		if(null != unit && unit.getEntity() instanceof Aero) {
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+		if(null != aero) {
 			if(hits == 0) {
-				((Aero)unit.getEntity()).setHeatSinks(((Aero)unit.getEntity()).getHeatSinks()-1);
+			    aero.setHeatSinks(aero.getHeatSinks() - 1);
 			}
 			Part spare = campaign.checkForExistingSparePart(this);
 			if(!salvage) {
@@ -141,18 +143,18 @@ public class AeroHeatSink extends Part {
 				spare.incrementQuantity();
 				campaign.removePart(this);
 			}
-			unit.removePart(this);
+			get(Installable.class).getUnit().removePart(this);
 			Part missing = getMissingPart();
-			unit.addPart(missing);
+			get(Installable.class).getUnit().addPart(missing);
 			campaign.addPart(missing, 0);
 		}
-		setUnit(null);
+		get(Installable.class).setUnit(null);
 		updateConditionFromEntity(false);
 	}
 
 	@Override
 	public MissingPart getMissingPart() {
-		return new MissingAeroHeatSink(getUnitTonnage(), type, campaign);
+		return new MissingAeroHeatSink(type, campaign);
 	}
 
 	@Override
@@ -237,7 +239,7 @@ public class AeroHeatSink extends Part {
 			if (wn2.getNodeName().equalsIgnoreCase("type")) {
 				type = Integer.parseInt(wn2.getTextContent());
 				if(type == Aero.HEAT_DOUBLE) {
-		            this.name = "Aero Double Heat Sink";
+		            this.name = "Aero Double Heat Sink"; //$NON-NLS-1$
 		        } 
 			} 
 		}
@@ -246,17 +248,6 @@ public class AeroHeatSink extends Part {
 	@Override
 	public boolean isRightTechType(String skillType) {
 		return skillType.equals(SkillType.S_TECH_AERO);
-	}
-
-	@Override
-	public String getLocationName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int getLocation() {
-		return Entity.LOC_NONE;
 	}
 
 	@Override

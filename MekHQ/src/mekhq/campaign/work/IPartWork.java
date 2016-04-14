@@ -63,8 +63,6 @@ public interface IPartWork extends IWork {
 	public String getDesc();
 	public String getDetails();
 	
-	public Unit getUnit();
-	
 	public boolean isSalvaging();
 	
 	public String checkFixable();

@@ -42,6 +42,7 @@ import mekhq.MekHqXmlUtil;
 import mekhq.Version;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Component;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.personnel.SkillType;
 import mekhq.campaign.unit.Unit;
@@ -103,12 +104,6 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 
 	protected String name;
 	protected int id;
-
-	//this is the unitTonnage which needs to be tracked for some parts
-	//even when off the unit. actual tonnage is returned via the
-	//getTonnage() method
-	protected int unitTonnage;
-
 	
 	//hits to this part
 	protected int hits;
@@ -131,10 +126,6 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 	
 	protected UUID teamId;
 	private boolean isTeamSalvaging;
-
-	//null is valid. It indicates parts that are not attached to units.
-	protected Unit unit;
-	protected UUID unitId;
 
 	protected int quality;
 
@@ -170,8 +161,6 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 	 */
 	protected int quantity;
 
-	//reverse-compatability
-	protected int oldUnitId = -1;
 	protected int oldTeamId = -1;
 	protected int oldRefitId = -1;
 
@@ -182,17 +171,15 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 	Map<Class<? extends Component>, Component> components = new HashMap<>();
 
 	public Part() {
-		this(0, null);
+		this(null);
 	}
 
-	public Part(int tonnage, Campaign c) {
+	public Part(Campaign c) {
 		this.name = "Unknown";
-		this.unitTonnage = tonnage;
 		this.hits = 0;
 		this.skillMin = SkillType.EXP_GREEN;
 		this.mode = Modes.MODE_NORMAL;
 		this.timeSpent = 0;
-		this.unitId = null;
 		this.workingOvertime = false;
 		this.shorthandedMod = 0;
 		this.refitId = null;
@@ -208,16 +195,32 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 	}
 
 	/** @return the component associated with this Part, or <code>null</code> */
-	@SuppressWarnings("unchecked")
     public <T extends Component> T get(Class<T> cls) {
 	    if(components.containsKey(cls)) {
-	        return (T) components.get(cls);
+	        return cls.cast(components.get(cls));
 	    }
 	    return (T) null;
 	}
 	
-	/** Add a component to this part. Only one component of a given class per part possible. */
-	public void add(Component component) {
+	/**
+	 * Add a component to this part. Only one component of a given class per part possible.
+	 * If there is already a component in place, doesn't replace it.
+	 * 
+	 * @return <code>false</code> if there already was a component in place, else <code>true</code>
+	 */
+	public boolean add(Component component) {
+	    Class<? extends Component> componentClass = component.getClass();
+	    if(has(componentClass)) {
+	        component.setOwner(null);
+	        return false;
+	    }
+	    components.put(componentClass, component);
+        component.setOwner(this);
+        return true;
+	}
+	
+	/** Like add(), but replaces the component if there was one already */
+	public void replace(Component component) {
 	    Class<? extends Component> componentClass = component.getClass();
 	    Component oldComponent = components.put(componentClass, component);
 	    if(null != oldComponent) {
@@ -288,10 +291,6 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 		return id;
 	}
 
-	public UUID getUnitId() {
-		return unitId;
-	}
-
 	public void setCampaign(Campaign c) {
 		this.campaign = c;
 	}
@@ -352,25 +351,7 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 		this.brandNew = b;
 	}
 
-	public int getUnitTonnage() {
-		return unitTonnage;
-	}
-
 	public abstract double getTonnage();
-
-	public Unit getUnit() {
-		return unit;
-	}
-
-	public void setUnit(Unit u) {
-		this.unit = u;
-		if(null != unit) {
-			unitId = unit.getId();
-			unitTonnage = (int) u.getEntity().getWeight();
-		} else {
-			unitId = null;
-		}
-	}
 
 	public String getStatus() {
 		String toReturn = "Functional";
@@ -570,10 +551,12 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 				+"<name>"
 				+MekHqXmlUtil.escape(name)
 				+"</name>");
+		/*
 		pw1.println(MekHqXmlUtil.indentStr(indent+1)
 				+"<unitTonnage>"
 				+unitTonnage
 				+"</unitTonnage>");
+				*/
 		pw1.println(MekHqXmlUtil.indentStr(indent+1)
 				+"<hits>"
 				+hits
@@ -596,12 +579,14 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 				+"<skillMin>"
 				+skillMin
 				+"</skillMin>");
+		/*
 		if(null != unitId) {
 			pw1.println(MekHqXmlUtil.indentStr(indent+1)
 					+"<unitId>"
 					+unitId.toString()
 					+"</unitId>");
 		}
+		*/
 		pw1.println(MekHqXmlUtil.indentStr(indent+1)
 				+"<workingOvertime>"
 				+workingOvertime
@@ -710,7 +695,8 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 				} else if (wn2.getNodeName().equalsIgnoreCase("name")) {
 					retVal.name = wn2.getTextContent();
 				} else if (wn2.getNodeName().equalsIgnoreCase("unitTonnage")) {
-					retVal.unitTonnage = Integer.parseInt(wn2.getTextContent());
+			        retVal.add(new Installable());
+				    retVal.get(Installable.class).setUnitTonnage(Integer.parseInt(wn2.getTextContent()));
 				} else if (wn2.getNodeName().equalsIgnoreCase("quantity")) {
 					retVal.quantity = Integer.parseInt(wn2.getTextContent());
 				} else if (wn2.getNodeName().equalsIgnoreCase("hits")) {
@@ -733,10 +719,11 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 					}
 				} else if (wn2.getNodeName().equalsIgnoreCase("unitId")) {
 					if (version.getMajorVersion() == 0 && version.getMinorVersion() < 2 && version.getSnapshot() < 14) {
-						retVal.oldUnitId = Integer.parseInt(wn2.getTextContent());
+						//retVal.oldUnitId = Integer.parseInt(wn2.getTextContent());
 					} else {
 						if(!wn2.getTextContent().equals("null")) {
-							retVal.unitId = UUID.fromString(wn2.getTextContent());
+		                    retVal.add(new Installable());
+		                    retVal.get(Installable.class).setUnitId(UUID.fromString(wn2.getTextContent()));
 						}
 					}
 				} else if (wn2.getNodeName().equalsIgnoreCase("shorthandedMod")) {
@@ -788,8 +775,8 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 		}
 
 		// Refit protection of unit id
-		if (retVal.unitId != null && retVal.refitId != null) {
-		    retVal.setUnit(null);
+		if (retVal.has(Installable.class) && (null != retVal.get(Installable.class).getUnitId()) && retVal.refitId != null) {
+		    retVal.get(Installable.class).setUnit(null);
 		}
 
 		return retVal;
@@ -862,6 +849,8 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 		if (Modes.getModeMod(mode,campaign.getCampaignOptions().isDestroyByMargin()) != 0) {
 			mods.addModifier(Modes.getModeMod(mode,campaign.getCampaignOptions().isDestroyByMargin()), getCurrentModeName());
 		}
+		
+		Unit unit = has(Installable.class) ? get(Installable.class).getUnit() : null;
 		if(null != unit) {
 			mods.append(unit.getSiteMod());
 	        if(unit.getEntity().hasQuirk("easy_maintain")) {
@@ -871,7 +860,7 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 	            mods.addModifier(1, "difficult to maintain");
 	        }
 		}
-		if(isClanTechBase() || (this instanceof MekLocation && this.getUnit() != null && this.getUnit().getEntity().isClan())) {
+		if(isClanTechBase() || (this instanceof MekLocation && (null != unit) && (null != unit.getEntity()) && unit.getEntity().isClan())) {
 			if (null != tech && !tech.isClanner()) {
 				mods.addModifier(2, "clan tech");
 			}
@@ -907,6 +896,7 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 	    TargetRoll mods = new TargetRoll(campaign.getCampaignOptions().getMaintenanceBonus(), "maintenance");
         mods.addModifier(Availability.getTechModifier(getTechRating()), "tech rating " + EquipmentType.getRatingName(getTechRating()));
 
+        Unit unit = has(Installable.class) ? get(Installable.class).getUnit() : null;
 	    if(null != unit) {
 	        mods.append(unit.getSiteMod());
 	        if(unit.getEntity().hasQuirk("easy_maintain")) {
@@ -916,7 +906,7 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 	            mods.addModifier(1, "difficult to maintain");
 	        }
 	    }
-	    if(isClanTechBase() || (this instanceof MekLocation && this.getUnit() != null && this.getUnit().getEntity().isClan())) {
+	    if(isClanTechBase() || (this instanceof MekLocation && (null != unit) && (null != unit.getEntity()) && unit.getEntity().isClan())) {
 	        if (campaign.getPerson(getAssignedTeamId()) == null) {
 	            mods.addModifier(2, "clan tech");
 	        } else if (!campaign.getPerson(getAssignedTeamId()).isClanner()) {
@@ -1018,8 +1008,8 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 
 	@Override
 	public boolean isSalvaging() {
-		if(null != unit) {
-			return unit.isSalvage() || isMountedOnDestroyedLocation() || isTeamSalvaging();
+		if(has(Installable.class) && get(Installable.class).isInstalled()) {
+			return get(Installable.class).getUnit().isSalvage() || isMountedOnDestroyedLocation() || isTeamSalvaging();
 		}
 		return false;
 	}
@@ -1107,7 +1097,7 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 	}
 
 	public void fixIdReferences(Hashtable<Integer, UUID> uHash, Hashtable<Integer, UUID> pHash) {
-    	unitId = uHash.get(oldUnitId);
+    	//unitId = uHash.get(oldUnitId);
     	refitId = uHash.get(oldRefitId);
     	teamId = pHash.get(oldTeamId);
     }
@@ -1159,7 +1149,7 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
     }
 
     public boolean isSpare() {
-    	return null == unitId && parentPartId == -1;
+    	return (!has(Installable.class) || !get(Installable.class).isInstalled()) && parentPartId == -1;
     }
 
     public boolean isRightTechType(String skillType) {
@@ -1241,10 +1231,6 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
         setShorthandedMod(0);
     }
 
-    public abstract String getLocationName();
-
-    public abstract int getLocation();
-    
     public void setParentPartId(int id) {
     	parentPartId = id;
     }
@@ -1311,12 +1297,6 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
     	//do nothing
     }
     
-    public boolean isInLocation(String loc) {
-    	return null != unit 
-    		&& null != unit.getEntity() 
-    		&& getLocation() == getUnit().getEntity().getLocationFromAbbr(loc);
-    }
-    
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(getName());
@@ -1324,9 +1304,8 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
         sb.append(getDetails());
         sb.append(", q: "); //$NON-NLS-1$
         sb.append(quantity);
-        if(null != unit) {
-            sb.append(", mounted: "); //$NON-NLS-1$
-            sb.append(unit);
+        if(has(Installable.class)) {
+            sb.append(", ").append(get(Installable.class)); //$NON-NLS-1$
         }
         return sb.toString();
     }

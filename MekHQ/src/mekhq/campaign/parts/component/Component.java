@@ -6,10 +6,6 @@ import mekhq.campaign.parts.Part;
 public abstract class Component {
     protected Part owner;
     
-    protected Component(Part owner) {
-        this.owner = owner;
-    }
-    
     public void setOwner(Part owner) {
         this.owner = owner;
     }

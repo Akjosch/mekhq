@@ -49,8 +49,8 @@ public abstract class MissingPart extends Part implements Serializable, MekHqXml
 	 */
 	private static final long serialVersionUID = 300672661487966982L;	
 	
-	public MissingPart(int tonnage, Campaign c) {
-		super(tonnage, c);
+	public MissingPart(Campaign c) {
+		super(c);
 	}
 	
 	public MissingPart clone() {

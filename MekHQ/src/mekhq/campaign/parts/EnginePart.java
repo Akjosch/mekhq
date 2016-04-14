@@ -23,6 +23,7 @@ package mekhq.campaign.parts;
 
 import java.io.PrintWriter;
 import java.util.GregorianCalendar;
+import java.util.Objects;
 
 import megamek.common.Aero;
 import megamek.common.CriticalSlot;
@@ -37,7 +38,9 @@ import megamek.common.TechConstants;
 import megamek.common.verifier.TestEntity;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
+import mekhq.campaign.unit.Unit;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -56,14 +59,28 @@ public class EnginePart extends Part {
 	}
 
 	public EnginePart(int tonnage, Engine e, Campaign c, boolean hover) {
-		super(tonnage, c);
-		this.engine = e;
+		super(c);
+		this.engine = Objects.requireNonNull(e);
 		this.forHover = hover;
 		this.name = engine.getEngineName() + " Engine";
-	}
+		add(new Installable());
+        switch(engine.getEngineType()) {
+            case Engine.XL_ENGINE:
+            case Engine.LIGHT_ENGINE:
+            case Engine.XXL_ENGINE:
+                get(Installable.class).setLocations(Mech.LOC_CT, Mech.LOC_LT, Mech.LOC_RT);
+                break;
+            default:
+                get(Installable.class).setLocations(Mech.LOC_CT);
+                break;
+        }
+        get(Installable.class).setUnitTonnage(tonnage);
+        get(Installable.class).setTonnageLimited(true);
+    }
 
 	public EnginePart clone() {
-		EnginePart clone = new EnginePart(getUnitTonnage(), new Engine(engine.getRating(), engine.getEngineType(), engine.getFlags()), campaign, forHover);
+		EnginePart clone = new EnginePart(get(Installable.class).getUnitTonnage(),
+		        new Engine(engine.getRating(), engine.getEngineType(), engine.getFlags()), campaign, forHover);
         clone.copyBaseData(this);
 		return clone;
 	}
@@ -111,14 +128,14 @@ public class EnginePart extends Part {
         float toReturn = TestEntity.ceilMaxHalf(weight, TestEntity.CEIL_HALFTON);
         // hover have a minimum weight of 20%
         if (forHover) {
-            return Math.max(TestEntity.ceilMaxHalf(getUnitTonnage()/5, TestEntity.CEIL_HALFTON), toReturn);
+            return Math.max(TestEntity.ceilMaxHalf(get(Installable.class).getUnitTonnage()/5, TestEntity.CEIL_HALFTON), toReturn);
         }
         return toReturn;
 	}
 
 	@Override
 	public long getStickerPrice() {
-		return (long)Math.round((getEngine().getBaseCost()/75.0) * getEngine().getRating() * getUnitTonnage());
+		return (long)Math.round((getEngine().getBaseCost()/75.0) * getEngine().getRating() * get(Installable.class).getUnitTonnage());
 	}
 
 	public void fixTankFlag(boolean hover) {
@@ -152,7 +169,7 @@ public class EnginePart extends Part {
 				&& getEngine().getTechType(year) == ((EnginePart) part).getEngine()
 						.getTechType(year)
 				&& getEngine().hasFlag(Engine.TANK_ENGINE) == ((EnginePart) part).getEngine().hasFlag(Engine.TANK_ENGINE)
-				&& getUnitTonnage() == ((EnginePart) part).getUnitTonnage()
+				&& get(Installable.class).getUnitTonnage() == ((EnginePart) part).get(Installable.class).getUnitTonnage()
 				&& getTonnage() == ((EnginePart)part).getTonnage();
 	}
 
@@ -313,6 +330,7 @@ public class EnginePart extends Part {
 	@Override
 	public void fix() {
 		super.fix();
+		Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 		    if(unit.getEntity() instanceof Mech) {
 		        unit.repairSystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_ENGINE);
@@ -336,6 +354,7 @@ public class EnginePart extends Part {
 
 	@Override
 	public void remove(boolean salvage) {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
             if(unit.getEntity() instanceof Mech) {
                 unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_ENGINE);
@@ -366,6 +385,7 @@ public class EnginePart extends Part {
 
 	@Override
 	public void updateConditionFromEntity(boolean checkForDestruction) {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			int engineHits = 0;
 			int engineCrits = 0;
@@ -410,6 +430,7 @@ public class EnginePart extends Part {
 
 	@Override
 	public int getBaseTime() {
+        Unit unit = get(Installable.class).getUnit();
 		//TODO: keep an aero flag here, so we dont need the unit
 		if(null != unit && unit.getEntity() instanceof Aero && hits > 0) {
 			return 300;
@@ -429,6 +450,7 @@ public class EnginePart extends Part {
 
 	@Override
 	public int getDifficulty() {
+        Unit unit = get(Installable.class).getUnit();
 		//TODO: keep an aero flag here, so we dont need the unit
 		if(null != unit && unit.getEntity() instanceof Aero && hits > 0) {
 			return 1;
@@ -454,6 +476,7 @@ public class EnginePart extends Part {
 
 	@Override
 	public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			if(hits == 0) {
 				if(unit.getEntity() instanceof Mech) {
@@ -487,6 +510,7 @@ public class EnginePart extends Part {
 
 	@Override
 	 public String checkFixable() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null == unit) {
 			return null;
 		}
@@ -507,6 +531,7 @@ public class EnginePart extends Part {
 
 	@Override
 	public boolean isMountedOnDestroyedLocation() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null == unit) {
 			return false;
 		}
@@ -521,6 +546,7 @@ public class EnginePart extends Part {
 
 	 @Override
 	 public String getDetails() {
+	        Unit unit = get(Installable.class).getUnit();
 		 if(null != unit) {
 			 return super.getDetails();
 		 }
@@ -545,17 +571,6 @@ public class EnginePart extends Part {
 				return skillType.equals(SkillType.S_TECH_MECH) || skillType.equals(SkillType.S_TECH_AERO);
 		 	}
 		}
-
-	@Override
-	public String getLocationName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int getLocation() {
-		return Entity.LOC_NONE;
-	}
 
 	@Override
 	public int getIntroDate() {
@@ -649,29 +664,4 @@ public class EnginePart extends Part {
 			return EquipmentType.DATE_NONE;
 		}
 	}
-
-	@Override
-    public boolean isInLocation(String loc) {
-		 if(null == unit || null == unit.getEntity()) {
-			 return false;
-		 }
-		 if (unit.getEntity().getLocationFromAbbr(loc) == Mech.LOC_CT) {
-             return true;
-         }
-         boolean needsSideTorso = false;
-         switch (getEngine().getEngineType()) {
-             case Engine.XL_ENGINE:
-             case Engine.LIGHT_ENGINE:
-             case Engine.XXL_ENGINE:
-                 needsSideTorso = true;
-                 break;
-         }
-         if (needsSideTorso
-                 && (unit.getEntity().getLocationFromAbbr(loc) == Mech.LOC_LT
-                         || unit.getEntity().getLocationFromAbbr(loc) == Mech.LOC_RT)) {
-             return true;
-         }
-         return false;
-    }
-
 }

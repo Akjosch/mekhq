@@ -21,34 +21,31 @@
 
 package mekhq.campaign.parts;
 
+import org.w3c.dom.Node;
+
 import megamek.common.Aero;
-import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import mekhq.campaign.Campaign;
-
-import org.w3c.dom.Node;
+import mekhq.campaign.parts.component.Installable;
 
 /**
  *
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class MissingAeroHeatSink extends MissingPart {
-
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = 2806921577150714477L;
 
 	private int type;
 
 	public MissingAeroHeatSink() {
-    	this(0, Aero.HEAT_SINGLE, null);
+    	this(Aero.HEAT_SINGLE, null);
     }
 
-    public MissingAeroHeatSink(int tonnage, int type, Campaign c) {
-    	super(tonnage, c);
+    public MissingAeroHeatSink(int type, Campaign c) {
+    	super(c);
     	this.type = type;
-    	this.name = "Aero Heat Sink";
+    	this.name = "Aero Heat Sink"; //$NON-NLS-1$
+    	add(new Installable());
     }
     
     @Override 
@@ -68,7 +65,7 @@ public class MissingAeroHeatSink extends MissingPart {
 
 	@Override
 	public Part getNewPart() {
-		return new AeroHeatSink(getUnitTonnage(), type, campaign);
+		return new AeroHeatSink(type, campaign);
 	}
 
 	@Override
@@ -107,9 +104,10 @@ public class MissingAeroHeatSink extends MissingPart {
 
 	@Override
 	public void updateConditionFromPart() {
-		if(null != unit && unit.getEntity() instanceof Aero) {
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+		if(null != aero) {
 			if(hits == 0) {
-				((Aero)unit.getEntity()).setHeatSinks(((Aero)unit.getEntity()).getHeatSinks()-1);
+			    aero.setHeatSinks(aero.getHeatSinks() - 1);
 			}
 		}
 	}
@@ -119,17 +117,6 @@ public class MissingAeroHeatSink extends MissingPart {
 		//nothing to load
 	}
 
-	@Override
-	public String getLocationName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int getLocation() {
-		return Entity.LOC_NONE;
-	}
-	
 	@Override
 	public int getIntroDate() {
 		if(type == Aero.HEAT_DOUBLE) {
