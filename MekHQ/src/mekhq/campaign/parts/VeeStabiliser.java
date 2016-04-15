@@ -29,7 +29,9 @@ import megamek.common.Tank;
 import megamek.common.TechConstants;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
+import mekhq.campaign.unit.Unit;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -41,20 +43,19 @@ import org.w3c.dom.NodeList;
 public class VeeStabiliser extends Part {
 	private static final long serialVersionUID = 6708245721569856817L;
 
-	private int loc;
-	
 	public VeeStabiliser() {
-		this(0, 0, null);
+		this(0, null);
 	}
 	
-	public VeeStabiliser(int tonnage, int loc, Campaign c) {
-        super(tonnage, c);
-        this.loc = loc;
+	public VeeStabiliser(int loc, Campaign c) {
+        super(c);
         this.name = "Vehicle Stabiliser";
+        add(new Installable());
+        get(Installable.class).setLocations(loc);
     }
 	
 	public VeeStabiliser clone() {
-		VeeStabiliser clone = new VeeStabiliser(getUnitTonnage(), 0, campaign);
+		VeeStabiliser clone = new VeeStabiliser(get(Installable.class).getMainLocation(), campaign);
         clone.copyBaseData(this);
 		return clone;
 	}
@@ -82,7 +83,7 @@ public class VeeStabiliser extends Part {
 			Node wn2 = nl.item(x);
 			
 			if (wn2.getNodeName().equalsIgnoreCase("loc")) {
-				loc = Integer.parseInt(wn2.getTextContent());
+				get(Installable.class).setLocations(Integer.parseInt(wn2.getTextContent()));
 			}
 		}
 	}
@@ -105,20 +106,22 @@ public class VeeStabiliser extends Part {
 	@Override
 	public void fix() {
 		super.fix();
-		if(null != unit && unit.getEntity() instanceof Tank) {
-			((Tank)unit.getEntity()).clearStabiliserHit(loc);
+		Tank tank = get(Installable.class).getEntity(Tank.class);
+		if(null != tank) {
+		    tank.clearStabiliserHit(get(Installable.class).getMainLocation());
 		}
 	}
 
 	@Override
 	public MissingPart getMissingPart() {
-		return new MissingVeeStabiliser(getUnitTonnage(), loc, campaign);
+		return new MissingVeeStabiliser(get(Installable.class).getMainLocation(), campaign);
 	}
 
 	@Override
 	public void remove(boolean salvage) {
-		if(null != unit && unit.getEntity() instanceof Tank) {
-			((Tank)unit.getEntity()).setStabiliserHit(loc);
+        Tank tank = get(Installable.class).getEntity(Tank.class);
+		if(null != tank) {
+		    tank.setStabiliserHit(get(Installable.class).getMainLocation());
 			Part spare = campaign.checkForExistingSparePart(this);
 			if(!salvage) {
 				campaign.removePart(this);
@@ -126,20 +129,21 @@ public class VeeStabiliser extends Part {
 				spare.incrementQuantity();
 				campaign.removePart(this);
 			}
-			unit.removePart(this);
+			get(Installable.class).getUnit().removePart(this);
 			Part missing = getMissingPart();
-			unit.addPart(missing);
+			get(Installable.class).getUnit().addPart(missing);
 			campaign.addPart(missing, 0);
 		}
-		setUnit(null);
+		get(Installable.class).setUnit(null);
 		updateConditionFromEntity(false);
 	}
 
 	@Override
 	public void updateConditionFromEntity(boolean checkForDestruction) {
-		if(null != unit && unit.getEntity() instanceof Tank) {
+        Tank tank = get(Installable.class).getEntity(Tank.class);
+		if(null != tank) {
 			int priorHits = hits;
-			if(((Tank)unit.getEntity()).isStabiliserHit(loc)) {
+			if(tank.isStabiliserHit(get(Installable.class).getMainLocation())) {
 				hits = 1;
 			} else {
 				hits = 0;
@@ -173,19 +177,23 @@ public class VeeStabiliser extends Part {
 
 	@Override
 	public void updateConditionFromPart() {
-		if(null != unit && unit.getEntity() instanceof Tank) {
-			if(hits > 0 && !((Tank)unit.getEntity()).isStabiliserHit(loc)) {
-				((Tank)unit.getEntity()).setStabiliserHit(loc);
+        Tank tank = get(Installable.class).getEntity(Tank.class);
+		if(null != tank) {
+		    int loc = get(Installable.class).getMainLocation();
+			if(hits > 0 && !tank.isStabiliserHit(loc)) {
+			    tank.setStabiliserHit(loc);
 			}
-			else if(hits == 0 && ((Tank)unit.getEntity()).isStabiliserHit(loc)) {
-				((Tank)unit.getEntity()).clearStabiliserHit(loc);
+			else if(hits == 0 && tank.isStabiliserHit(loc)) {
+			    tank.clearStabiliserHit(loc);
 			}
 		}
 	}
 
 	@Override
 	public String checkFixable() {
-		if(!isSalvaging() && unit.isLocationBreached(loc)) {
+        Unit unit = get(Installable.class).getUnit();
+        int loc = get(Installable.class).getMainLocation();
+		if(null != unit && !isSalvaging() && unit.isLocationBreached(loc)) {
     		return unit.getEntity().getLocationName(loc) + " is breached.";
 		}
 		return null;
@@ -205,18 +213,15 @@ public class VeeStabiliser extends Part {
 	
 	@Override
     public String getDetails() {
-		if(null != unit) {
-			return unit.getEntity().getLocationName(loc);
+		if(get(Installable.class).isInstalled()) {
+			return get(Installable.class).getLocationName();
 		}
 		return "";
     }
 	
-	public int getLocation() {
-		return loc;
-	}
-	
+	@Deprecated
 	public void setLocation(int l) {
-		this.loc = l;
+	    get(Installable.class).setLocations(l);
 	}
 	
 	@Override

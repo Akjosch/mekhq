@@ -21,98 +21,95 @@
 
 package mekhq.campaign.parts;
 
-import megamek.common.Entity;
+import org.w3c.dom.Node;
+
 import megamek.common.EquipmentType;
 import megamek.common.Tank;
 import mekhq.campaign.Campaign;
-
-import org.w3c.dom.Node;
+import mekhq.campaign.parts.component.Installable;
 
 /**
  *
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class MissingVeeSensor extends MissingPart {
+    private static final long serialVersionUID = 2806921577150714477L;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2806921577150714477L;
-
-	public MissingVeeSensor() {
-    	this(0, null);
+    public MissingVeeSensor() {
+        this(null);
     }
     
-    public MissingVeeSensor(int tonnage, Campaign c) {
-    	super(0, c);
-    	this.name = "Vehicle Sensors";
+    public MissingVeeSensor(Campaign c) {
+        super(c);
+        this.name = "Vehicle Sensors"; //$NON-NLS-1$
     }
     
     @Override 
-	public int getBaseTime() {
-		return 260;
-	}
-	
-	@Override
-	public int getDifficulty() {
-		return 0;
-	}
+    public int getBaseTime() {
+        return 260;
+    }
     
-	@Override
-	public String checkFixable() {
-		return null;
-	}
+    @Override
+    public int getDifficulty() {
+        return 0;
+    }
+    
+    @Override
+    public String checkFixable() {
+        return null;
+    }
 
-	@Override
-	public Part getNewPart() {
-		return new VeeSensor(getUnitTonnage(), campaign);
-	}
+    @Override
+    public Part getNewPart() {
+        return new VeeSensor(campaign);
+    }
 
-	@Override
-	public boolean isAcceptableReplacement(Part part, boolean refit) {
-		return part instanceof VeeSensor;
-	}
+    @Override
+    public boolean isAcceptableReplacement(Part part, boolean refit) {
+        return part instanceof VeeSensor;
+    }
 
-	@Override
-	public double getTonnage() {
-		return 0;
-	}
+    @Override
+    public double getTonnage() {
+        return 0;
+    }
 
-	@Override
-	public int getTechRating() {
-		return EquipmentType.RATING_C;
-	}
+    @Override
+    public int getTechRating() {
+        return EquipmentType.RATING_C;
+    }
 
-	@Override
-	public int getAvailability(int era) {
-		return EquipmentType.RATING_C;
-	}
+    @Override
+    public int getAvailability(int era) {
+        return EquipmentType.RATING_C;
+    }
 
-	@Override
-	public void updateConditionFromPart() {
-		if(null != unit && unit.getEntity() instanceof Tank) {
-			((Tank)unit.getEntity()).setSensorHits(4);
-		}
-	}
-	
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		//nothing to load
-	}
+    @Override
+    public void updateConditionFromPart() {
+        Tank tank = get(Installable.class).getEntity(Tank.class);
+        if(null != tank) {
+            tank.setSensorHits(4);
+        }
+    }
+    
+    @Override
+    protected void loadFieldsFromXmlNode(Node wn) {
+        //nothing to load
+    }
 
-	@Override
-	public int getIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
-	
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
+    
 }

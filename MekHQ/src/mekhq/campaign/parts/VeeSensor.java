@@ -23,15 +23,15 @@ package mekhq.campaign.parts;
 
 import java.io.PrintWriter;
 
+import org.w3c.dom.Node;
+
 import megamek.common.Compute;
-import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import megamek.common.Tank;
 import megamek.common.TechConstants;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
-
-import org.w3c.dom.Node;
 
 /**
  *
@@ -41,16 +41,17 @@ public class VeeSensor extends Part {
 	private static final long serialVersionUID = 4101969895094531892L;
 
 	public VeeSensor() {
-		this(0, null);
+		this(null);
 	}
 	
-	public VeeSensor(int tonnage, Campaign c) {
-        super(tonnage, c);
-        this.name = "Vehicle Sensors";
+	public VeeSensor(Campaign c) {
+        super(c);
+        this.name = "Vehicle Sensors"; //$NON-NLS-1$
+        add(new Installable());
     }
 
 	public VeeSensor clone() {
-		VeeSensor clone = new VeeSensor(getUnitTonnage(), campaign);
+		VeeSensor clone = new VeeSensor(campaign);
         clone.copyBaseData(this);
 		return clone;
 	}
@@ -89,20 +90,22 @@ public class VeeSensor extends Part {
 	@Override
 	public void fix() {
 		super.fix();
-		if(null != unit && unit.getEntity() instanceof Tank) {
-			((Tank)unit.getEntity()).setSensorHits(0);
+        Tank tank = get(Installable.class).getEntity(Tank.class);
+		if(null != tank) {
+		    tank.setSensorHits(0);
 		}
 	}
 
 	@Override
 	public MissingPart getMissingPart() {
-		return new MissingVeeSensor(getUnitTonnage(), campaign);
+		return new MissingVeeSensor(campaign);
 	}
 
 	@Override
 	public void remove(boolean salvage) {
-		if(null != unit && unit.getEntity() instanceof Tank) {
-			((Tank)unit.getEntity()).setSensorHits(4);
+        Tank tank = get(Installable.class).getEntity(Tank.class);
+		if(null != tank) {
+		    tank.setSensorHits(4);
 			Part spare = campaign.checkForExistingSparePart(this);
 			if(!salvage) {
 				campaign.removePart(this);
@@ -110,20 +113,21 @@ public class VeeSensor extends Part {
 				spare.incrementQuantity();
 				campaign.removePart(this);
 			}
-			unit.removePart(this);
+			get(Installable.class).getUnit().removePart(this);
 			Part missing = getMissingPart();
-			unit.addPart(missing);
+			get(Installable.class).getUnit().addPart(missing);
 			campaign.addPart(missing, 0);
 		}
-		setUnit(null);
+		get(Installable.class).setUnit(null);
 		updateConditionFromEntity(false);
 	}
 
 	@Override
 	public void updateConditionFromEntity(boolean checkForDestruction) {
-		if(null != unit && unit.getEntity() instanceof Tank) {
+	    Tank tank = get(Installable.class).getEntity(Tank.class);
+		if(null != tank) {
 			int priorHits = hits;
-			hits = ((Tank)unit.getEntity()).getSensorHits();
+			hits = tank.getSensorHits();
 			if(checkForDestruction 
 					&& hits > priorHits 
 					&& Compute.d6(2) < campaign.getCampaignOptions().getDestroyPartTarget()) {
@@ -153,8 +157,9 @@ public class VeeSensor extends Part {
 
 	@Override
 	public void updateConditionFromPart() {
-		if(null != unit && unit.getEntity() instanceof Tank) {
-			((Tank)unit.getEntity()).setSensorHits(hits);
+        Tank tank = get(Installable.class).getEntity(Tank.class);
+		if(null != tank) {
+		    tank.setSensorHits(hits);
 		}
 	}
 

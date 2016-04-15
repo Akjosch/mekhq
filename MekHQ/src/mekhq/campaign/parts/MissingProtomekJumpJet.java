@@ -23,14 +23,15 @@ package mekhq.campaign.parts;
 
 import java.io.PrintWriter;
 
+import org.w3c.dom.Node;
+
 import megamek.common.CriticalSlot;
-import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import megamek.common.Protomech;
 import megamek.common.TechConstants;
 import mekhq.campaign.Campaign;
-
-import org.w3c.dom.Node;
+import mekhq.campaign.parts.component.Installable;
+import mekhq.campaign.unit.Unit;
 
 /**
  *
@@ -44,8 +45,11 @@ public class MissingProtomekJumpJet extends MissingPart {
     }
     
     public MissingProtomekJumpJet(int tonnage, Campaign c) {
-        super(tonnage, c);
-        this.name = "Protomech Jump Jet";
+        super(c);
+        this.name = "Protomech Jump Jet"; //$NON-NLS-1$
+        get(Installable.class).setLocations(Protomech.LOC_TORSO);
+        get(Installable.class).setUnitTonnage(tonnage);
+        get(Installable.class).setTonnageLimited(true);
     }
     
     @Override 
@@ -60,10 +64,12 @@ public class MissingProtomekJumpJet extends MissingPart {
    
     @Override
     public double getTonnage() {
-        if(getUnitTonnage() <=5) {
+        if(get(Installable.class).getUnitTonnage() <= 5) {
             return 0.05;
-        } else {
+        } else if (get(Installable.class).getUnitTonnage() <= 9) {
             return 0.1;
+        } else {
+            return 0.15;
         }
     }
 
@@ -104,6 +110,7 @@ public class MissingProtomekJumpJet extends MissingPart {
 
     @Override
     public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             if(null != unit) {
                 int damageJJ = getOtherDamagedJumpJets() + 1;
@@ -120,6 +127,7 @@ public class MissingProtomekJumpJet extends MissingPart {
 
     @Override
     public String checkFixable() {
+        Unit unit = get(Installable.class).getUnit();
     	if(null == unit) {
     		return null;
     	}
@@ -135,7 +143,8 @@ public class MissingProtomekJumpJet extends MissingPart {
     @Override 
     public void fix() {
         Part replacement = findReplacement(false);
-        if(null != replacement) {
+        Unit unit = get(Installable.class).getUnit();
+        if(null != replacement && null != unit) {
             Part actualReplacement = replacement.clone();
             unit.addPart(actualReplacement);
             campaign.addPart(actualReplacement, 0);
@@ -149,16 +158,17 @@ public class MissingProtomekJumpJet extends MissingPart {
     @Override
     public boolean isAcceptableReplacement(Part part, boolean refit) {
         return part instanceof ProtomekJumpJet
-                && getUnitTonnage() == ((ProtomekJumpJet)part).getUnitTonnage();
+                && get(Installable.class).getUnitTonnage() == part.get(Installable.class).getUnitTonnage();
     }
 
     @Override
     public Part getNewPart() {
-        return new ProtomekJumpJet(getUnitTonnage(), campaign);
+        return new ProtomekJumpJet(get(Installable.class).getUnitTonnage(), campaign);
     }
     
     private int getOtherDamagedJumpJets() {
         int damagedJJ = 0;
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             for(Part p : unit.getParts()) {
                 if(p.getId() == this.getId()) {

@@ -23,14 +23,16 @@ package mekhq.campaign.parts;
 
 import java.io.PrintWriter;
 
+import org.w3c.dom.Node;
+
 import megamek.common.CriticalSlot;
 import megamek.common.EquipmentType;
 import megamek.common.Protomech;
 import megamek.common.TechConstants;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
-
-import org.w3c.dom.Node;
+import mekhq.campaign.unit.Unit;
 
 /**
  *
@@ -44,22 +46,26 @@ public class ProtomekJumpJet extends Part {
     }
 
     public ProtomekJumpJet clone() {
-        ProtomekJumpJet clone = new ProtomekJumpJet(getUnitTonnage(), campaign);
+        ProtomekJumpJet clone = new ProtomekJumpJet(get(Installable.class).getUnitTonnage(), campaign);
         clone.copyBaseData(this);
         return clone;
     }
 
 
     public ProtomekJumpJet(int tonnage, Campaign c) {
-        super(tonnage, c);
-        this.name = "Protomech Jump Jet";
+        super(c);
+        this.name = "Protomech Jump Jet"; //$NON-NLS-1$
+        add(new Installable());
+        get(Installable.class).setLocations(Protomech.LOC_TORSO);
+        get(Installable.class).setUnitTonnage(tonnage);
+        get(Installable.class).setTonnageLimited(true);
     }
 
     @Override
     public double getTonnage() {
-        if(getUnitTonnage() <=5) {
+        if(get(Installable.class).getUnitTonnage() <= 5) {
             return 0.05;
-        } else if (getUnitTonnage() <= 9){
+        } else if (get(Installable.class).getUnitTonnage() <= 9){
             return 0.1;
         } else {
             return 0.15;
@@ -68,13 +74,13 @@ public class ProtomekJumpJet extends Part {
 
     @Override
     public long getStickerPrice() {
-        return getUnitTonnage() * 400;
+        return get(Installable.class).getUnitTonnage() * 400;
     }
 
     @Override
     public boolean isSamePartType (Part part) {
         return part instanceof ProtomekJumpJet
-                && getUnitTonnage() == ((ProtomekJumpJet)part).getUnitTonnage();
+                && get(Installable.class).getUnitTonnage() == part.get(Installable.class).getUnitTonnage();
     }
 
     @Override
@@ -100,6 +106,7 @@ public class ProtomekJumpJet extends Part {
     @Override
     public void fix() {
         super.fix();
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             //repair depending upon how many others are still damaged
             int damageJJ = getOtherDamagedJumpJets();
@@ -128,11 +135,12 @@ public class ProtomekJumpJet extends Part {
 
     @Override
     public MissingPart getMissingPart() {
-        return new MissingProtomekJumpJet(getUnitTonnage(), campaign);
+        return new MissingProtomekJumpJet(get(Installable.class).getUnitTonnage(), campaign);
     }
 
     @Override
     public void remove(boolean salvage) {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             int h = 1;
             int damageJJ = getOtherDamagedJumpJets() + 1;
@@ -152,13 +160,14 @@ public class ProtomekJumpJet extends Part {
             unit.addPart(missing);
             campaign.addPart(missing, 0);
         }
-        setUnit(null);
+        get(Installable.class).setUnit(null);
         updateConditionFromEntity(false);
     }
 
     @Override
     public void updateConditionFromEntity(boolean checkForDestruction) {
-    	//FIXME: implement check for destruction
+        //FIXME: implement check for destruction
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             hits = unit.getEntity().getDamagedCriticals(CriticalSlot.TYPE_SYSTEM, Protomech.SYSTEM_TORSOCRIT, Protomech.LOC_TORSO);
             if(hits > 2) {
@@ -182,17 +191,17 @@ public class ProtomekJumpJet extends Part {
     }
 
     @Override
-	public int getBaseTime() {
-		if(isSalvaging()) {
-			return 60;
-		}
-		return 90;
-	}
+    public int getBaseTime() {
+        if(isSalvaging()) {
+            return 60;
+        }
+        return 90;
+    }
 
-	@Override
-	public int getDifficulty() {
-		return 0;
-	}
+    @Override
+    public int getDifficulty() {
+        return 0;
+    }
 
     @Override
     public boolean needsFixing() {
@@ -201,14 +210,16 @@ public class ProtomekJumpJet extends Part {
 
     @Override
     public String getDetails() {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             return unit.getEntity().getLocationName(Protomech.LOC_TORSO);
         }
-        return getUnitTonnage() + " tons";
+        return get(Installable.class).getUnitTonnage() + " tons";
     }
 
     @Override
     public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             int damageJJ = getOtherDamagedJumpJets() + hits;
             if(damageJJ == 0) {
@@ -226,9 +237,10 @@ public class ProtomekJumpJet extends Part {
 
     @Override
     public String checkFixable() {
-    	if(null == unit) {
-    		return null;
-    	}
+        Unit unit = get(Installable.class).getUnit();
+        if(null == unit) {
+            return null;
+        }
         if(isSalvaging()) {
             return null;
         }
@@ -243,6 +255,7 @@ public class ProtomekJumpJet extends Part {
 
     @Override
     public boolean isMountedOnDestroyedLocation() {
+        Unit unit = get(Installable.class).getUnit();
         return null != unit && unit.isLocationDestroyed(Protomech.LOC_TORSO);
     }
 
@@ -274,6 +287,7 @@ public class ProtomekJumpJet extends Part {
 
     private int getOtherDamagedJumpJets() {
         int damagedJJ = 0;
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             for(Part p : unit.getParts()) {
                 if(p.getId() == this.getId()) {
@@ -288,24 +302,18 @@ public class ProtomekJumpJet extends Part {
         return damagedJJ;
     }
 
-	@Override
-	public int getLocation() {
-		return Protomech.LOC_TORSO;
-	}
+    @Override
+    public int getIntroDate() {
+        return 3055;
+    }
 
-	@Override
-	public int getIntroDate() {
-		return 3055;
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
-
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
-
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 }
