@@ -50,7 +50,7 @@ public class MissingProtomekLocation extends MissingPart {
     }
 
 
-    public MissingProtomekLocation(int loc, int tonnage, int structureType, boolean hasBooster, boolean quad, Campaign c) {
+    public MissingProtomekLocation(int loc, double tonnage, int structureType, boolean hasBooster, boolean quad, Campaign c) {
         super(c);
         this.structureType = structureType;
         this.booster = hasBooster;
@@ -61,27 +61,27 @@ public class MissingProtomekLocation extends MissingPart {
         this.name = "Mech Location";
         this.name = "Protomech Location";
         switch(loc) {
-        case(Protomech.LOC_HEAD):
-            this.name = "Protomech Head";
-            break;
-        case(Protomech.LOC_TORSO):
-            this.name = "Protomech Torso";
-            break;
-        case(Protomech.LOC_LARM):
-            this.name = "Protomech Left Arm";
-            break;
-        case(Protomech.LOC_RARM):
-            this.name = "Protomech Right Arm";
-            break;
-        case(Protomech.LOC_LEG):
-            this.name = "Protomech Legs";
-            if(forQuad) {
-                this.name = "Protomech Legs (Quad)";
-            }
-            break;
-        case(Protomech.LOC_MAINGUN):
-            this.name = "Protomech Main Gun";
-            break;
+            case(Protomech.LOC_HEAD):
+                this.name = "Protomech Head";
+                break;
+            case(Protomech.LOC_TORSO):
+                this.name = "Protomech Torso";
+                break;
+            case(Protomech.LOC_LARM):
+                this.name = "Protomech Left Arm";
+                break;
+            case(Protomech.LOC_RARM):
+                this.name = "Protomech Right Arm";
+                break;
+            case(Protomech.LOC_LEG):
+                this.name = "Protomech Legs";
+                if(forQuad) {
+                    this.name = "Protomech Legs (Quad)";
+                }
+                break;
+            case(Protomech.LOC_MAINGUN):
+                this.name = "Protomech Main Gun";
+                break;
         }
         if(booster) {
             this.name += " (Myomer Booster)";

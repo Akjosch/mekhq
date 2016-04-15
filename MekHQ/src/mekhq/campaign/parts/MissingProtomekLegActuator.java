@@ -42,20 +42,23 @@ public class MissingProtomekLegActuator extends MissingPart {
         this(0, null);
     }
 
-    public MissingProtomekLegActuator(int tonnage, Campaign c) {
-        super(tonnage, c);
+    public MissingProtomekLegActuator(double tonnage, Campaign c) {
+        super(c);
         this.name = "Protomech Leg Actuator";
+        get(Installable.class).setUnitTonnage(tonnage);
+        get(Installable.class).setTonnageLimited(true);
+        get(Installable.class).setLocations(Protomech.LOC_LEG);
     }
 
     @Override
-	public int getBaseTime() {
-		return 120;
-	}
+    public int getBaseTime() {
+        return 120;
+    }
 
-	@Override
-	public int getDifficulty() {
-		return 0;
-	}
+    @Override
+    public int getDifficulty() {
+        return 0;
+    }
 
     @Override
     public double getTonnage() {
@@ -104,9 +107,9 @@ public class MissingProtomekLegActuator extends MissingPart {
     @Override
     public String checkFixable() {
         Unit unit = get(Installable.class).getUnit();
-    	if(null == unit) {
-    		return null;
-    	}
+        if(null == unit) {
+            return null;
+        }
         if(unit.isLocationBreached(Protomech.LOC_LEG)) {
             return unit.getEntity().getLocationName(Protomech.LOC_LEG) + " is breached.";
         }
@@ -119,7 +122,8 @@ public class MissingProtomekLegActuator extends MissingPart {
     @Override
     public void fix() {
         Part replacement = findReplacement(false);
-        if(null != replacement) {
+        Unit unit = get(Installable.class).getUnit();
+        if(null != replacement && null != unit) {
             Part actualReplacement = replacement.clone();
             unit.addPart(actualReplacement);
             campaign.addPart(actualReplacement, 0);
@@ -133,32 +137,27 @@ public class MissingProtomekLegActuator extends MissingPart {
     @Override
     public boolean isAcceptableReplacement(Part part, boolean refit) {
         return part instanceof ProtomekLegActuator
-                && getUnitTonnage() == ((ProtomekLegActuator)part).getUnitTonnage();
+                && get(Installable.class).getUnitTonnage() == part.get(Installable.class).getUnitTonnage();
     }
 
     @Override
     public Part getNewPart() {
-        return new ProtomekLegActuator(getUnitTonnage(), campaign);
+        return new ProtomekLegActuator(get(Installable.class).getUnitTonnage(), campaign);
     }
 
-	@Override
-	public int getLocation() {
-		return Protomech.LOC_LEG;
-	}
+    @Override
+    public int getIntroDate() {
+        return 3055;
+    }
 
-	@Override
-	public int getIntroDate() {
-		return 3055;
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
-
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
 }

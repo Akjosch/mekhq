@@ -43,7 +43,7 @@ public class MissingMekSensor extends MissingPart {
         this(0, false, null);
     }
     
-    public MissingMekSensor(int tonnage, boolean torsoMounted, Campaign c) {
+    public MissingMekSensor(double tonnage, boolean torsoMounted, Campaign c) {
         super(c);
         this.name = "Mech Sensors";
         this.torsoMounted = torsoMounted;

@@ -55,14 +55,14 @@ public class MissingProtomekArmActuator extends MissingPart {
     }
     
     @Override 
-	public int getBaseTime() {
-		return 120;
-	}
-	
-	@Override
-	public int getDifficulty() {
-		return 0;
-	}
+    public int getBaseTime() {
+        return 120;
+    }
+    
+    @Override
+    public int getDifficulty() {
+        return 0;
+    }
     
     public void setLocation(int loc) {
         this.location = loc;
@@ -127,9 +127,9 @@ public class MissingProtomekArmActuator extends MissingPart {
     @Override
     public String checkFixable() {
         Unit unit = get(Installable.class).getUnit();
-    	if(null == unit) {
-    		return null;
-    	}
+        if(null == unit) {
+            return null;
+        }
         if(unit.isLocationBreached(location)) {
             return unit.getEntity().getLocationName(location) + " is breached.";
         }
@@ -158,27 +158,27 @@ public class MissingProtomekArmActuator extends MissingPart {
     @Override
     public boolean isAcceptableReplacement(Part part, boolean refit) {
         return part instanceof ProtomekArmActuator
-                && getUnitTonnage() == ((ProtomekArmActuator)part).getUnitTonnage();
+                && get(Installable.class).getUnitTonnage() == part.get(Installable.class).getUnitTonnage();
     }
 
     @Override
     public Part getNewPart() {
-        return new ProtomekArmActuator(getUnitTonnage(), location, campaign);
+        return new ProtomekArmActuator(get(Installable.class).getUnitTonnage(), location, campaign);
     }
 
-	@Override
-	public int getIntroDate() {
-		return 3055;
-	}
+    @Override
+    public int getIntroDate() {
+        return 3055;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
 }

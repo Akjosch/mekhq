@@ -45,7 +45,7 @@ public class MissingMekGyro extends MissingPart {
         this(0, 0, 0, false, null);
     }
 
-    public MissingMekGyro(int tonnage, int type, double gyroTonnage, boolean isClan, Campaign c) {
+    public MissingMekGyro(double tonnage, int type, double gyroTonnage, boolean isClan, Campaign c) {
         super(c);
         this.type = type;
         this.name = Mech.getGyroTypeString(type);
@@ -92,7 +92,7 @@ public class MissingMekGyro extends MissingPart {
             }
             if(walkMP > -1) {
                 //need to calculate gyroTonnage for reverse compatability
-                gyroTonnage = MekGyro.getGyroTonnage(walkMP, type, get(Installable.class).getUnitTonnage());
+                gyroTonnage = MekGyro.getGyroTonnage(walkMP, type, (int) Math.round(get(Installable.class).getUnitTonnage()));
             }
         }
     }

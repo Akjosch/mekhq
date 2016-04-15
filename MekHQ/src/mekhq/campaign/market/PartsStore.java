@@ -372,7 +372,8 @@ public class PartsStore implements Serializable {
 	}
 
 	private void stockMekComponents(Campaign c) {
-		parts.add(new MekLifeSupport(c));
+		parts.add(new MekLifeSupport(true, c));
+        parts.add(new MekLifeSupport(false, c));
 		for(int ton = 20; ton <= 100; ton += 5) {
 			parts.add(new MekSensor(ton, false, c));
             parts.add(new MekSensor(ton, true, c));
@@ -492,7 +493,7 @@ public class PartsStore implements Serializable {
 		/*
 		 * Protomek Armor
 		 */
-		parts.add(new ProtomekArmor(0, 100, -1, true, c));
+		parts.add(new ProtomekArmor(100, -1, true, c));
 		/*
 		*BA ARMOR
 		*/

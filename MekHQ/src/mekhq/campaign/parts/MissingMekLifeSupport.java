@@ -21,6 +21,8 @@
 
 package mekhq.campaign.parts;
 
+import org.w3c.dom.Node;
+
 import megamek.common.CriticalSlot;
 import megamek.common.Entity;
 import megamek.common.EquipmentType;
@@ -29,135 +31,111 @@ import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.unit.Unit;
 
-import org.w3c.dom.Node;
-
 /**
  *
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class MissingMekLifeSupport extends MissingPart {
-	private static final long serialVersionUID = -1989526319692474127L;
+    private static final long serialVersionUID = -1989526319692474127L;
+    
+    private boolean torsoMounted;
 
-	public MissingMekLifeSupport() {
-		this(null);
-	}
-	
-	public MissingMekLifeSupport(Campaign c) {
+    public MissingMekLifeSupport() {
+        this(false, null);
+    }
+    
+    public MissingMekLifeSupport(boolean torsoMounted, Campaign c) {
         super(c);
         this.name = "Mech Life Support System";
+        this.torsoMounted = torsoMounted;
+        if(torsoMounted) {
+            get(Installable.class).setLocations(Mech.LOC_LT, Mech.LOC_RT);
+        } else {
+            get(Installable.class).setLocations(Mech.LOC_HEAD);
+        }
     }
-	
-	@Override 
-	public int getBaseTime() {
-		return 180;
-	}
-	
-	@Override
-	public int getDifficulty() {
-		return -1;
-	}
+    
+    @Override 
+    public int getBaseTime() {
+        return 180;
+    }
+    
+    @Override
+    public int getDifficulty() {
+        return -1;
+    }
 
-	@Override
-	public double getTonnage() {
-		//TODO: what should this tonnage be?
-		return 0;
-	}
+    @Override
+    public double getTonnage() {
+        //TODO: what should this tonnage be?
+        return 0;
+    }
 
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		// Do nothing - no fields to load.
-	}
+    @Override
+    protected void loadFieldsFromXmlNode(Node wn) {
+        // Do nothing - no fields to load.
+    }
 
-	@Override
-	public int getAvailability(int era) {
-		return EquipmentType.RATING_C;
-	}
+    @Override
+    public int getAvailability(int era) {
+        return EquipmentType.RATING_C;
+    }
 
-	@Override
-	public int getTechRating() {
-		return EquipmentType.RATING_C;
-	}
+    @Override
+    public int getTechRating() {
+        return EquipmentType.RATING_C;
+    }
 
-	@Override
-	public boolean isAcceptableReplacement(Part part, boolean refit) {
-		return part instanceof MekLifeSupport;
-	}
-	
-	 
+    @Override
+    public boolean isAcceptableReplacement(Part part, boolean refit) {
+        return (part instanceof MekLifeSupport) && torsoMounted == ((MekLifeSupport)part).isTorsoMounted();
+    }
+    
+     
     @Override
     public String checkFixable() {
         Entity entity = get(Installable.class).getEntity();
-    	if(null == entity) {
-    		return null;
-    	}
+        if(null == entity) {
+            return null;
+        }
         for(int i = 0; i < entity.locations(); i++) {
-        	if(entity.getNumberOfCriticals(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT, i) > 0) {
-            	if(get(Installable.class).getUnit().isLocationBreached(i)) {
-            		return entity.getLocationName(i) + " is breached.";
-            	}
-            	if(get(Installable.class).getUnit().isLocationDestroyed(i)) {
-            		return entity.getLocationName(i) + " is destroyed.";
-            	}
+            if(entity.getNumberOfCriticals(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT, i) > 0) {
+                if(get(Installable.class).getUnit().isLocationBreached(i)) {
+                    return entity.getLocationName(i) + " is breached.";
+                }
+                if(get(Installable.class).getUnit().isLocationDestroyed(i)) {
+                    return entity.getLocationName(i) + " is destroyed.";
+                }
             }
         }
         return null;
     }
 
-	@Override
-	public Part getNewPart() {
-		return new MekLifeSupport(campaign);
-	}
-
-	@Override
-	public void updateConditionFromPart() {
-        Unit unit = get(Installable.class).getUnit();
-		if(null != unit) {
-			unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT);
-		}
-	}
-
-	@Override
-	public int getLocation() {
-		if(null != unit) {
-			Entity entity = unit.getEntity();
-			for (int i = 0; i < entity.locations(); i++) {
-				if (entity.getNumberOfCriticals(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT, i) > 0) {
-					return i;
-				}
-			}
-		}
-		return Entity.LOC_NONE;
-	}
-	
-	@Override
-	public int getIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
-
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
-
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
-	
-	@Override
-    public boolean isInLocation(String loc) {
-		 if(null == unit || null == unit.getEntity() || !(unit.getEntity() instanceof Mech)) {
-			 return false;
-		 }
-		 if(((Mech)unit.getEntity()).getCockpitType() == Mech.COCKPIT_TORSO_MOUNTED) {
-			 if(unit.getEntity().getLocationFromAbbr(loc) == Mech.LOC_LT
-					 || unit.getEntity().getLocationFromAbbr(loc) == Mech.LOC_RT) {
-				 return true;
-			 }
-		 } else if (unit.getEntity().getLocationFromAbbr(loc) == Mech.LOC_HEAD) {
-             return true;
-         }
-		 return false;	
+    @Override
+    public Part getNewPart() {
+        return new MekLifeSupport(torsoMounted, campaign);
     }
-	
+
+    @Override
+    public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
+        if(null != unit) {
+            unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT);
+        }
+    }
+
+    @Override
+    public int getIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
+
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
+
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 }

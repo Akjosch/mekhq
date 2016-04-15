@@ -33,227 +33,227 @@ import mekhq.campaign.Campaign;
  */
 public class MissingInfantryArmorPart extends MissingPart {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 330450091994252073L;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 330450091994252073L;
 
-	private double damageDivisor;
-	private boolean encumbering = false;
+    private double damageDivisor;
+    private boolean encumbering = false;
     private boolean spaceSuit = false;
     private boolean dest = false;
     private boolean sneak_camo = false;
     private boolean sneak_ir = false;
     private boolean sneak_ecm = false;
-	
+    
     public MissingInfantryArmorPart() {
-    	this(0, null, 1.0, false, false, false, false, false, false);
+        this(0, null, 1.0, false, false, false, false, false, false);
     }
     
     public MissingInfantryArmorPart(int tonnage, Campaign c, double divisor, boolean enc, boolean dest, boolean camo, boolean ir, boolean ecm, boolean space) {
-    	super(tonnage, c);
-    	this.damageDivisor = divisor;
-    	this.encumbering = enc;
-    	this.dest = dest;
-    	this.sneak_camo = camo;
-    	this.sneak_ecm = ecm;
-    	this.sneak_ir = ir;
-    	this.spaceSuit = space;
-    	assignName();
+        super(tonnage, c);
+        this.damageDivisor = divisor;
+        this.encumbering = enc;
+        this.dest = dest;
+        this.sneak_camo = camo;
+        this.sneak_ecm = ecm;
+        this.sneak_ir = ir;
+        this.spaceSuit = space;
+        assignName();
     }
     
     @Override 
-	public int getBaseTime() {
-		return 0;
-	}
-	
-	@Override
-	public int getDifficulty() {
-		return 0;
-	}
-    
-    private void assignName() {
-    	String heavyString = "";
-    	if(damageDivisor > 1) {
-    		heavyString = "Heavy ";
-    	}
-    	String baseName = "Armor Kit";
-    	if(isDest()) {
-    		baseName = "DEST Infiltration Suit";
-    	} else if(isSneakCamo() || isSneakECM() || isSneakIR()) {
-    		baseName = "Sneak Suit";
-    	} else if(isSpaceSuit()) {
-    		baseName = "Space Suit";
-    	}
-    	
-    	this.name = heavyString + baseName;
+    public int getBaseTime() {
+        return 0;
     }
     
-	@Override
-	public void updateConditionFromPart() {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public int getDifficulty() {
+        return 0;
+    }
+    
+    private void assignName() {
+        String heavyString = "";
+        if(damageDivisor > 1) {
+            heavyString = "Heavy ";
+        }
+        String baseName = "Armor Kit";
+        if(isDest()) {
+            baseName = "DEST Infiltration Suit";
+        } else if(isSneakCamo() || isSneakECM() || isSneakIR()) {
+            baseName = "Sneak Suit";
+        } else if(isSpaceSuit()) {
+            baseName = "Space Suit";
+        }
+        
+        this.name = heavyString + baseName;
+    }
+    
+    @Override
+    public void updateConditionFromPart() {
+        // TODO Auto-generated method stub
+        
+    }
 
-	@Override
-	public String checkFixable() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public String checkFixable() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public Part getNewPart() {
-		return new InfantryArmorPart(getUnitTonnage(), campaign, damageDivisor, encumbering, dest, sneak_camo, sneak_ecm, sneak_ir, spaceSuit);
-	}
+    @Override
+    public Part getNewPart() {
+        return new InfantryArmorPart(getUnitTonnage(), campaign, damageDivisor, encumbering, dest, sneak_camo, sneak_ecm, sneak_ir, spaceSuit);
+    }
 
-	@Override
-	public boolean isAcceptableReplacement(Part part, boolean refit) {
-		return part instanceof InfantryArmorPart 
-				&& damageDivisor == ((InfantryArmorPart)part).getDamageDivisor() 
-				&& dest == ((InfantryArmorPart)part).isDest() 
-				&& encumbering == ((InfantryArmorPart)part).isEncumbering() 
-				&& sneak_camo == ((InfantryArmorPart)part).isSneakCamo() 
-				&& sneak_ecm == ((InfantryArmorPart)part).isSneakECM() 
-				&& sneak_ir == ((InfantryArmorPart)part).isSneakIR() 
-				&& spaceSuit == ((InfantryArmorPart)part).isSpaceSuit();
-	}
+    @Override
+    public boolean isAcceptableReplacement(Part part, boolean refit) {
+        return part instanceof InfantryArmorPart 
+                && damageDivisor == ((InfantryArmorPart)part).getDamageDivisor() 
+                && dest == ((InfantryArmorPart)part).isDest() 
+                && encumbering == ((InfantryArmorPart)part).isEncumbering() 
+                && sneak_camo == ((InfantryArmorPart)part).isSneakCamo() 
+                && sneak_ecm == ((InfantryArmorPart)part).isSneakECM() 
+                && sneak_ir == ((InfantryArmorPart)part).isSneakIR() 
+                && spaceSuit == ((InfantryArmorPart)part).isSpaceSuit();
+    }
 
-	@Override
-	public double getTonnage() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public double getTonnage() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-	@Override
-	public int getTechRating() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public int getTechRating() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-	@Override
-	public int getAvailability(int era) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public int getAvailability(int era) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		NodeList nl = wn.getChildNodes();
-		
-		for (int x=0; x<nl.getLength(); x++) {
-			Node wn2 = nl.item(x);		
-			if (wn2.getNodeName().equalsIgnoreCase("damageDivisor")) {
-				damageDivisor =Double.parseDouble(wn2.getTextContent());
-			} 
-			else if (wn2.getNodeName().equalsIgnoreCase("dest")) {
-				if(wn2.getTextContent().equalsIgnoreCase("true")) {
-					dest = true;
-				} else {
-					dest = false;
-				}
-			}
-			else if (wn2.getNodeName().equalsIgnoreCase("encumbering")) {
-				if(wn2.getTextContent().equalsIgnoreCase("true")) {
-					encumbering = true;
-				} else {
-					encumbering = false;
-				}
-			}
-			else if (wn2.getNodeName().equalsIgnoreCase("sneak_camo")) {
-				if(wn2.getTextContent().equalsIgnoreCase("true")) {
-					sneak_camo = true;
-				} else {
-					sneak_camo = false;
-				}
-			}
-			else if (wn2.getNodeName().equalsIgnoreCase("sneak_ecm")) {
-				if(wn2.getTextContent().equalsIgnoreCase("true")) {
-					sneak_ecm = true;
-				} else {
-					sneak_ecm = false;
-				}
-			}
-			else if (wn2.getNodeName().equalsIgnoreCase("sneak_ir")) {
-				if(wn2.getTextContent().equalsIgnoreCase("true")) {
-					sneak_ir = true;
-				} else {
-					sneak_ir = false;
-				}
-			}
-			else if (wn2.getNodeName().equalsIgnoreCase("spaceSuit")) {
-				if(wn2.getTextContent().equalsIgnoreCase("true")) {
-					spaceSuit = true;
-				} else {
-					spaceSuit = false;
-				}
-			}
-		}
-	}
-	
-	public double getDamageDivisor() {
-		return damageDivisor;
-	}
-	
-	public boolean isDest() {
-		return dest;
-	}
-	
-	public boolean isEncumbering() {
-		return encumbering;
-	}
-	
-	public boolean isSneakCamo() {
-		return sneak_camo;
-	}
-	
-	public boolean isSneakECM() {
-		return sneak_ecm;
-	}
-	
-	public boolean isSneakIR() {
-		return sneak_ir;
-	}
-	
-	public boolean isSpaceSuit() {
-		return spaceSuit;
-	}
+    @Override
+    protected void loadFieldsFromXmlNode(Node wn) {
+        NodeList nl = wn.getChildNodes();
+        
+        for (int x=0; x<nl.getLength(); x++) {
+            Node wn2 = nl.item(x);        
+            if (wn2.getNodeName().equalsIgnoreCase("damageDivisor")) {
+                damageDivisor =Double.parseDouble(wn2.getTextContent());
+            } 
+            else if (wn2.getNodeName().equalsIgnoreCase("dest")) {
+                if(wn2.getTextContent().equalsIgnoreCase("true")) {
+                    dest = true;
+                } else {
+                    dest = false;
+                }
+            }
+            else if (wn2.getNodeName().equalsIgnoreCase("encumbering")) {
+                if(wn2.getTextContent().equalsIgnoreCase("true")) {
+                    encumbering = true;
+                } else {
+                    encumbering = false;
+                }
+            }
+            else if (wn2.getNodeName().equalsIgnoreCase("sneak_camo")) {
+                if(wn2.getTextContent().equalsIgnoreCase("true")) {
+                    sneak_camo = true;
+                } else {
+                    sneak_camo = false;
+                }
+            }
+            else if (wn2.getNodeName().equalsIgnoreCase("sneak_ecm")) {
+                if(wn2.getTextContent().equalsIgnoreCase("true")) {
+                    sneak_ecm = true;
+                } else {
+                    sneak_ecm = false;
+                }
+            }
+            else if (wn2.getNodeName().equalsIgnoreCase("sneak_ir")) {
+                if(wn2.getTextContent().equalsIgnoreCase("true")) {
+                    sneak_ir = true;
+                } else {
+                    sneak_ir = false;
+                }
+            }
+            else if (wn2.getNodeName().equalsIgnoreCase("spaceSuit")) {
+                if(wn2.getTextContent().equalsIgnoreCase("true")) {
+                    spaceSuit = true;
+                } else {
+                    spaceSuit = false;
+                }
+            }
+        }
+    }
+    
+    public double getDamageDivisor() {
+        return damageDivisor;
+    }
+    
+    public boolean isDest() {
+        return dest;
+    }
+    
+    public boolean isEncumbering() {
+        return encumbering;
+    }
+    
+    public boolean isSneakCamo() {
+        return sneak_camo;
+    }
+    
+    public boolean isSneakECM() {
+        return sneak_ecm;
+    }
+    
+    public boolean isSneakIR() {
+        return sneak_ir;
+    }
+    
+    public boolean isSpaceSuit() {
+        return spaceSuit;
+    }
 
-	@Override
-	public int getIntroDate() {
-		//I am going to kind of hack this together based on the actual kits
-		//this will be better if we implement Hammer's suggested Armor Kit MiscTypes
-		int latestDate = EquipmentType.DATE_NONE;
-		int nSneak = 0;
-		if(sneak_ecm) {
-			nSneak++;
-		}
-		if(sneak_ir) {
-			nSneak++;
-		}
-		if(sneak_camo) {
-			nSneak++;
-		}
-		if(nSneak > 2) {
-			latestDate = 2465;
-		} else if (nSneak > 1) {
-			latestDate = 2445;
-		} else if (nSneak > 0) {
-			latestDate = 2430;
-		}		
-		if(dest) {
-			latestDate = 3045;
-		}
-		return latestDate;
-	}
+    @Override
+    public int getIntroDate() {
+        //I am going to kind of hack this together based on the actual kits
+        //this will be better if we implement Hammer's suggested Armor Kit MiscTypes
+        int latestDate = EquipmentType.DATE_NONE;
+        int nSneak = 0;
+        if(sneak_ecm) {
+            nSneak++;
+        }
+        if(sneak_ir) {
+            nSneak++;
+        }
+        if(sneak_camo) {
+            nSneak++;
+        }
+        if(nSneak > 2) {
+            latestDate = 2465;
+        } else if (nSneak > 1) {
+            latestDate = 2445;
+        } else if (nSneak > 0) {
+            latestDate = 2430;
+        }        
+        if(dest) {
+            latestDate = 3045;
+        }
+        return latestDate;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
-	
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
+    
 }

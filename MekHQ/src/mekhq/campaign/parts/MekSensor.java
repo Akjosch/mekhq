@@ -74,7 +74,7 @@ public class MekSensor extends Part {
 
     @Override
     public long getStickerPrice() {
-        return 2000 * get(Installable.class).getUnitTonnage();
+        return Math.round(2000 * get(Installable.class).getUnitTonnage());
     }
 
     @Override

@@ -33,110 +33,110 @@ import mekhq.campaign.parts.component.Installable;
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class MissingAeroHeatSink extends MissingPart {
-	private static final long serialVersionUID = 2806921577150714477L;
+    private static final long serialVersionUID = 2806921577150714477L;
 
-	private int type;
+    private int type;
 
-	public MissingAeroHeatSink() {
-    	this(Aero.HEAT_SINGLE, null);
+    public MissingAeroHeatSink() {
+        this(Aero.HEAT_SINGLE, null);
     }
 
     public MissingAeroHeatSink(int type, Campaign c) {
-    	super(c);
-    	this.type = type;
-    	this.name = "Aero Heat Sink"; //$NON-NLS-1$
+        super(c);
+        this.type = type;
+        this.name = "Aero Heat Sink"; //$NON-NLS-1$
     }
     
     @Override 
-	public int getBaseTime() {
-		return 90;
-	}
-	
-	@Override
-	public int getDifficulty() {
-		return -2;
-	}
+    public int getBaseTime() {
+        return 90;
+    }
+    
+    @Override
+    public int getDifficulty() {
+        return -2;
+    }
 
-	@Override
-	public String checkFixable() {
-		return null;
-	}
+    @Override
+    public String checkFixable() {
+        return null;
+    }
 
-	@Override
-	public Part getNewPart() {
-		return new AeroHeatSink(type, campaign);
-	}
+    @Override
+    public Part getNewPart() {
+        return new AeroHeatSink(type, campaign);
+    }
 
-	@Override
-	public boolean isAcceptableReplacement(Part part, boolean refit) {
-		return part instanceof AeroHeatSink && type == ((AeroHeatSink)part).getType();
-	}
+    @Override
+    public boolean isAcceptableReplacement(Part part, boolean refit) {
+        return part instanceof AeroHeatSink && type == ((AeroHeatSink)part).getType();
+    }
 
-	@Override
-	public double getTonnage() {
-		return 1;
-	}
+    @Override
+    public double getTonnage() {
+        return 1;
+    }
 
-	@Override
-	public int getTechRating() {
-		if(type == Aero.HEAT_DOUBLE) {
-			return EquipmentType.RATING_D;
-		} else {
-			return EquipmentType.RATING_E;
-		}
-	}
+    @Override
+    public int getTechRating() {
+        if(type == Aero.HEAT_DOUBLE) {
+            return EquipmentType.RATING_D;
+        } else {
+            return EquipmentType.RATING_E;
+        }
+    }
 
-	@Override
-	public int getAvailability(int era) {
-		if(type == Aero.HEAT_DOUBLE) {
-		if(era == EquipmentType.ERA_SL) {
-			return EquipmentType.RATING_C;
-		} else if(era == EquipmentType.ERA_SW) {
-			return EquipmentType.RATING_E;
-		} else {
-			return EquipmentType.RATING_D;
-		}
-		} else {
-			return EquipmentType.RATING_B;
-		}
-	}
+    @Override
+    public int getAvailability(int era) {
+        if(type == Aero.HEAT_DOUBLE) {
+        if(era == EquipmentType.ERA_SL) {
+            return EquipmentType.RATING_C;
+        } else if(era == EquipmentType.ERA_SW) {
+            return EquipmentType.RATING_E;
+        } else {
+            return EquipmentType.RATING_D;
+        }
+        } else {
+            return EquipmentType.RATING_B;
+        }
+    }
 
-	@Override
-	public void updateConditionFromPart() {
+    @Override
+    public void updateConditionFromPart() {
         Aero aero = get(Installable.class).getEntity(Aero.class);
-		if(null != aero) {
-			if(hits == 0) {
-			    aero.setHeatSinks(aero.getHeatSinks() - 1);
-			}
-		}
-	}
+        if(null != aero) {
+            if(hits == 0) {
+                aero.setHeatSinks(aero.getHeatSinks() - 1);
+            }
+        }
+    }
 
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		//nothing to load
-	}
+    @Override
+    protected void loadFieldsFromXmlNode(Node wn) {
+        //nothing to load
+    }
 
-	@Override
-	public int getIntroDate() {
-		if(type == Aero.HEAT_DOUBLE) {
-			return 2567;
-		}
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getIntroDate() {
+        if(type == Aero.HEAT_DOUBLE) {
+            return 2567;
+        }
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		//TODO: we should distinguish clan and IS here for extinction purposes
-		/*if(type == Aero.HEAT_DOUBLE) {
-		 * if(!isClan()) {
-				return 2865;
-			}
-		}*/
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getExtinctDate() {
+        //TODO: we should distinguish clan and IS here for extinction purposes
+        /*if(type == Aero.HEAT_DOUBLE) {
+         * if(!isClan()) {
+                return 2865;
+            }
+        }*/
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getReIntroDate() {
-		return 3040;
-	}
+    @Override
+    public int getReIntroDate() {
+        return 3040;
+    }
 }

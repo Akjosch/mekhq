@@ -56,7 +56,7 @@ public class MissingMekLocation extends MissingPart {
         return structureType;
     }
 
-    public MissingMekLocation(int loc, int tonnage, int structureType, boolean hasTSM, boolean quad, Campaign c) {
+    public MissingMekLocation(int loc, double tonnage, int structureType, boolean hasTSM, boolean quad, Campaign c) {
         super(c);
         this.structureType = structureType;
         this.tsm = hasTSM;

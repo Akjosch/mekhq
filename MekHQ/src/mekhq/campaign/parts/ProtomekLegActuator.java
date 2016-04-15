@@ -46,15 +46,17 @@ public class ProtomekLegActuator extends Part {
 
     @Override
     public ProtomekLegActuator clone() {
-        ProtomekLegActuator clone = new ProtomekLegActuator(getUnitTonnage(), campaign);
+        ProtomekLegActuator clone = new ProtomekLegActuator(get(Installable.class).getUnitTonnage(), campaign);
         clone.copyBaseData(this);
         return clone;
     }
 
 
-    public ProtomekLegActuator(int tonnage, Campaign c) {
-        super(tonnage, c);
+    public ProtomekLegActuator(double tonnage, Campaign c) {
+        super(c);
         this.name = "Protomech Leg Actuator";
+        add(new Installable(tonnage, true));
+        get(Installable.class).setLocations(Protomech.LOC_LEG);
     }
 
     @Override
@@ -66,13 +68,13 @@ public class ProtomekLegActuator extends Part {
 
     @Override
     public long getStickerPrice() {
-        return getUnitTonnage() * 540;
+        return Math.round(get(Installable.class).getUnitTonnage() * 540.0);
     }
 
     @Override
     public boolean isSamePartType (Part part) {
         return part instanceof ProtomekLegActuator
-                && getUnitTonnage() == ((ProtomekLegActuator)part).getUnitTonnage();
+                && get(Installable.class).getUnitTonnage() == part.get(Installable.class).getUnitTonnage();
     }
 
     @Override
@@ -92,6 +94,7 @@ public class ProtomekLegActuator extends Part {
     @Override
     public void fix() {
         super.fix();
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             unit.repairSystem(CriticalSlot.TYPE_SYSTEM, Protomech.SYSTEM_LEGCRIT, Protomech.LOC_LEG);
         }
@@ -109,7 +112,7 @@ public class ProtomekLegActuator extends Part {
 
     @Override
     public MissingPart getMissingPart() {
-        return new MissingProtomekLegActuator(getUnitTonnage(), campaign);
+        return new MissingProtomekLegActuator(get(Installable.class).getUnitTonnage(), campaign);
     }
 
     @Override
@@ -136,6 +139,7 @@ public class ProtomekLegActuator extends Part {
 
     @Override
     public void updateConditionFromEntity(boolean checkForDestruction) {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
         	int priorHits = hits;
             hits = unit.getEntity().getDamagedCriticals(CriticalSlot.TYPE_SYSTEM, Protomech.SYSTEM_LEGCRIT, Protomech.LOC_LEG);
@@ -188,14 +192,16 @@ public class ProtomekLegActuator extends Part {
 
     @Override
     public String getDetails() {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             return unit.getEntity().getLocationName(Protomech.LOC_LEG);
         }
-        return getUnitTonnage() + " tons";
+        return get(Installable.class).getUnitTonnage() + " tons";
     }
 
     @Override
     public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             if(hits > 0) {
                 unit.damageSystem(CriticalSlot.TYPE_SYSTEM, Protomech.SYSTEM_LEGCRIT, Protomech.LOC_LEG, hits);
@@ -224,11 +230,6 @@ public class ProtomekLegActuator extends Part {
     }
 
     @Override
-    public boolean isMountedOnDestroyedLocation() {
-        return null != unit && unit.isLocationDestroyed(Protomech.LOC_LEG);
-    }
-
-    @Override
     public boolean onBadHipOrShoulder() {
         return false;
     }
@@ -253,11 +254,6 @@ public class ProtomekLegActuator extends Part {
         // TODO Auto-generated method stub
 
     }
-
-	@Override
-	public int getLocation() {
-		return Protomech.LOC_LEG;
-	}
 
 	@Override
 	public int getIntroDate() {

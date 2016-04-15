@@ -51,7 +51,7 @@ public class ProtomekJumpJet extends Part {
     }
 
 
-    public ProtomekJumpJet(int tonnage, Campaign c) {
+    public ProtomekJumpJet(double tonnage, Campaign c) {
         super(c);
         this.name = "Protomech Jump Jet"; //$NON-NLS-1$
         add(new Installable(tonnage, true));
@@ -242,12 +242,6 @@ public class ProtomekJumpJet extends Part {
             return unit.getEntity().getLocationName(Protomech.LOC_TORSO) + " is destroyed.";
         }
         return null;
-    }
-
-    @Override
-    public boolean isMountedOnDestroyedLocation() {
-        Unit unit = get(Installable.class).getUnit();
-        return null != unit && unit.isLocationDestroyed(Protomech.LOC_TORSO);
     }
 
     @Override

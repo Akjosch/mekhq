@@ -46,7 +46,6 @@ import mekhq.campaign.work.Modes;
 public class ProtomekLocation extends Part {
     private static final long serialVersionUID = -122291037522319765L;
     //some of these aren't used but may be later for advanced designs (i.e. WoR)
-    protected int loc;
     protected int structureType;
     protected boolean booster;
     double percent;
@@ -62,9 +61,8 @@ public class ProtomekLocation extends Part {
         this(0, 0, 0, false, false, null);
     }
 
-    public ProtomekLocation(int loc, int tonnage, int structureType, boolean hasBooster, boolean quad, Campaign c) {
-        super(tonnage, c);
-        this.loc = loc;
+    public ProtomekLocation(int loc, double tonnage, int structureType, boolean hasBooster, boolean quad, Campaign c) {
+        super(c);
         this.structureType = structureType;
         this.booster = hasBooster;
         this.percent = 1.0;
@@ -72,45 +70,44 @@ public class ProtomekLocation extends Part {
         this.breached = false;
         this.name = "Protomech Location";
         switch(loc) {
-        case(Protomech.LOC_HEAD):
-            this.name = "Protomech Head";
-            break;
-        case(Protomech.LOC_TORSO):
-            this.name = "Protomech Torso";
-            break;
-        case(Protomech.LOC_LARM):
-            this.name = "Protomech Left Arm";
-            break;
-        case(Protomech.LOC_RARM):
-            this.name = "Protomech Right Arm";
-            break;
-        case(Protomech.LOC_LEG):
-            this.name = "Protomech Legs";
-            if(forQuad) {
-                this.name = "Protomech Legs (Quad)";
-            }
-            break;
-        case(Protomech.LOC_MAINGUN):
-            this.name = "Protomech Main Gun";
-            break;
+            case(Protomech.LOC_HEAD):
+                this.name = "Protomech Head";
+                break;
+            case(Protomech.LOC_TORSO):
+                this.name = "Protomech Torso";
+                break;
+            case(Protomech.LOC_LARM):
+                this.name = "Protomech Left Arm";
+                break;
+            case(Protomech.LOC_RARM):
+                this.name = "Protomech Right Arm";
+                break;
+            case(Protomech.LOC_LEG):
+                this.name = "Protomech Legs";
+                if(forQuad) {
+                    this.name = "Protomech Legs (Quad)";
+                }
+                break;
+            case(Protomech.LOC_MAINGUN):
+                this.name = "Protomech Main Gun";
+                break;
         }
         if(booster) {
             this.name += " (Myomer Booster)";
         }
+        add(new Installable(tonnage, true));
+        get(Installable.class).setLocations(loc);
     }
 
     @Override
     public ProtomekLocation clone() {
-        ProtomekLocation clone = new ProtomekLocation(loc, getUnitTonnage(), structureType, booster, forQuad, campaign);
+        ProtomekLocation clone = new ProtomekLocation(get(Installable.class).getMainLocation(), get(Installable.class).getUnitTonnage(),
+            structureType, booster, forQuad, campaign);
         clone.copyBaseData(this);
         clone.percent = this.percent;
         clone.breached = this.breached;
         clone.blownOff = this.blownOff;
         return clone;
-    }
-
-    public int getLoc() {
-        return loc;
     }
 
     public boolean hasBooster() {
@@ -135,17 +132,17 @@ public class ProtomekLocation extends Part {
         if(null != unit) {
             nloc = unit.getEntity().locations();
         }
-        double totalStructureCost = 2400 * getUnitTonnage();
+        double totalStructureCost = 2400 * get(Installable.class).getUnitTonnage();
         if(booster) {
             if(null != unit) {
                 totalStructureCost += Math.round(unit.getEntity().getEngine().getRating() * 1000 * unit.getEntity().getWeight() * 0.025f);
             } else {
                 //FIXME: uggh different costs by engine rating and weight, use a fake rating
-                totalStructureCost += Math.round(75000 * getUnitTonnage() * 0.025f);
+                totalStructureCost += Math.round(75000 * get(Installable.class).getUnitTonnage() * 0.025f);
             }
         }
         double cost = totalStructureCost/nloc;
-        if (loc == Protomech.LOC_TORSO) {
+        if (get(Installable.class).getMainLocation() == Protomech.LOC_TORSO) {
             cost += 575000;
         }
         return (long) Math.round(cost);
@@ -158,15 +155,15 @@ public class ProtomekLocation extends Part {
     @Override
     public boolean isSamePartType(Part part) {
         return part instanceof ProtomekLocation
-                && getLoc() == ((ProtomekLocation)part).getLoc()
-                && getUnitTonnage() == ((ProtomekLocation)part).getUnitTonnage()
+                && get(Installable.class).getMainLocation() == part.get(Installable.class).getMainLocation()
+                && get(Installable.class).getUnitTonnage() == part.get(Installable.class).getUnitTonnage()
                 && hasBooster() == ((ProtomekLocation)part).hasBooster()
                 && (!isLegs() || forQuad == ((ProtomekLocation)part).forQuad);
                // && getStructureType() == ((ProtomekLocation) part).getStructureType();
     }
 
     private boolean isLegs() {
-        return loc == Protomech.LOC_LEG;
+        return get(Installable.class).getMainLocation() == Protomech.LOC_LEG;
     }
 
     @Override
@@ -186,7 +183,7 @@ public class ProtomekLocation extends Part {
             Node wn2 = nl.item(x);
 
             if (wn2.getNodeName().equalsIgnoreCase("loc")) {
-                loc = Integer.parseInt(wn2.getTextContent());
+                get(Installable.class).setLocations(Integer.parseInt(wn2.getTextContent()));
             } else if (wn2.getNodeName().equalsIgnoreCase("structureType")) {
                 structureType = Integer.parseInt(wn2.getTextContent());
             } else if (wn2.getNodeName().equalsIgnoreCase("percent")) {
@@ -238,6 +235,7 @@ public class ProtomekLocation extends Part {
     public void fix() {
         super.fix();
         Unit unit = get(Installable.class).getUnit();
+        int loc = get(Installable.class).getMainLocation();
         if(isBlownOff()) {
             blownOff = false;
             unit.getEntity().setLocationBlownOff(loc, false);
@@ -278,13 +276,15 @@ public class ProtomekLocation extends Part {
 
     @Override
     public MissingPart getMissingPart() {
-        return new MissingProtomekLocation(loc, getUnitTonnage(), structureType, booster, forQuad, campaign);
+        return new MissingProtomekLocation(get(Installable.class).getMainLocation(), get(Installable.class).getUnitTonnage(),
+            structureType, booster, forQuad, campaign);
     }
 
     @Override
     public void remove(boolean salvage) {
         blownOff = false;
         Unit unit = get(Installable.class).getUnit();
+        int loc = get(Installable.class).getMainLocation();
         if(null != unit) {
             unit.getEntity().setInternal(IArmorState.ARMOR_DESTROYED, loc);
             unit.getEntity().setLocationBlownOff(loc, false);
@@ -332,6 +332,7 @@ public class ProtomekLocation extends Part {
     @Override
     public void updateConditionFromEntity(boolean checkForDestruction) {
         Unit unit = get(Installable.class).getUnit();
+        int loc = get(Installable.class).getMainLocation();
         if(null != unit) {
             blownOff = unit.getEntity().isLocationBlownOff(loc);
             breached = unit.isLocationBreached(loc);
@@ -344,52 +345,52 @@ public class ProtomekLocation extends Part {
     }
 
     @Override
-	public int getBaseTime() {
-		if(isSalvaging()) {
-			if(blownOff) {
-				return 0;
-			}
-			return 240;
-		}
-		if(blownOff) {
-			return 200;
-		}
-		if(breached) {
-			return 60;
-		}
-		if (percent < 0.25) {
-			return 270;
-		} else if (percent < 0.5) {
-			return 180;
-		} else if (percent < 0.75) {
-			return 135;
-		}
-		return 90;
-	}
+    public int getBaseTime() {
+        if(isSalvaging()) {
+            if(blownOff) {
+                return 0;
+            }
+            return 240;
+        }
+        if(blownOff) {
+            return 200;
+        }
+        if(breached) {
+            return 60;
+        }
+        if (percent < 0.25) {
+            return 270;
+        } else if (percent < 0.5) {
+            return 180;
+        } else if (percent < 0.75) {
+            return 135;
+        }
+        return 90;
+    }
 
     @Override
-	public int getDifficulty() {
-		if(isSalvaging()) {
-			if(isBlownOff()) {
-				return 0;
-			}
-			return 3;
-		}
-		if(blownOff) {
-			return 1;
-		}
-		if(breached) {
-			return 0;
-		}
-		if (percent < 0.25) {
-			return 2;
-		} else if (percent < 0.5) {
-			return 1;
-		} else if (percent < 0.75) {
-			return 0;
-		}
-		return -1;
-	}
+    public int getDifficulty() {
+        if(isSalvaging()) {
+            if(isBlownOff()) {
+                return 0;
+            }
+            return 3;
+        }
+        if(blownOff) {
+            return 1;
+        }
+        if(breached) {
+            return 0;
+        }
+        if (percent < 0.25) {
+            return 2;
+        } else if (percent < 0.5) {
+            return 1;
+        } else if (percent < 0.75) {
+            return 0;
+        }
+        return -1;
+    }
 
     public boolean isBreached() {
         return breached;
@@ -409,7 +410,7 @@ public class ProtomekLocation extends Part {
         String toReturn = "";
         Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
-            toReturn = unit.getEntity().getLocationName(loc);
+            toReturn = unit.getEntity().getLocationName(get(Installable.class).getMainLocation());
             if(isBlownOff()) {
                 toReturn += " (Blown Off)";
             } else if(isBreached()) {
@@ -419,36 +420,37 @@ public class ProtomekLocation extends Part {
             }
             return toReturn;
         }
-        toReturn += getUnitTonnage() + " tons" + " (" + Math.round(100*percent) + "%)";
+        toReturn += get(Installable.class).getUnitTonnage() + " tons" + " (" + Math.round(100*percent) + "%)";
         return toReturn;
     }
 
     private int getAppropriateSystemIndex() {
-    	switch(loc) {
-    	case(Protomech.LOC_LEG):
-    		return Protomech.SYSTEM_LEGCRIT;
-    	case(Protomech.LOC_LARM):
-    	case(Protomech.LOC_RARM):
-    		return Protomech.SYSTEM_ARMCRIT;
-    	case(Protomech.LOC_HEAD):
-    		return Protomech.SYSTEM_HEADCRIT;
-    	case(Protomech.LOC_TORSO):
-    		return Protomech.SYSTEM_TORSOCRIT;
-    	default:
-    		return -1;
-    	}
+        switch(get(Installable.class).getMainLocation()) {
+            case(Protomech.LOC_LEG):
+                return Protomech.SYSTEM_LEGCRIT;
+            case(Protomech.LOC_LARM):
+            case(Protomech.LOC_RARM):
+                return Protomech.SYSTEM_ARMCRIT;
+            case(Protomech.LOC_HEAD):
+                return Protomech.SYSTEM_HEADCRIT;
+            case(Protomech.LOC_TORSO):
+                return Protomech.SYSTEM_TORSOCRIT;
+            default:
+                return -1;
+        }
     }
 
     @Override
     public void updateConditionFromPart() {
         Unit unit = get(Installable.class).getUnit();
+        int loc = get(Installable.class).getMainLocation();
         if(null != unit) {
             unit.getEntity().setInternal((int)Math.round(percent * unit.getEntity().getOInternal(loc)), loc);
             //if all the system crits are marked off on the entity in this location, then we need to
             //fix one of them, because the last crit on protomechs is always location destruction
             int systemIndx = getAppropriateSystemIndex();
             if(loc != -1 && unit.getEntity().getGoodCriticals(CriticalSlot.TYPE_SYSTEM, systemIndx, loc) <= 0) {
-            	//Because the last crit for protomechs is always location destruction we need to
+                //Because the last crit for protomechs is always location destruction we need to
                 //clear the first system crit we find
                 for (int i = 0; i < unit.getEntity().getNumberOfCriticals(loc); i++) {
                     CriticalSlot slot = unit.getEntity().getCritical(loc, i);
@@ -467,9 +469,10 @@ public class ProtomekLocation extends Part {
     @Override
     public String checkFixable() {
         Unit unit = get(Installable.class).getUnit();
-    	if(null == unit) {
-    		return null;
-    	}
+        if(null == unit) {
+            return null;
+        }
+        int loc = get(Installable.class).getMainLocation();
         if(isSalvaging()) {
             //check for armor
             if(unit.getEntity().getArmorForReal(loc, false) > 0
@@ -513,7 +516,7 @@ public class ProtomekLocation extends Part {
     @Override
     public boolean isSalvaging() {
         //cant salvage a center torso
-        if(loc ==  Protomech.LOC_TORSO) {
+        if(get(Installable.class).getMainLocation() ==  Protomech.LOC_TORSO) {
             return false;
         }
         return super.isSalvaging();
@@ -521,12 +524,13 @@ public class ProtomekLocation extends Part {
 
     @Override
     public String checkScrappable() {
+        Unit unit = get(Installable.class).getUnit();
+        int loc = get(Installable.class).getMainLocation();
         //cant scrap a center torso
         if(loc ==  Protomech.LOC_TORSO) {
             return "Protomech's Torso cannot be scrapped";
         }
         //check for armor
-        Unit unit = get(Installable.class).getUnit();
         if(unit.getEntity().getArmor(loc, false) > 0
                 || (unit.getEntity().hasRearArmor(loc) && unit.getEntity().getArmor(loc, true) > 0 )) {
             return "You must first remove the armor from this location before you scrap it";
@@ -628,29 +632,26 @@ public class ProtomekLocation extends Part {
 
     @Override
     public void doMaintenanceDamage(int d) {
+        Unit unit = get(Installable.class).getUnit();
+        int loc = get(Installable.class).getMainLocation();
         int points = unit.getEntity().getInternal(loc);
         points = Math.max(points -d, 1);
         unit.getEntity().setInternal(points, loc);
         updateConditionFromEntity(false);
     }
 
-	@Override
-	public int getLocation() {
-		return loc;
-	}
+    @Override
+    public int getIntroDate() {
+        return 3055;
+    }
 
-	@Override
-	public int getIntroDate() {
-		return 3055;
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
-
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 }

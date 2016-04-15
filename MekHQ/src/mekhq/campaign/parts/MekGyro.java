@@ -41,13 +41,13 @@ import mekhq.campaign.unit.Unit;
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class MekGyro extends Part {
-	private static final long serialVersionUID = 3420475726506139139L;
-	protected int type;
-	protected double gyroTonnage;
-	protected boolean isClan = false;
+    private static final long serialVersionUID = 3420475726506139139L;
+    protected int type;
+    protected double gyroTonnage;
+    protected boolean isClan = false;
 
     public MekGyro() {
-    	this(0, 0, 0, false, null);
+        this(0, 0, 0, false, null);
     }
 
     public MekGyro(int tonnage, int type, int walkMP, boolean isClan, Campaign c) {
@@ -57,19 +57,20 @@ public class MekGyro extends Part {
 
     public MekGyro(double tonnage, int type, double gyroTonnage, boolean isClan,
             Campaign c) {
-    	super(c);
+        super(c);
         this.type = type;
         this.name = Mech.getGyroTypeString(type);
         this.gyroTonnage = gyroTonnage;
         this.isClan = isClan;
         add(new Installable(tonnage, true));
+        get(Installable.class).setLocations(Mech.LOC_CT);
     }
 
     @Override
     public MekGyro clone() {
-    	MekGyro clone = new MekGyro(getUnitTonnage(), type, gyroTonnage, isClan, campaign);
+        MekGyro clone = new MekGyro(get(Installable.class).getUnitTonnage(), type, gyroTonnage, isClan, campaign);
         clone.copyBaseData(this);
-    	return clone;
+        return clone;
     }
 
     public int getType() {
@@ -77,17 +78,17 @@ public class MekGyro extends Part {
     }
 
     public static int getGyroBaseTonnage(int walkMP, int unitTonnage) {
-    	return (int) Math.ceil(walkMP * unitTonnage / 100f);
+        return (int) Math.ceil(walkMP * unitTonnage / 100f);
     }
 
     public static double getGyroTonnage(int walkMP, int gyroType, int unitTonnage) {
-    	int gyroBaseTonnage = MekGyro.getGyroBaseTonnage(walkMP, unitTonnage);
+        int gyroBaseTonnage = MekGyro.getGyroBaseTonnage(walkMP, unitTonnage);
         if (gyroType == Mech.GYRO_XL) {
             return gyroBaseTonnage * 0.5;
         } else if (gyroType == Mech.GYRO_COMPACT) {
-        	return gyroBaseTonnage * 1.5;
+            return gyroBaseTonnage * 1.5;
         } else if (gyroType == Mech.GYRO_HEAVY_DUTY) {
-        	return gyroBaseTonnage * 2;
+            return gyroBaseTonnage * 2;
         }
 
         return gyroBaseTonnage;
@@ -95,7 +96,7 @@ public class MekGyro extends Part {
 
     @Override
     public double getTonnage() {
-    	return gyroTonnage;
+        return gyroTonnage;
     }
 
     @Override
@@ -122,179 +123,180 @@ public class MekGyro extends Part {
                 && getTonnage() == ((MekGyro) part).getTonnage();
     }
 
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		NodeList nl = wn.getChildNodes();
+    @Override
+    protected void loadFieldsFromXmlNode(Node wn) {
+        NodeList nl = wn.getChildNodes();
 
-		int walkMP = -1;
-		int uTonnage = 0;
-		for (int x=0; x<nl.getLength(); x++) {
-			Node wn2 = nl.item(x);
+        int walkMP = -1;
+        int uTonnage = 0;
+        for (int x=0; x<nl.getLength(); x++) {
+            Node wn2 = nl.item(x);
 
-			if (wn2.getNodeName().equalsIgnoreCase("type")) {
-				type = Integer.parseInt(wn2.getTextContent());
-			} else if (wn2.getNodeName().equalsIgnoreCase("gyroTonnage")) {
-				gyroTonnage = Double.parseDouble(wn2.getTextContent());
-			} else if (wn2.getNodeName().equalsIgnoreCase("walkMP")) {
-				walkMP = Integer.parseInt(wn2.getTextContent());
-			} else if(wn2.getNodeName().equalsIgnoreCase("unitTonnage")) {
-				uTonnage = Integer.parseInt(wn2.getTextContent());
-			}
-		}
-		if(gyroTonnage == 0) {
-			//need to calculate gyroTonnage for reverse compatability
-	        gyroTonnage = MekGyro.getGyroTonnage(walkMP, type, uTonnage);
-		}
-	}
+            if (wn2.getNodeName().equalsIgnoreCase("type")) {
+                type = Integer.parseInt(wn2.getTextContent());
+            } else if (wn2.getNodeName().equalsIgnoreCase("gyroTonnage")) {
+                gyroTonnage = Double.parseDouble(wn2.getTextContent());
+            } else if (wn2.getNodeName().equalsIgnoreCase("walkMP")) {
+                walkMP = Integer.parseInt(wn2.getTextContent());
+            } else if(wn2.getNodeName().equalsIgnoreCase("unitTonnage")) {
+                uTonnage = Integer.parseInt(wn2.getTextContent());
+            }
+        }
+        if(gyroTonnage == 0) {
+            //need to calculate gyroTonnage for reverse compatability
+            gyroTonnage = MekGyro.getGyroTonnage(walkMP, type, uTonnage);
+        }
+    }
 
-	@Override
-	public int getAvailability(int era) {
-		switch(type) {
-		case Mech.GYRO_COMPACT:
-		case Mech.GYRO_HEAVY_DUTY:
-		case Mech.GYRO_XL:
-			if(era == EquipmentType.ERA_SL) {
-				return EquipmentType.RATING_X;
-			} else if(era == EquipmentType.ERA_SW) {
-				return EquipmentType.RATING_X;
-			} else {
-				return EquipmentType.RATING_E;
-			}
-		default:
-			return EquipmentType.RATING_C;
-		}
-	}
+    @Override
+    public int getAvailability(int era) {
+        switch(type) {
+        case Mech.GYRO_COMPACT:
+        case Mech.GYRO_HEAVY_DUTY:
+        case Mech.GYRO_XL:
+            if(era == EquipmentType.ERA_SL) {
+                return EquipmentType.RATING_X;
+            } else if(era == EquipmentType.ERA_SW) {
+                return EquipmentType.RATING_X;
+            } else {
+                return EquipmentType.RATING_E;
+            }
+        default:
+            return EquipmentType.RATING_C;
+        }
+    }
 
-	@Override
-	public int getTechRating() {
-		switch(type) {
-		case Mech.GYRO_COMPACT:
-		case Mech.GYRO_HEAVY_DUTY:
-		case Mech.GYRO_XL:
-			return EquipmentType.RATING_E;
-		default:
-			return EquipmentType.RATING_D;
-		}
-	}
+    @Override
+    public int getTechRating() {
+        switch(type) {
+        case Mech.GYRO_COMPACT:
+        case Mech.GYRO_HEAVY_DUTY:
+        case Mech.GYRO_XL:
+            return EquipmentType.RATING_E;
+        default:
+            return EquipmentType.RATING_D;
+        }
+    }
 
-	@Override
-	public int getTechLevel() {
-	    int year  = campaign.getCalendar().get(GregorianCalendar.YEAR);
-	    return TechConstants.getGyroTechLevel(type, isClan, year);
-	}
+    @Override
+    public int getTechLevel() {
+        int year  = campaign.getCalendar().get(GregorianCalendar.YEAR);
+        return TechConstants.getGyroTechLevel(type, isClan, year);
+    }
 
-	@Override
-	public void fix() {
-		super.fix();
-		if(null != unit) {
-			unit.repairSystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_GYRO, Mech.LOC_CT);
-		}
-
-	}
-
-	@Override
-	public MissingPart getMissingPart() {
-		return new MissingMekGyro(getUnitTonnage(), getType(), getTonnage(), isClan, campaign);
-	}
-
-	@Override
-	public void remove(boolean salvage) {
+    @Override
+    public void fix() {
+        super.fix();
         Unit unit = get(Installable.class).getUnit();
-		if(null != unit) {
-			unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_GYRO, Mech.LOC_CT);
-			Part spare = campaign.checkForExistingSparePart(this);
-			if(!salvage) {
-				campaign.removePart(this);
-			} else if(null != spare) {
-				spare.incrementQuantity();
-				campaign.removePart(this);
-			}
-			unit.removePart(this);
-			Part missing = getMissingPart();
-			unit.addPart(missing);
-			campaign.addPart(missing, 0);
-		}
-		get(Installable.class).setUnit(null);
-		updateConditionFromEntity(false);
-	}
+        if(null != unit) {
+            unit.repairSystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_GYRO, Mech.LOC_CT);
+        }
 
-	@Override
-	public void updateConditionFromEntity(boolean checkForDestruction) {
+    }
+
+    @Override
+    public MissingPart getMissingPart() {
+        return new MissingMekGyro(get(Installable.class).getUnitTonnage(), getType(), getTonnage(), isClan, campaign);
+    }
+
+    @Override
+    public void remove(boolean salvage) {
         Unit unit = get(Installable.class).getUnit();
-		if(null != unit) {
-			int priorHits = hits;
-			hits = unit.getEntity().getDamagedCriticals(CriticalSlot.TYPE_SYSTEM,Mech.SYSTEM_GYRO, Mech.LOC_CT);
-			if(checkForDestruction
-					&& hits > priorHits && hits >= 3
-					&& Compute.d6(2) < campaign.getCampaignOptions().getDestroyPartTarget()) {
-				remove(false);
-				return;
-			}
-		}
-	}
+        if(null != unit) {
+            unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_GYRO, Mech.LOC_CT);
+            Part spare = campaign.checkForExistingSparePart(this);
+            if(!salvage) {
+                campaign.removePart(this);
+            } else if(null != spare) {
+                spare.incrementQuantity();
+                campaign.removePart(this);
+            }
+            unit.removePart(this);
+            Part missing = getMissingPart();
+            unit.addPart(missing);
+            campaign.addPart(missing, 0);
+        }
+        get(Installable.class).setUnit(null);
+        updateConditionFromEntity(false);
+    }
 
-	@Override
-	public int getBaseTime() {
-		if(isSalvaging()) {
-			return 200;
-		}
-		if(hits >= 2) {
-			return 240;
-		}
-		return 120;
-	}
-
-	@Override
-	public int getDifficulty() {
-		if(isSalvaging()) {
-			return 0;
-		}
-		if(hits >= 2) {
-			return 4;
-		}
-		return 1;
-	}
-
-	@Override
-	public boolean needsFixing() {
-		return hits > 0;
-	}
-
-	@Override
-	public void updateConditionFromPart() {
+    @Override
+    public void updateConditionFromEntity(boolean checkForDestruction) {
         Unit unit = get(Installable.class).getUnit();
-		if(null != unit) {
-			if(hits == 0) {
-				unit.repairSystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_GYRO, Mech.LOC_CT);
-			} else {
-				unit.damageSystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_GYRO, hits);
-			}
-		}
-	}
+        if(null != unit) {
+            int priorHits = hits;
+            hits = unit.getEntity().getDamagedCriticals(CriticalSlot.TYPE_SYSTEM,Mech.SYSTEM_GYRO, Mech.LOC_CT);
+            if(checkForDestruction
+                    && hits > priorHits && hits >= 3
+                    && Compute.d6(2) < campaign.getCampaignOptions().getDestroyPartTarget()) {
+                remove(false);
+                return;
+            }
+        }
+    }
 
-	@Override
-	public String checkFixable() {
+    @Override
+    public int getBaseTime() {
+        if(isSalvaging()) {
+            return 200;
+        }
+        if(hits >= 2) {
+            return 240;
+        }
+        return 120;
+    }
+
+    @Override
+    public int getDifficulty() {
+        if(isSalvaging()) {
+            return 0;
+        }
+        if(hits >= 2) {
+            return 4;
+        }
+        return 1;
+    }
+
+    @Override
+    public boolean needsFixing() {
+        return hits > 0;
+    }
+
+    @Override
+    public void updateConditionFromPart() {
         Unit unit = get(Installable.class).getUnit();
-		if(null == unit) {
-			return null;
-		}
-		if(!isSalvaging() && unit.isLocationBreached(Mech.LOC_CT)) {
-    		return unit.getEntity().getLocationName(Mech.LOC_CT) + " is breached.";
-		}
-		return null;
-	}
+        if(null != unit) {
+            if(hits == 0) {
+                unit.repairSystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_GYRO, Mech.LOC_CT);
+            } else {
+                unit.damageSystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_GYRO, hits);
+            }
+        }
+    }
 
-	@Override
-	public boolean isPartForEquipmentNum(int index, int loc) {
-		return Mech.SYSTEM_GYRO == index;
-	}
+    @Override
+    public String checkFixable() {
+        Unit unit = get(Installable.class).getUnit();
+        if(null == unit) {
+            return null;
+        }
+        if(!isSalvaging() && unit.isLocationBreached(Mech.LOC_CT)) {
+            return unit.getEntity().getLocationName(Mech.LOC_CT) + " is breached.";
+        }
+        return null;
+    }
 
-	 @Override
-	 public boolean isRightTechType(String skillType) {
-		 return skillType.equals(SkillType.S_TECH_MECH);
-	 }
+    @Override
+    public boolean isPartForEquipmentNum(int index, int loc) {
+        return Mech.SYSTEM_GYRO == index;
+    }
 
-	public static final int GYRO_STANDARD = Mech.GYRO_STANDARD;
+     @Override
+     public boolean isRightTechType(String skillType) {
+         return skillType.equals(SkillType.S_TECH_MECH);
+     }
+
+    public static final int GYRO_STANDARD = Mech.GYRO_STANDARD;
 
     public static final int GYRO_XL = Mech.GYRO_XL;
 
@@ -303,31 +305,26 @@ public class MekGyro extends Part {
     public static final int GYRO_HEAVY_DUTY = Mech.GYRO_HEAVY_DUTY;
 
 
-	@Override
-	public int getLocation() {
-		return Mech.LOC_CT;
-	}
+    @Override
+    public int getIntroDate() {
+        switch(type) {
+        case Mech.GYRO_COMPACT:
+            return 3068;
+        case Mech.GYRO_HEAVY_DUTY:
+        case Mech.GYRO_XL:
+            return 3067;
+        default:
+            return EquipmentType.DATE_NONE;
+        }
+    }
 
-	@Override
-	public int getIntroDate() {
-		switch(type) {
-		case Mech.GYRO_COMPACT:
-			return 3068;
-		case Mech.GYRO_HEAVY_DUTY:
-		case Mech.GYRO_XL:
-			return 3067;
-		default:
-			return EquipmentType.DATE_NONE;
-		}
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
-
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 }

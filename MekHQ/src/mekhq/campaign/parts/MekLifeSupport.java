@@ -39,250 +39,218 @@ import mekhq.campaign.unit.Unit;
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class MekLifeSupport extends Part {
-	private static final long serialVersionUID = -1989526319692474127L;
+    private static final long serialVersionUID = -1989526319692474127L;
 
-	public MekLifeSupport() {
-		this(null);
-	}
-	
-	public MekLifeSupport(Campaign c) {
+    private boolean torsoMounted;
+
+    public MekLifeSupport() {
+        this(false, null);
+    }
+    
+    public MekLifeSupport(boolean torsoMounted, Campaign c) {
         super(c);
         this.name = "Mech Life Support System";
+        this.torsoMounted = torsoMounted;
         add(new Installable());
+        if(torsoMounted) {
+            get(Installable.class).setLocations(Mech.LOC_LT, Mech.LOC_RT);
+        } else {
+            get(Installable.class).setLocations(Mech.LOC_HEAD);
+        }
     }
-	
-	@Override
+    
+    @Override
     public MekLifeSupport clone() {
-		MekLifeSupport clone = new MekLifeSupport(campaign);
+        MekLifeSupport clone = new MekLifeSupport(torsoMounted, campaign);
         clone.copyBaseData(this);
-		return clone;
-	}
-	
-	@Override
-	public double getTonnage() {
-		//TODO: what should this tonnage be?
-		return 0;
-	}
-	
-	@Override
-	public long getStickerPrice() {
-		return 50000;
-	}
+        return clone;
+    }
+    
+    @Override
+    public double getTonnage() {
+        //TODO: what should this tonnage be?
+        return 0;
+    }
+    
+    @Override
+    public long getStickerPrice() {
+        return 50000;
+    }
 
     @Override
     public boolean isSamePartType(Part part) {
         return part instanceof MekLifeSupport;
     }
 
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		// Do nothing - no fields to load.
-	}
+    @Override
+    protected void loadFieldsFromXmlNode(Node wn) {
+        // Do nothing - no fields to load.
+    }
 
-	@Override
-	public int getAvailability(int era) {
-		return EquipmentType.RATING_C;
-	}
+    @Override
+    public int getAvailability(int era) {
+        return EquipmentType.RATING_C;
+    }
 
-	@Override
-	public int getTechRating() {
-		return EquipmentType.RATING_C;
-	}
+    @Override
+    public int getTechRating() {
+        return EquipmentType.RATING_C;
+    }
 
-	@Override
-	public int getTechLevel() {
-		return TechConstants.T_ALLOWED_ALL;
-	}
-	
-	@Override
-	public void fix() {
-		super.fix();
-		Unit unit = get(Installable.class).getUnit();
-		if(null != unit) {
-			unit.repairSystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT);
-		}
-	}
-
-	@Override
-	public MissingPart getMissingPart() {
-		return new MissingMekLifeSupport(campaign);
-	}
-
-	@Override
-	public void remove(boolean salvage) {
+    @Override
+    public int getTechLevel() {
+        return TechConstants.T_ALLOWED_ALL;
+    }
+    
+    @Override
+    public void fix() {
+        super.fix();
         Unit unit = get(Installable.class).getUnit();
-		if(null != unit) {
-			unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT);
-			Part spare = campaign.checkForExistingSparePart(this);
-			if(!salvage) {
-				campaign.removePart(this);
-			} else if(null != spare) {
-				spare.incrementQuantity();
-				campaign.removePart(this);
-			}
-			unit.removePart(this);
-			Part missing = getMissingPart();
-			unit.addPart(missing);
-			campaign.addPart(missing, 0);
-		}
-		get(Installable.class).setUnit(null);
-		updateConditionFromEntity(false);
-	}
+        if(null != unit) {
+            unit.repairSystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT);
+        }
+    }
 
-	@Override
-	public void updateConditionFromEntity(boolean checkForDestruction) {
-        Unit unit = get(Installable.class).getUnit();
-		if(null != unit) {
-			int priorHits = hits;
-			Entity entity = unit.getEntity();
-			for (int i = 0; i < entity.locations(); i++) {
-				if (entity.getNumberOfCriticals(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT, i) > 0) {
-					if (!unit.isSystemMissing(Mech.SYSTEM_LIFE_SUPPORT, i)) {					
-						hits = entity.getDamagedCriticals(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT, i);	
-						break;
-					} else {
-						remove(false);
-						return;
-					}
-				}
-			}
-			if(checkForDestruction 
-					&& hits > priorHits && hits >= 2
-					&& Compute.d6(2) < campaign.getCampaignOptions().getDestroyPartTarget()) {
-				remove(false);
-				return;
-			}
-		}
-	}
-	
-	@Override 
-	public int getBaseTime() {
-		if(isSalvaging()) {
-			return 180;
-		}
-		if(hits > 1) {
-			return 120;
-		}
-		return 60;
-	}
-	
-	@Override
-	public int getDifficulty() {
-		if(isSalvaging()) {
-			return -1;
-		}
-		if(hits > 1) {
-			return 1;
-		}
-		return 0;
-	}
+    @Override
+    public MissingPart getMissingPart() {
+        return new MissingMekLifeSupport(torsoMounted, campaign);
+    }
 
-	@Override
-	public boolean needsFixing() {
-		return hits > 0;
-	}
-	
-	@Override
-	public void updateConditionFromPart() {
+    @Override
+    public void remove(boolean salvage) {
         Unit unit = get(Installable.class).getUnit();
-		if(null != unit) {
-			if(hits == 0) {
-				unit.repairSystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT);
-			} else {
-				unit.damageSystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT, hits);
-			}
-		}
-	}
-	
-	@Override
+        if(null != unit) {
+            unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT);
+            Part spare = campaign.checkForExistingSparePart(this);
+            if(!salvage) {
+                campaign.removePart(this);
+            } else if(null != spare) {
+                spare.incrementQuantity();
+                campaign.removePart(this);
+            }
+            unit.removePart(this);
+            Part missing = getMissingPart();
+            unit.addPart(missing);
+            campaign.addPart(missing, 0);
+        }
+        get(Installable.class).setUnit(null);
+        updateConditionFromEntity(false);
+    }
+
+    @Override
+    public void updateConditionFromEntity(boolean checkForDestruction) {
+        Unit unit = get(Installable.class).getUnit();
+        if(null != unit) {
+            int priorHits = hits;
+            Entity entity = unit.getEntity();
+            for (int i = 0; i < entity.locations(); i++) {
+                if (entity.getNumberOfCriticals(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT, i) > 0) {
+                    if (!unit.isSystemMissing(Mech.SYSTEM_LIFE_SUPPORT, i)) {                    
+                        hits = entity.getDamagedCriticals(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT, i);    
+                        break;
+                    } else {
+                        remove(false);
+                        return;
+                    }
+                }
+            }
+            if(checkForDestruction 
+                    && hits > priorHits && hits >= 2
+                    && Compute.d6(2) < campaign.getCampaignOptions().getDestroyPartTarget()) {
+                remove(false);
+                return;
+            }
+        }
+    }
+    
+    @Override 
+    public int getBaseTime() {
+        if(isSalvaging()) {
+            return 180;
+        }
+        if(hits > 1) {
+            return 120;
+        }
+        return 60;
+    }
+    
+    @Override
+    public int getDifficulty() {
+        if(isSalvaging()) {
+            return -1;
+        }
+        if(hits > 1) {
+            return 1;
+        }
+        return 0;
+    }
+
+    @Override
+    public boolean needsFixing() {
+        return hits > 0;
+    }
+    
+    @Override
+    public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
+        if(null != unit) {
+            if(hits == 0) {
+                unit.repairSystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT);
+            } else {
+                unit.damageSystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT, hits);
+            }
+        }
+    }
+    
+    @Override
     public String checkFixable() {
         Unit unit = get(Installable.class).getUnit();
-		if(null == unit) {
-			return null;
-		}
-		if(isSalvaging()) {
-			return null;
-		}
+        if(null == unit) {
+            return null;
+        }
+        if(isSalvaging()) {
+            return null;
+        }
         for(int i = 0; i < unit.getEntity().locations(); i++) {
             if(unit.getEntity().getNumberOfCriticals(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT, i) > 0) {
-            	if(unit.isLocationBreached(i)) {
-            		return unit.getEntity().getLocationName(i) + " is breached.";
-            	}
-            	if(unit.isLocationDestroyed(i)) {
-            		return unit.getEntity().getLocationName(i) + " is destroyed.";
-            	}
+                if(unit.isLocationBreached(i)) {
+                    return unit.getEntity().getLocationName(i) + " is breached.";
+                }
+                if(unit.isLocationDestroyed(i)) {
+                    return unit.getEntity().getLocationName(i) + " is destroyed.";
+                }
             }
         }
         return null;
     }
-	
-	@Override
-	public boolean isMountedOnDestroyedLocation() {
-        Unit unit = get(Installable.class).getUnit();
-		if(null == unit) {
-			return false;
-		}
-		for(int i = 0; i < unit.getEntity().locations(); i++) {
-			 if(unit.getEntity().getNumberOfCriticals(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT, i) > 0
-					 && unit.isLocationDestroyed(i)) {
-				 return true;
-			 }
-		 }
-		return false;
-	}
-	
-	@Override
-	public boolean isPartForEquipmentNum(int index, int loc) {
-		return Mech.SYSTEM_LIFE_SUPPORT == index;
-	}
-	
-	@Override
-	public boolean isRightTechType(String skillType) {
-		return skillType.equals(SkillType.S_TECH_MECH);
-	}
-
-	@Override
-	public int getLocation() {
-		if(null != unit) {
-			Entity entity = unit.getEntity();
-			for (int i = 0; i < entity.locations(); i++) {
-				if (entity.getNumberOfCriticals(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT, i) > 0) {
-					return i;
-				}
-			}
-		}
-		return Entity.LOC_NONE;
-	}
-	
-	@Override
-	public int getIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
-
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
-
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
-	
-	@Override
-    public boolean isInLocation(String loc) {
-		 if(null == unit || null == unit.getEntity() || !(unit.getEntity() instanceof Mech)) {
-			 return false;
-		 }
-		 if(((Mech)unit.getEntity()).getCockpitType() == Mech.COCKPIT_TORSO_MOUNTED) {
-			 if(unit.getEntity().getLocationFromAbbr(loc) == Mech.LOC_LT
-					 || unit.getEntity().getLocationFromAbbr(loc) == Mech.LOC_RT) {
-				 return true;
-			 }
-		 } else if (unit.getEntity().getLocationFromAbbr(loc) == Mech.LOC_HEAD) {
-             return true;
-         }
-		 return false;	
+    
+    @Override
+    public boolean isPartForEquipmentNum(int index, int loc) {
+        return Mech.SYSTEM_LIFE_SUPPORT == index;
     }
-	
+    
+    @Override
+    public boolean isRightTechType(String skillType) {
+        return skillType.equals(SkillType.S_TECH_MECH);
+    }
+
+    @Override
+    public int getIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
+
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
+
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
+    
+    public boolean isTorsoMounted() {
+        return torsoMounted;
+    }
+    
 }

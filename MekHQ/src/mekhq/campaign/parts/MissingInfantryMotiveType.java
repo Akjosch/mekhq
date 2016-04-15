@@ -34,122 +34,122 @@ import mekhq.campaign.Campaign;
  */
 public class MissingInfantryMotiveType extends MissingPart {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2454012279066776500L;
-	private EntityMovementMode mode;
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 2454012279066776500L;
+    private EntityMovementMode mode;
 
-	public MissingInfantryMotiveType() {
-    	this(0, null, null);
+    public MissingInfantryMotiveType() {
+        this(0, null, null);
     }
-	
-	public MissingInfantryMotiveType(int tonnage, Campaign c, EntityMovementMode m) {
-		super(tonnage, c);
-		this.mode = m;
-		if(null != mode) {
-			assignName();
-		}
-	}
-	
-	@Override 
-	public int getBaseTime() {
-		return 0;
-	}
-	
-	@Override
-	public int getDifficulty() {
-		return 0;
-	}
-	
-	private void assignName() {
-		switch (mode) {
+    
+    public MissingInfantryMotiveType(double tonnage, Campaign c, EntityMovementMode m) {
+        super(tonnage, c);
+        this.mode = m;
+        if(null != mode) {
+            assignName();
+        }
+    }
+    
+    @Override 
+    public int getBaseTime() {
+        return 0;
+    }
+    
+    @Override
+    public int getDifficulty() {
+        return 0;
+    }
+    
+    private void assignName() {
+        switch (mode) {
         case INF_UMU:
             name = "Scuba Gear";
             break;
         case INF_MOTORIZED:
-        	name = "Motorized Vehicle";
+            name = "Motorized Vehicle";
             break;
         case INF_JUMP:
-        	name = "Jump Pack";
+            name = "Jump Pack";
             break;
         case HOVER:
-        	name = "Hover Infantry Vehicle";
+            name = "Hover Infantry Vehicle";
             break;
         case WHEELED:
-        	name = "Wheeled Infantry Vehicle";
+            name = "Wheeled Infantry Vehicle";
             break;
         case TRACKED:
-        	name = "Tracked Infantry Vehicle";
+            name = "Tracked Infantry Vehicle";
             break;
         default:
-        	name = "Unknown Motive Type";
-		}
-	}
-	
-	@Override
-	public void updateConditionFromPart() {
-		//Do nothing		
-	}
+            name = "Unknown Motive Type";
+        }
+    }
+    
+    @Override
+    public void updateConditionFromPart() {
+        //Do nothing        
+    }
 
-	@Override
-	public String checkFixable() {
-		return null;
-	}
+    @Override
+    public String checkFixable() {
+        return null;
+    }
 
-	@Override
-	public Part getNewPart() {
-		return new InfantryMotiveType(0, campaign, mode);
-	}
+    @Override
+    public Part getNewPart() {
+        return new InfantryMotiveType(0, campaign, mode);
+    }
 
-	@Override
-	public boolean isAcceptableReplacement(Part part, boolean refit) {
-		return part instanceof InfantryMotiveType && mode.equals(((InfantryMotiveType)part).getMovementMode());
-	}
+    @Override
+    public boolean isAcceptableReplacement(Part part, boolean refit) {
+        return part instanceof InfantryMotiveType && mode.equals(((InfantryMotiveType)part).getMovementMode());
+    }
 
-	@Override
-	public double getTonnage() {
-		return 0;
-	}
+    @Override
+    public double getTonnage() {
+        return 0;
+    }
 
-	@Override
-	public int getTechRating() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public int getTechRating() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-	@Override
-	public int getAvailability(int era) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-	
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		NodeList nl = wn.getChildNodes();
-		
-		for (int x=0; x<nl.getLength(); x++) {
-			Node wn2 = nl.item(x);		
-			if (wn2.getNodeName().equalsIgnoreCase("moveMode")) {
-				mode = EntityMovementMode.getMode(wn2.getTextContent());
-				assignName();
-			}
-		}
-	}
+    @Override
+    public int getAvailability(int era) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+    
+    @Override
+    protected void loadFieldsFromXmlNode(Node wn) {
+        NodeList nl = wn.getChildNodes();
+        
+        for (int x=0; x<nl.getLength(); x++) {
+            Node wn2 = nl.item(x);        
+            if (wn2.getNodeName().equalsIgnoreCase("moveMode")) {
+                mode = EntityMovementMode.getMode(wn2.getTextContent());
+                assignName();
+            }
+        }
+    }
 
-	@Override
-	public int getIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
-	
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
+    
 }

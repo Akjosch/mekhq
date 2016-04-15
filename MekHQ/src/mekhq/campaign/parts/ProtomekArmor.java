@@ -34,18 +34,18 @@ public class ProtomekArmor extends Armor implements IAcquisitionWork {
     private static final long serialVersionUID = 5275226057484468868L;
     
     public ProtomekArmor() {
-        this(0, 0, -1, false, null);
+        this(0, -1, false, null);
     }
     
-    public ProtomekArmor(int tonnage, int points, int loc, boolean clan, Campaign c) {
+    public ProtomekArmor(int points, int loc, boolean clan, Campaign c) {
         // Amount is used for armor quantity, not tonnage
-        super(tonnage, -1, points, loc, false, clan, c);
+        super(-1, points, loc, false, clan, c);
         this.name = "Protomech Armor";
     }
     
     @Override
     public ProtomekArmor clone() {
-        ProtomekArmor clone = new ProtomekArmor(0, 0, amount, clan, campaign);
+        ProtomekArmor clone = new ProtomekArmor(0, amount, clan, campaign);
         clone.copyBaseData(this);
         return clone;
     }
@@ -120,7 +120,7 @@ public class ProtomekArmor extends Armor implements IAcquisitionWork {
  
     @Override
     public IAcquisitionWork getAcquisitionWork() {
-        return new ProtomekArmor(0, (int)Math.round(5 * getArmorPointsPerTon()), -1, clan, campaign);
+        return new ProtomekArmor((int)Math.round(5 * getArmorPointsPerTon()), -1, clan, campaign);
     }
 	
 	@Override
@@ -135,7 +135,7 @@ public class ProtomekArmor extends Armor implements IAcquisitionWork {
     
     @Override
     public Part getNewPart() {
-        return new ProtomekArmor(0, (int)Math.round(5 * getArmorPointsPerTon()), -1, clan, campaign);
+        return new ProtomekArmor((int)Math.round(5 * getArmorPointsPerTon()), -1, clan, campaign);
     }
     
     @Override
@@ -167,7 +167,7 @@ public class ProtomekArmor extends Armor implements IAcquisitionWork {
         if(null != a && a.getAmount() <= 0) {
             campaign.removePart(a);
         } else if(null == a && amount > 0) {            
-            campaign.addPart(new ProtomekArmor(getUnitTonnage(), amount, -1, isClanTechBase(), campaign), 0);
+            campaign.addPart(new ProtomekArmor(amount, -1, isClanTechBase(), campaign), 0);
         }
     }
 
