@@ -23,6 +23,8 @@ package mekhq.campaign.parts;
 
 import java.io.PrintWriter;
 
+import org.w3c.dom.Node;
+
 import megamek.common.Compute;
 import megamek.common.CriticalSlot;
 import megamek.common.EquipmentType;
@@ -32,8 +34,6 @@ import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
 import mekhq.campaign.unit.Unit;
-
-import org.w3c.dom.Node;
 
 /**
  *
@@ -47,15 +47,19 @@ public class ProtomekSensor extends Part {
     }
 
     public ProtomekSensor clone() {
-        ProtomekSensor clone = new ProtomekSensor(getUnitTonnage(), campaign);
+        ProtomekSensor clone = new ProtomekSensor(get(Installable.class).getUnitTonnage(), campaign);
         clone.copyBaseData(this);
         return clone;
     }
 
 
     public ProtomekSensor(int tonnage, Campaign c) {
-        super(tonnage, c);
+        super(c);
         this.name = "Protomech Sensors";
+        add(new Installable());
+        get(Installable.class).setLocations(Protomech.LOC_HEAD);
+        get(Installable.class).setUnitTonnage(tonnage);
+        get(Installable.class).setTonnageLimited(true);
     }
 
     @Override
@@ -67,13 +71,13 @@ public class ProtomekSensor extends Part {
 
     @Override
     public long getStickerPrice() {
-        return getUnitTonnage() * 2000;
+        return get(Installable.class).getUnitTonnage() * 2000;
     }
 
     @Override
     public boolean isSamePartType (Part part) {
         return part instanceof ProtomekSensor
-                && getUnitTonnage() == ((ProtomekSensor)part).getUnitTonnage();
+                && get(Installable.class).getUnitTonnage() == part.get(Installable.class).getUnitTonnage();
     }
 
     @Override
@@ -99,6 +103,7 @@ public class ProtomekSensor extends Part {
     @Override
     public void fix() {
         super.fix();
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             unit.repairSystem(CriticalSlot.TYPE_SYSTEM, Protomech.SYSTEM_HEADCRIT, Protomech.LOC_HEAD);
         }
@@ -116,7 +121,7 @@ public class ProtomekSensor extends Part {
 
     @Override
     public MissingPart getMissingPart() {
-        return new MissingProtomekSensor(getUnitTonnage(), campaign);
+        return new MissingProtomekSensor(get(Installable.class).getUnitTonnage(), campaign);
     }
 
     @Override
@@ -143,23 +148,24 @@ public class ProtomekSensor extends Part {
 
     @Override
     public void updateConditionFromEntity(boolean checkForDestruction) {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
-        	int priorHits = hits;
+            int priorHits = hits;
             hits = unit.getEntity().getDamagedCriticals(CriticalSlot.TYPE_SYSTEM, Protomech.SYSTEM_HEADCRIT, Protomech.LOC_HEAD);
             if(checkForDestruction
-					&& hits > priorHits
-					&& Compute.d6(2) < campaign.getCampaignOptions().getDestroyPartTarget()) {
-				remove(false);
-				return;
-			}
+                    && hits > priorHits
+                    && Compute.d6(2) < campaign.getCampaignOptions().getDestroyPartTarget()) {
+                remove(false);
+                return;
+            }
         }
     }
 
     @Override
-	public int getBaseTime() {
-		if(isSalvaging()) {
-			return 120;
-		}
+    public int getBaseTime() {
+        if(isSalvaging()) {
+            return 120;
+        }
         if(hits <= 1) {
             return 100;
         }
@@ -167,25 +173,25 @@ public class ProtomekSensor extends Part {
             return 150;
         }
         else {
-        	return 200;
+            return 200;
         }
-	}
+    }
 
-	@Override
-	public int getDifficulty() {
-		if(isSalvaging()) {
-			return 0;
-		}
-		if(hits <= 1) {
+    @Override
+    public int getDifficulty() {
+        if(isSalvaging()) {
+            return 0;
+        }
+        if(hits <= 1) {
             return 0;
         }
         else if(hits == 2) {
             return 1;
         }
         else {
-        	return 3;
+            return 3;
         }
-	}
+    }
 
     @Override
     public boolean needsFixing() {
@@ -198,7 +204,7 @@ public class ProtomekSensor extends Part {
         if(null != unit) {
             return unit.getEntity().getLocationName(Protomech.LOC_HEAD);
         }
-        return getUnitTonnage() + " tons";
+        return get(Installable.class).getUnitTonnage() + " tons";
     }
 
     @Override
@@ -216,9 +222,9 @@ public class ProtomekSensor extends Part {
     @Override
     public String checkFixable() {
         Unit unit = get(Installable.class).getUnit();
-    	if(null == unit) {
-    		return null;
-    	}
+        if(null == unit) {
+            return null;
+        }
         if(isSalvaging()) {
             return null;
         }
@@ -257,23 +263,18 @@ public class ProtomekSensor extends Part {
 
     }
 
-	@Override
-	public int getLocation() {
-		return Protomech.LOC_HEAD;
-	}
+    @Override
+    public int getIntroDate() {
+        return 3055;
+    }
 
-	@Override
-	public int getIntroDate() {
-		return 3055;
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
-
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 }

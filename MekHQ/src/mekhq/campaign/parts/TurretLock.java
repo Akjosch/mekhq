@@ -28,6 +28,7 @@ import megamek.common.EquipmentType;
 import megamek.common.Tank;
 import megamek.common.TechConstants;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 
 import org.w3c.dom.Node;
 
@@ -114,8 +115,9 @@ public class TurretLock extends Part {
 	@Override
 	public void fix() {
 		super.fix();
-		if(null != unit && unit.getEntity() instanceof Tank) {
-			((Tank)unit.getEntity()).unlockTurret();
+        Tank tank = get(Installable.class).getEntity(Tank.class);
+		if(null != tank) {
+		    tank.unlockTurret();
 		}
 	}
 
@@ -143,8 +145,9 @@ public class TurretLock extends Part {
 
 	@Override
 	public boolean needsFixing() {
-		if(null != unit && unit.getEntity() instanceof Tank) {
-			return ((Tank)unit.getEntity()).isTurretLocked(Tank.LOC_TURRET);
+	    Tank tank = get(Installable.class).getEntity(Tank.class);
+		if(null != tank) {
+			return tank.isTurretLocked(Tank.LOC_TURRET);
 		}
 		return false;
 	}

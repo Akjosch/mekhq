@@ -23,13 +23,15 @@ package mekhq.campaign.parts;
 
 import java.io.PrintWriter;
 
+import org.w3c.dom.Node;
+
 import megamek.common.CriticalSlot;
 import megamek.common.EquipmentType;
 import megamek.common.Protomech;
 import megamek.common.TechConstants;
 import mekhq.campaign.Campaign;
-
-import org.w3c.dom.Node;
+import mekhq.campaign.parts.component.Installable;
+import mekhq.campaign.unit.Unit;
 
 /**
  *
@@ -43,19 +45,22 @@ public class MissingProtomekSensor extends MissingPart {
     }
 
     public MissingProtomekSensor(int tonnage, Campaign c) {
-        super(tonnage, c);
+        super(c);
         this.name = "Protomech Sensors";
+        get(Installable.class).setLocations(Protomech.LOC_HEAD);
+        get(Installable.class).setUnitTonnage(tonnage);
+        get(Installable.class).setTonnageLimited(true);
     }
 
     @Override
-	public int getBaseTime() {
-		return 120;
-	}
+    public int getBaseTime() {
+        return 120;
+    }
 
-	@Override
-	public int getDifficulty() {
-		return 0;
-	}
+    @Override
+    public int getDifficulty() {
+        return 0;
+    }
 
     @Override
     public double getTonnage() {
@@ -101,6 +106,7 @@ public class MissingProtomekSensor extends MissingPart {
 
     @Override
     public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
               unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Protomech.SYSTEM_HEADCRIT, Protomech.LOC_HEAD, 1);
         }
@@ -108,9 +114,10 @@ public class MissingProtomekSensor extends MissingPart {
 
     @Override
     public String checkFixable() {
-    	if(null == unit) {
-    		return null;
-    	}
+        Unit unit = get(Installable.class).getUnit();
+        if(null == unit) {
+            return null;
+        }
         if(unit.isLocationBreached(Protomech.LOC_HEAD)) {
             return unit.getEntity().getLocationName(Protomech.LOC_HEAD) + " is breached.";
         }
@@ -123,7 +130,8 @@ public class MissingProtomekSensor extends MissingPart {
     @Override
     public void fix() {
         Part replacement = findReplacement(false);
-        if(null != replacement) {
+        Unit unit = get(Installable.class).getUnit();
+        if(null != replacement && null != unit) {
             Part actualReplacement = replacement.clone();
             unit.addPart(actualReplacement);
             campaign.addPart(actualReplacement, 0);
@@ -137,32 +145,27 @@ public class MissingProtomekSensor extends MissingPart {
     @Override
     public boolean isAcceptableReplacement(Part part, boolean refit) {
         return part instanceof ProtomekSensor
-                && getUnitTonnage() == ((ProtomekSensor)part).getUnitTonnage();
+                && get(Installable.class).getUnitTonnage() == part.get(Installable.class).getUnitTonnage();
     }
 
     @Override
     public Part getNewPart() {
-        return new ProtomekSensor(getUnitTonnage(), campaign);
+        return new ProtomekSensor(get(Installable.class).getUnitTonnage(), campaign);
     }
 
-	@Override
-	public int getLocation() {
-		return Protomech.LOC_HEAD;
-	}
+    @Override
+    public int getIntroDate() {
+        return 3055;
+    }
 
-	@Override
-	public int getIntroDate() {
-		return 3055;
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
-
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
 }
