@@ -21,100 +21,98 @@
 
 package mekhq.campaign.parts;
 
+import org.w3c.dom.Node;
+
 import megamek.common.Aero;
-import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import mekhq.campaign.Campaign;
-
-import org.w3c.dom.Node;
+import mekhq.campaign.parts.component.Installable;
 
 /**
  *
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class MissingLandingGear extends MissingPart {
+    private static final long serialVersionUID = 2806921577150714477L;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2806921577150714477L;
-
-	public MissingLandingGear() {
-    	this(0, null);
+    public MissingLandingGear() {
+        this(0, null);
     }
     
     public MissingLandingGear(int tonnage, Campaign c) {
-    	super(0, c);
-    	this.name = "Landing Gear";
+        super(c);
+        this.name = "Landing Gear"; //$NON-NLS-1$
+        get(Installable.class).setUnitTonnage(tonnage);
+        get(Installable.class).setTonnageLimited(true);
     }
     
     @Override 
-	public int getBaseTime() {
-		return 1200;
-	}
-	
-	@Override
-	public int getDifficulty() {
-		return 2;
-	}
+    public int getBaseTime() {
+        return 1200;
+    }
     
-	@Override
-	public String checkFixable() {
-		return null;
-	}
+    @Override
+    public int getDifficulty() {
+        return 2;
+    }
+    
+    @Override
+    public String checkFixable() {
+        return null;
+    }
 
-	@Override
-	public Part getNewPart() {
-		return new LandingGear(getUnitTonnage(), campaign);
-	}
+    @Override
+    public Part getNewPart() {
+        return new LandingGear(get(Installable.class).getUnitTonnage(), campaign);
+    }
 
-	@Override
-	public boolean isAcceptableReplacement(Part part, boolean refit) {
-		return part instanceof LandingGear;
-	}
+    @Override
+    public boolean isAcceptableReplacement(Part part, boolean refit) {
+        return part instanceof LandingGear;
+    }
 
-	@Override
-	public double getTonnage() {
-		return 0;
-	}
+    @Override
+    public double getTonnage() {
+        return 0;
+    }
 
-	@Override
-	public int getTechRating() {
-		//go with conventional fighter avionics
-		return EquipmentType.RATING_B;
-	}
+    @Override
+    public int getTechRating() {
+        //go with conventional fighter avionics
+        return EquipmentType.RATING_B;
+    }
 
-	@Override
-	public int getAvailability(int era) {
-		//go with conventional fighter avionics
-		return EquipmentType.RATING_C;
-	}
+    @Override
+    public int getAvailability(int era) {
+        //go with conventional fighter avionics
+        return EquipmentType.RATING_C;
+    }
 
-	@Override
-	public void updateConditionFromPart() {
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			((Aero)unit.getEntity()).setGearHit(true);
-		}
-	}
-	
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		//nothing to load
-	}
-	
-	@Override
-	public int getIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public void updateConditionFromPart() {
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+        if(null != aero) {
+            aero.setGearHit(true);
+        }
+    }
+    
+    @Override
+    protected void loadFieldsFromXmlNode(Node wn) {
+        //nothing to load
+    }
+    
+    @Override
+    public int getIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
-	
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 }

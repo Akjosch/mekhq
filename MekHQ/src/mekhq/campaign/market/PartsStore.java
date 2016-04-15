@@ -248,8 +248,8 @@ public class PartsStore implements Serializable {
 			}
         }
         //lets throw aero heat sinks in here as well
-        parts.add(new AeroHeatSink(0, Aero.HEAT_SINGLE, c));
-        parts.add(new AeroHeatSink(0, Aero.HEAT_DOUBLE, c));
+        parts.add(new AeroHeatSink(Aero.HEAT_SINGLE, c));
+        parts.add(new AeroHeatSink(Aero.HEAT_DOUBLE, c));
 	}
 
 	private void stockMekActuators(Campaign c) {
@@ -385,20 +385,20 @@ public class PartsStore implements Serializable {
 	}
 
 	private void stockAeroComponents(Campaign c) {
-		parts.add(new AeroHeatSink(0, Aero.HEAT_SINGLE, c));
-		parts.add(new AeroHeatSink(0, Aero.HEAT_DOUBLE, c));
+		parts.add(new AeroHeatSink(Aero.HEAT_SINGLE, c));
+		parts.add(new AeroHeatSink(Aero.HEAT_DOUBLE, c));
 		for(int ton = 5; ton <= 200; ton += 5) {
 			parts.add(new AeroSensor(ton, false, c));
 		}
 		parts.add(new AeroSensor(0, true, c));
-		parts.add(new Avionics(0, c));
-		parts.add(new FireControlSystem(0, 0, c));
+		parts.add(new Avionics(c));
+		parts.add(new FireControlSystem(0, c));
 		parts.add(new LandingGear(0, c));
 	}
 
 	private void stockVeeComponents(Campaign c) {
-		parts.add(new VeeSensor(0, c));
-		parts.add(new VeeStabiliser(0,-1, c));
+		parts.add(new VeeSensor( c));
+		parts.add(new VeeStabiliser(-1, c));
 		for(int ton = 5; ton <= 100; ton=ton+5) {
 			parts.add(new Rotor(ton, c));
 			parts.add(new Turret(ton, -1, c));
