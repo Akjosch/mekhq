@@ -44,16 +44,17 @@ public class MekLifeSupport extends Part {
 	private static final long serialVersionUID = -1989526319692474127L;
 
 	public MekLifeSupport() {
-		this(0, null);
+		this(null);
 	}
 	
-	public MekLifeSupport(int tonnage, Campaign c) {
-        super(tonnage, c);
+	public MekLifeSupport(Campaign c) {
+        super(c);
         this.name = "Mech Life Support System";
+        add(new Installable());
     }
 	
 	public MekLifeSupport clone() {
-		MekLifeSupport clone = new MekLifeSupport(getUnitTonnage(), campaign);
+		MekLifeSupport clone = new MekLifeSupport(campaign);
         clone.copyBaseData(this);
 		return clone;
 	}
@@ -71,7 +72,6 @@ public class MekLifeSupport extends Part {
 
     @Override
     public boolean isSamePartType(Part part) {
-
         return part instanceof MekLifeSupport;
     }
 
@@ -104,6 +104,7 @@ public class MekLifeSupport extends Part {
 	@Override
 	public void fix() {
 		super.fix();
+		Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			unit.repairSystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT);
 		}
@@ -111,11 +112,12 @@ public class MekLifeSupport extends Part {
 
 	@Override
 	public MissingPart getMissingPart() {
-		return new MissingMekLifeSupport(getUnitTonnage(), campaign);
+		return new MissingMekLifeSupport(campaign);
 	}
 
 	@Override
 	public void remove(boolean salvage) {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT);
 			Part spare = campaign.checkForExistingSparePart(this);
@@ -130,7 +132,7 @@ public class MekLifeSupport extends Part {
 			unit.addPart(missing);
 			campaign.addPart(missing, 0);
 		}
-		setUnit(null);
+		get(Installable.class).setUnit(null);
 		updateConditionFromEntity(false);
 	}
 
@@ -189,6 +191,7 @@ public class MekLifeSupport extends Part {
 	
 	@Override
 	public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			if(hits == 0) {
 				unit.repairSystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT);

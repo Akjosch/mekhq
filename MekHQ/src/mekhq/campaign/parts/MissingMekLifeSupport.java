@@ -26,6 +26,8 @@ import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import megamek.common.Mech;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
+import mekhq.campaign.unit.Unit;
 
 import org.w3c.dom.Node;
 
@@ -37,11 +39,11 @@ public class MissingMekLifeSupport extends MissingPart {
 	private static final long serialVersionUID = -1989526319692474127L;
 
 	public MissingMekLifeSupport() {
-		this(0, null);
+		this(null);
 	}
 	
-	public MissingMekLifeSupport(int tonnage, Campaign c) {
-        super(tonnage, c);
+	public MissingMekLifeSupport(Campaign c) {
+        super(c);
         this.name = "Mech Life Support System";
     }
 	
@@ -84,16 +86,17 @@ public class MissingMekLifeSupport extends MissingPart {
 	 
     @Override
     public String checkFixable() {
-    	if(null == unit) {
+        Entity entity = get(Installable.class).getEntity();
+    	if(null == entity) {
     		return null;
     	}
-        for(int i = 0; i < unit.getEntity().locations(); i++) {
-        	if(unit.getEntity().getNumberOfCriticals(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT, i) > 0) {
-            	if(unit.isLocationBreached(i)) {
-            		return unit.getEntity().getLocationName(i) + " is breached.";
+        for(int i = 0; i < entity.locations(); i++) {
+        	if(entity.getNumberOfCriticals(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT, i) > 0) {
+            	if(get(Installable.class).getUnit().isLocationBreached(i)) {
+            		return entity.getLocationName(i) + " is breached.";
             	}
-            	if(unit.isLocationDestroyed(i)) {
-            		return unit.getEntity().getLocationName(i) + " is destroyed.";
+            	if(get(Installable.class).getUnit().isLocationDestroyed(i)) {
+            		return entity.getLocationName(i) + " is destroyed.";
             	}
             }
         }
@@ -102,11 +105,12 @@ public class MissingMekLifeSupport extends MissingPart {
 
 	@Override
 	public Part getNewPart() {
-		return new MekLifeSupport(getUnitTonnage(), campaign);
+		return new MekLifeSupport(campaign);
 	}
 
 	@Override
 	public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_LIFE_SUPPORT);
 		}

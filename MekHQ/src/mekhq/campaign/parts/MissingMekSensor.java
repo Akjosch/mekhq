@@ -26,6 +26,8 @@ import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import megamek.common.Mech;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
+import mekhq.campaign.unit.Unit;
 
 import org.w3c.dom.Node;
 
@@ -41,8 +43,10 @@ public class MissingMekSensor extends MissingPart {
 	}
 	
 	public MissingMekSensor(int tonnage, Campaign c) {
-        super(tonnage, c);
+        super(c);
         this.name = "Mech Sensors";
+        get(Installable.class).setUnitTonnage(tonnage);
+        get(Installable.class).setTonnageLimited(true);
     }
 	
 	@Override 
@@ -78,11 +82,12 @@ public class MissingMekSensor extends MissingPart {
 
 	@Override
 	public boolean isAcceptableReplacement(Part part, boolean refit) {
-		return part instanceof MekSensor && getUnitTonnage() == part.getUnitTonnage();
+		return part instanceof MekSensor && get(Installable.class).getUnitTonnage() == part.get(Installable.class).getUnitTonnage();
 	}
 	
 	@Override
     public String checkFixable() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null == unit) {
 			return null;
 		}
@@ -102,11 +107,12 @@ public class MissingMekSensor extends MissingPart {
 
 	@Override
 	public Part getNewPart() {
-		return new MekSensor(getUnitTonnage(), campaign);
+		return new MekSensor(get(Installable.class).getUnitTonnage(), campaign);
 	}
 
 	@Override
 	public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_SENSORS);
 		}
@@ -114,6 +120,7 @@ public class MissingMekSensor extends MissingPart {
 
 	@Override
 	public int getLocation() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			Entity entity = unit.getEntity();
 			for (int i = 0; i < entity.locations(); i++) {
