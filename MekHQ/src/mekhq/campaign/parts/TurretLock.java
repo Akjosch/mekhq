@@ -23,165 +23,157 @@ package mekhq.campaign.parts;
 
 import java.io.PrintWriter;
 
-import megamek.common.Entity;
+import org.w3c.dom.Node;
+
 import megamek.common.EquipmentType;
 import megamek.common.Tank;
 import megamek.common.TechConstants;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 
-import org.w3c.dom.Node;
-
 /**
  *
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class TurretLock extends Part {
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	public TurretLock(Campaign c) {
-		super(0, c);
-		this.name = "Turret Lock";
-	}
-	
-	@Override 
-	public int getBaseTime() {
-		return 90;
-	}
-	
-	@Override
-	public int getDifficulty() {
-		return -1;
-	}
-	
-	public TurretLock clone() {
-		TurretLock clone = new TurretLock(campaign);
+    public TurretLock(Campaign c) {
+        super(c);
+        this.name = "Turret Lock";
+    }
+    
+    @Override 
+    public int getBaseTime() {
+        return 90;
+    }
+    
+    @Override
+    public int getDifficulty() {
+        return -1;
+    }
+    
+    public TurretLock clone() {
+        TurretLock clone = new TurretLock(campaign);
         clone.copyBaseData(this);
         return clone;
-	}
-	
-	@Override
-	public int getAvailability(int era) {
-		return 0;
-	}
-
-	@Override
-	public long getStickerPrice() {
-		return 0;
-	}
-	
+    }
+    
     @Override
-	public int getTechLevel() {
-		return TechConstants.T_ALLOWED_ALL;
-	}
+    public int getAvailability(int era) {
+        return 0;
+    }
 
-	@Override
-	public int getTechRating() {
-		return EquipmentType.RATING_C;
-	}
+    @Override
+    public long getStickerPrice() {
+        return 0;
+    }
+    
+    @Override
+    public int getTechLevel() {
+        return TechConstants.T_ALLOWED_ALL;
+    }
 
-	@Override
-	public double getTonnage() {
-		return 0;
-	}
+    @Override
+    public int getTechRating() {
+        return EquipmentType.RATING_C;
+    }
 
-	@Override
-	public boolean isSamePartType(Part part) {
-		return part instanceof TurretLock;
-	}
+    @Override
+    public double getTonnage() {
+        return 0;
+    }
 
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public boolean isSamePartType(Part part) {
+        return part instanceof TurretLock;
+    }
 
-	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    protected void loadFieldsFromXmlNode(Node wn) {
+        // TODO Auto-generated method stub
+        
+    }
 
-	@Override
-	public String checkFixable() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public void writeToXml(PrintWriter pw1, int indent) {
+        // TODO Auto-generated method stub
+        
+    }
 
-	@Override
-	public void fix() {
-		super.fix();
+    @Override
+    public String checkFixable() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void fix() {
+        super.fix();
         Tank tank = get(Installable.class).getEntity(Tank.class);
-		if(null != tank) {
-		    tank.unlockTurret();
-		}
-	}
+        if(null != tank) {
+            tank.unlockTurret();
+        }
+    }
 
-	@Override
-	public MissingPart getMissingPart() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public MissingPart getMissingPart() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
-	@Override
-	public void remove(boolean salvage) {
-		//nothing to do here
-	}
+    @Override
+    public void remove(boolean salvage) {
+        //nothing to do here
+    }
 
-	@Override
-	public void updateConditionFromEntity(boolean checkForDestruction) {
-		//nothing to do here because we are just going to check directly in needsFixing()
-		//since this "part" can never be removed
-	}
+    @Override
+    public void updateConditionFromEntity(boolean checkForDestruction) {
+        //nothing to do here because we are just going to check directly in needsFixing()
+        //since this "part" can never be removed
+    }
 
-	@Override
-	public void updateConditionFromPart() {
-		//nothing to do here
-	}
+    @Override
+    public void updateConditionFromPart() {
+        //nothing to do here
+    }
 
-	@Override
-	public boolean needsFixing() {
-	    Tank tank = get(Installable.class).getEntity(Tank.class);
-		if(null != tank) {
-			return tank.isTurretLocked(Tank.LOC_TURRET);
-		}
-		return false;
-	}
-	
-	@Override
-	public boolean isSalvaging() {
-		return false;
-	}
-	
-	@Override
-	public String checkScrappable() {
-		return "Turret Lock is not scrappable";
-	}
-	
-	@Override
-	public boolean canNeverScrap() {
-		return true;
-	}
-	
-	@Override
-	public int getIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public boolean needsFixing() {
+        Tank tank = get(Installable.class).getEntity(Tank.class);
+        if(null != tank) {
+            return tank.isTurretLocked(Tank.LOC_TURRET);
+        }
+        return false;
+    }
+    
+    @Override
+    public boolean isSalvaging() {
+        return false;
+    }
+    
+    @Override
+    public String checkScrappable() {
+        return "Turret Lock is not scrappable";
+    }
+    
+    @Override
+    public boolean canNeverScrap() {
+        return true;
+    }
+    
+    @Override
+    public int getIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
-	
-			
-	
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 }

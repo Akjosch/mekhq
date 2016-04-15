@@ -23,10 +23,12 @@ package mekhq.campaign.parts;
 
 import java.io.PrintWriter;
 
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import megamek.common.Aero;
 import megamek.common.Compute;
 import megamek.common.Dropship;
-import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import megamek.common.Jumpship;
 import megamek.common.TechConstants;
@@ -34,9 +36,6 @@ import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -51,21 +50,22 @@ public class Thrusters extends Part {
     private boolean isLeftThrusters = false;
 
     public Thrusters() {
-        this(0, null);
+        this(null, false);
     }
     
-    public Thrusters(int tonnage, Campaign c) {
-        this(tonnage, c, false);
+    public Thrusters(Campaign c) {
+        this(c, false);
     }
     
-    public Thrusters(int tonnage, Campaign c, boolean left) {
-        super(tonnage, c);
+    public Thrusters(Campaign c, boolean left) {
+        super(c);
         this.name = "Thrusters";
         isLeftThrusters = left;
+        add(new Installable());
     }
     
     public Thrusters clone() {
-        Thrusters clone = new Thrusters(0, campaign, isLeftThrusters);
+        Thrusters clone = new Thrusters(campaign, isLeftThrusters);
         clone.copyBaseData(this);
         return clone;
     }
@@ -158,7 +158,7 @@ public class Thrusters extends Part {
 
     @Override
     public MissingPart getMissingPart() {
-        return new MissingAvionics(getUnitTonnage(), campaign);
+        return new MissingThrusters(campaign);
     }
 
     @Override
