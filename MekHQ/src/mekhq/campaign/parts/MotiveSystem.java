@@ -62,6 +62,7 @@ public class MotiveSystem extends Part {
         return -1;
     }
     
+    @Override
     public MotiveSystem clone() {
         MotiveSystem clone = new MotiveSystem(campaign);
         clone.copyBaseData(this);

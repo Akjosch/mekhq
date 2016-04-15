@@ -254,10 +254,12 @@ public class BattleArmorAmmoBin extends AmmoBin implements IAcquisitionWork {
         return toReturn;
     }
     
+    @Override
     public boolean needsMaintenance() {
         return false;
     }
     
+    @Override
     public boolean canNeverScrap() {
     	return true;
 	}
@@ -265,6 +267,7 @@ public class BattleArmorAmmoBin extends AmmoBin implements IAcquisitionWork {
     /**
      * Restores the equipment from the name
      */
+    @Override
     public void restore() {
         if (typeName == null) {
         	typeName = type.getName();

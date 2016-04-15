@@ -51,6 +51,7 @@ public class JumpJet extends EquipmentPart {
         get(Installable.class).setTonnageLimited(true);
     }
     
+    @Override
     public JumpJet clone() {
         JumpJet clone = new JumpJet(get(Installable.class).getUnitTonnage(), getType(), getEquipmentNum(), campaign);
         clone.copyBaseData(this);

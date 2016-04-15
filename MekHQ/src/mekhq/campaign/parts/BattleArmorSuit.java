@@ -120,6 +120,7 @@ public class BattleArmorSuit extends Part {
         initializeExtraCostsAndTons();
     }
 
+    @Override
     public BattleArmorSuit clone() {
         BattleArmorSuit clone = new BattleArmorSuit(chassis, model, getUnitTonnage(), trooper, weightClass, groundMP, jumpMP, quad, clan, jumpType, campaign);
         clone.copyBaseData(this);
@@ -136,6 +137,7 @@ public class BattleArmorSuit extends Part {
         trooper = i;
     }
 
+    @Override
     public double getTonnage() {
     	//if there are no linked parts and the unit is null,
         //then use the pre-recorded alternate costs
@@ -588,7 +590,8 @@ public class BattleArmorSuit extends Part {
 		return trooper;
 	}
 
-	public boolean needsMaintenance() {
+	@Override
+    public boolean needsMaintenance() {
         return false;
     }
 

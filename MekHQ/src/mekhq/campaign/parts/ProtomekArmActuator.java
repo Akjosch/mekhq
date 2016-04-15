@@ -46,18 +46,19 @@ public class ProtomekArmActuator extends Part {
         this(0, 0, null);
     }
     
+    @Override
     public ProtomekArmActuator clone() {
         ProtomekArmActuator clone = new ProtomekArmActuator(getUnitTonnage(), location, campaign);
         clone.copyBaseData(this);
         return clone;
     }
     
-    public ProtomekArmActuator(int tonnage, Campaign c) {
+    public ProtomekArmActuator(double tonnage, Campaign c) {
         this(tonnage, -1, c);
     }
     
-    public ProtomekArmActuator(int tonnage, int loc, Campaign c) {
-        super(tonnage, c);
+    public ProtomekArmActuator(double tonnage, int loc, Campaign c) {
+        super(c);
         this.name = "Protomech Arm Actuator";
         this.location = loc;
     }

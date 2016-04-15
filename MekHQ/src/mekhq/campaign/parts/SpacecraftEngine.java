@@ -60,6 +60,7 @@ public class SpacecraftEngine extends Part {
         get(Installable.class).setTonnageLimited(true);
     }
     
+    @Override
     public SpacecraftEngine clone() {
         SpacecraftEngine clone = new SpacecraftEngine(get(Installable.class).getUnitTonnage(), engineTonnage, campaign, clan);
         clone.copyBaseData(this);

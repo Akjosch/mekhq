@@ -1518,7 +1518,8 @@ public class Refit extends Part implements IPartWork, IAcquisitionWork {
 		return "Fill this in";
 	}
 
-	public long getStickerPrice() {
+	@Override
+    public long getStickerPrice() {
 		return cost;
 	}
 
@@ -1643,7 +1644,8 @@ public class Refit extends Part implements IPartWork, IAcquisitionWork {
 	    return Part.T_BOTH;
 	}
 
-	public void fixIdReferences(Hashtable<Integer, UUID> uHash, Hashtable<Integer, UUID> pHash) {
+	@Override
+    public void fixIdReferences(Hashtable<Integer, UUID> uHash, Hashtable<Integer, UUID> pHash) {
 		assignedTechId = pHash.get(oldTechId);
 		if(null != newArmorSupplies) {
 			newArmorSupplies.fixIdReferences(uHash, pHash);

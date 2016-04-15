@@ -76,6 +76,7 @@ public class Armor extends Part implements IAcquisitionWork {
         add(new Installable());
     }
 
+    @Override
     public Armor clone() {
         Armor clone = new Armor(0, type, amount, -1, false, clan, campaign);
         clone.copyBaseData(this);
@@ -115,6 +116,7 @@ public class Armor extends Part implements IAcquisitionWork {
         return getStickerPrice();
     }
 
+    @Override
     public String getDesc() {
         if(isSalvaging()) {
             return super.getDesc();
@@ -672,6 +674,7 @@ public class Armor extends Part implements IAcquisitionWork {
         return report;
     }
 
+    @Override
     public void doMaintenanceDamage(int d) {
         Entity entity = get(Installable.class).getEntity();
         if(null != entity) {

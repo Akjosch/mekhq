@@ -82,6 +82,7 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
         }
     }
 
+    @Override
     public AmmoBin clone() {
     	AmmoBin clone = new AmmoBin(getType(), getEquipmentNum(), shotsNeeded, oneShot, campaign);
         clone.copyBaseData(this);
@@ -431,7 +432,8 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
 		return shotsNeeded > 0;// && null != unit;
 	}
 
-	public String getDesc() {
+	@Override
+    public String getDesc() {
 		if(isSalvaging()) {
 			return super.getDesc();
 		}

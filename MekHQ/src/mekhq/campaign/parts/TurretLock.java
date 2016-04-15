@@ -51,6 +51,7 @@ public class TurretLock extends Part {
         return -1;
     }
     
+    @Override
     public TurretLock clone() {
         TurretLock clone = new TurretLock(campaign);
         clone.copyBaseData(this);

@@ -194,6 +194,7 @@ public abstract class Part implements Serializable, IPartWork, ComponentHolder {
 
 	// ComponentHolder methods
 	
+    @Override
     public <T extends Component> T get(Class<T> cls) {
 	    if(components.containsKey(cls)) {
 	        return cls.cast(components.get(cls));
@@ -376,7 +377,8 @@ public abstract class Part implements Serializable, IPartWork, ComponentHolder {
 		return hits;
 	}
 
-	public String getDesc() {
+	@Override
+    public String getDesc() {
 		String bonus = getAllMods(null).getValueAsString();
 		if (getAllMods(null).getValue() > -1) {
 			bonus = "+" + bonus;
@@ -702,15 +704,18 @@ public abstract class Part implements Serializable, IPartWork, ComponentHolder {
 		return timeSpent;
 	}
 
-	public void addTimeSpent(int m) {
+	@Override
+    public void addTimeSpent(int m) {
 		this.timeSpent += m;
 	}
 
-	public void resetTimeSpent() {
+	@Override
+    public void resetTimeSpent() {
 		this.timeSpent = 0;
 	}
 
-	public void resetOvertime() {
+	@Override
+    public void resetOvertime() {
 		this.workingOvertime = false;
 	}
 
@@ -723,7 +728,8 @@ public abstract class Part implements Serializable, IPartWork, ComponentHolder {
 		this.skillMin = i;
 	}
 
-	public int getMode() {
+	@Override
+    public int getMode() {
 		return mode;
 	}
 
@@ -778,7 +784,8 @@ public abstract class Part implements Serializable, IPartWork, ComponentHolder {
         return mods;
 	}
 
-	public TargetRoll getAllModsForMaintenance() {
+	@Override
+    public TargetRoll getAllModsForMaintenance() {
 	    //according to StratOps you get a -1 mod when checking on individual parts
 	    //but we will make this user customizable
 	    TargetRoll mods = new TargetRoll(campaign.getCampaignOptions().getMaintenanceBonus(), "maintenance");
@@ -1037,6 +1044,7 @@ public abstract class Part implements Serializable, IPartWork, ComponentHolder {
     	return (!has(Installable.class) || !get(Installable.class).isInstalled()) && parentPartId == -1;
     }
 
+    @Override
     public boolean isRightTechType(String skillType) {
     	return true;
     }

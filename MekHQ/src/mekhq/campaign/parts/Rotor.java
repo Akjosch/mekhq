@@ -44,6 +44,7 @@ public class Rotor extends TankLocation {
         this.damage = 0;
     }
     
+    @Override
     public Rotor clone() {
         Rotor clone = new Rotor(get(Installable.class).getUnitTonnage(), campaign);
         clone.copyBaseData(this);

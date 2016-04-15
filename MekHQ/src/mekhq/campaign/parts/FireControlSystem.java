@@ -54,6 +54,7 @@ public class FireControlSystem extends Part {
         add(new Installable());
     }
         
+    @Override
     public FireControlSystem clone() {
         FireControlSystem clone = new FireControlSystem(firingArcs, campaign);
         clone.copyBaseData(this);

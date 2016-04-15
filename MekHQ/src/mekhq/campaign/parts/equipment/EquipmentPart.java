@@ -114,6 +114,7 @@ public class EquipmentPart extends Part {
     	equipTonnage = ton;
     }
 
+    @Override
     public EquipmentPart clone() {
     	EquipmentPart clone = new EquipmentPart(getUnitTonnage(), type, equipmentNum, campaign);
         clone.copyBaseData(this);

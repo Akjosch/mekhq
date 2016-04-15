@@ -43,6 +43,7 @@ public class ProtomekJumpJet extends Part {
         this(0, null);
     }
 
+    @Override
     public ProtomekJumpJet clone() {
         ProtomekJumpJet clone = new ProtomekJumpJet(get(Installable.class).getUnitTonnage(), campaign);
         clone.copyBaseData(this);

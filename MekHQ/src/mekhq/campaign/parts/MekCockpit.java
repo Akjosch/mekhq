@@ -58,6 +58,7 @@ public class MekCockpit extends Part {
         get(Installable.class).setLocations((type == Mech.COCKPIT_TORSO_MOUNTED) ? Mech.LOC_CT : Mech.LOC_HEAD);
     }
     
+    @Override
     public MekCockpit clone() {
         MekCockpit clone = new MekCockpit(type, isClan, campaign);
         clone.copyBaseData(this);

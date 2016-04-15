@@ -53,6 +53,7 @@ public class StructuralIntegrity extends Part {
         add(new Installable());
     }
     
+    @Override
     public StructuralIntegrity clone() {
         StructuralIntegrity clone = new StructuralIntegrity(campaign);
         clone.copyBaseData(this);
@@ -214,6 +215,7 @@ public class StructuralIntegrity extends Part {
         return pointsNeeded > 0;
     }
     
+    @Override
     public void doMaintenanceDamage(int d) {
         Aero aero = get(Installable.class).getEntity(Aero.class);
         int points = aero.getSI();

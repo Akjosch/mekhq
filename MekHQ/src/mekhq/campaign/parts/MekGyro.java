@@ -64,6 +64,7 @@ public class MekGyro extends Part {
         this.isClan = isClan;
     }
 
+    @Override
     public MekGyro clone() {
     	MekGyro clone = new MekGyro(getUnitTonnage(), type, gyroTonnage, isClan, campaign);
         clone.copyBaseData(this);

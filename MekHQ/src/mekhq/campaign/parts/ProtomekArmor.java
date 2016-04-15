@@ -60,11 +60,13 @@ public class ProtomekArmor extends Armor implements IAcquisitionWork {
         return amount * 625;
     }
     
+    @Override
     public double getTonnageNeeded() {
         double armorPerTon = 20;
         return amountNeeded / armorPerTon;
     }
     
+    @Override
     public long getValueNeeded() {
         return adjustCostsForCampaignOptions((long)(amountNeeded * 625));
     }
@@ -97,6 +99,7 @@ public class ProtomekArmor extends Armor implements IAcquisitionWork {
         return TechConstants.T_CLAN_TW;
     }
 
+    @Override
     public double getArmorWeight(int points) {
         return points * 50/1000.0;
     }
@@ -125,14 +128,17 @@ public class ProtomekArmor extends Armor implements IAcquisitionWork {
 		return -2;
 	}
 
+    @Override
     public double getArmorPointsPerTon() {
         return 20;
     }
     
+    @Override
     public Part getNewPart() {
         return new ProtomekArmor(0, (int)Math.round(5 * getArmorPointsPerTon()), -1, clan, campaign);
     }
     
+    @Override
     public int getAmountAvailable() {
         for(Part part : campaign.getSpareParts()) {
             if(part instanceof ProtomekArmor) {
@@ -145,6 +151,7 @@ public class ProtomekArmor extends Armor implements IAcquisitionWork {
         return 0;
     }
     
+    @Override
     public void changeAmountAvailable(int amount) {
         ProtomekArmor a = null;
         for(Part part : campaign.getSpareParts()) {

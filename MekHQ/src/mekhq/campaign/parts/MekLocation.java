@@ -61,6 +61,7 @@ public class MekLocation extends Part {
     	this(0, 0, 0, false, false, false, false, null);
     }
     
+    @Override
     public MekLocation clone() {
     	MekLocation clone = new MekLocation(loc, getUnitTonnage(), structureType, tsm, forQuad, sensors, lifeSupport, campaign);
         clone.copyBaseData(this);
@@ -141,6 +142,7 @@ public class MekLocation extends Part {
         }
     }
     
+    @Override
     public double getTonnage() {
     	//TODO: how much should this weigh?
     	return 0;
@@ -685,7 +687,8 @@ public class MekLocation extends Part {
 		return super.getAllMods(tech);
 	}
 	
-	public String getDesc() {
+	@Override
+    public String getDesc() {
 		if((!isBreached() && !isBlownOff()) || isSalvaging()) {
 			return super.getDesc();
 		}
@@ -775,7 +778,8 @@ public class MekLocation extends Part {
         }
     }
 	
-	 public void doMaintenanceDamage(int d) {
+	 @Override
+    public void doMaintenanceDamage(int d) {
 	        Unit unit = get(Installable.class).getUnit();
 	     int points = unit.getEntity().getInternal(loc);
          points = Math.max(points -d, 1);

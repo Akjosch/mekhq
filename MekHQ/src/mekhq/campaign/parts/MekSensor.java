@@ -47,7 +47,7 @@ public class MekSensor extends Part {
         this(0, false, null);
     }
 
-    public MekSensor(int tonnage, boolean torsoMounted, Campaign c) {
+    public MekSensor(double tonnage, boolean torsoMounted, Campaign c) {
         super(c);
         this.name = "Mech Sensors";
         this.torsoMounted = torsoMounted;
@@ -61,6 +61,7 @@ public class MekSensor extends Part {
         }
     }
 
+    @Override
     public MekSensor clone() {
         MekSensor clone = new MekSensor(get(Installable.class).getUnitTonnage(), torsoMounted, campaign);
         clone.copyBaseData(this);

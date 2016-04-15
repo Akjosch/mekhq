@@ -44,6 +44,7 @@ public class ProtomekLegActuator extends Part {
         this(0, null);
     }
 
+    @Override
     public ProtomekLegActuator clone() {
         ProtomekLegActuator clone = new ProtomekLegActuator(getUnitTonnage(), campaign);
         clone.copyBaseData(this);

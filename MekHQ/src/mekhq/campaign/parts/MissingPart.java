@@ -53,6 +53,7 @@ public abstract class MissingPart extends Part implements Serializable, IPartWor
         add(new Installable());
     }
     
+    @Override
     public MissingPart clone() {
         //should never be called
         return null;
@@ -85,6 +86,7 @@ public abstract class MissingPart extends Part implements Serializable, IPartWor
         return false;
     }
     
+    @Override
     public String getDesc() {
         String bonus = getAllMods(null).getValueAsString();
         if (getAllMods(null).getValue() > -1) {

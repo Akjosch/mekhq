@@ -48,6 +48,7 @@ public class MissingMASC extends MissingEquipmentPart {
         this.engineRating = rating;
     }
  
+    @Override
     public void setUnit(Unit u) {
     	super.setUnit(u);
     	if(null != unit && null != unit.getEntity().getEngine()) {

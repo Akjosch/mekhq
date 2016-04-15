@@ -68,6 +68,7 @@ public class BattleArmorEquipmentPart extends EquipmentPart {
         this.trooper = trooper;
     }
 
+    @Override
     public EquipmentPart clone() {
         BattleArmorEquipmentPart clone = new BattleArmorEquipmentPart(getUnitTonnage(), type, equipmentNum, trooper, campaign);
         clone.copyBaseData(this);
@@ -251,10 +252,12 @@ public class BattleArmorEquipmentPart extends EquipmentPart {
     	return false;
     }
 
+    @Override
     public boolean needsMaintenance() {
         return false;
     }
     
+    @Override
     public boolean canNeverScrap() {
     	return isModular();
 	}

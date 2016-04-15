@@ -44,6 +44,7 @@ public class ProtomekSensor extends Part {
         this(0, null);
     }
 
+    @Override
     public ProtomekSensor clone() {
         ProtomekSensor clone = new ProtomekSensor(get(Installable.class).getUnitTonnage(), campaign);
         clone.copyBaseData(this);

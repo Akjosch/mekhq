@@ -55,6 +55,7 @@ public class TankLocation extends Part {
         this(installable.getMainLocation(), installable.getUnitTonnage(), campaign);
     }
     
+    @Override
     public TankLocation clone() {
     	TankLocation clone = new TankLocation(get(Installable.class), campaign);
         clone.copyBaseData(this);
@@ -309,7 +310,8 @@ public class TankLocation extends Part {
 		 return skillType.equals(SkillType.S_TECH_MECHANIC);
 	 }
 	 
-	 public void doMaintenanceDamage(int d) {
+	 @Override
+    public void doMaintenanceDamage(int d) {
 	     Entity entity = get(Installable.class).getEntity();
 	     if(null != entity) {
 	         int loc = get(Installable.class).getMainLocation();

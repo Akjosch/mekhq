@@ -51,7 +51,8 @@ public class VeeStabiliser extends Part {
         get(Installable.class).setLocations(loc);
     }
 	
-	public VeeStabiliser clone() {
+	@Override
+    public VeeStabiliser clone() {
 		VeeStabiliser clone = new VeeStabiliser(get(Installable.class).getMainLocation(), campaign);
         clone.copyBaseData(this);
 		return clone;

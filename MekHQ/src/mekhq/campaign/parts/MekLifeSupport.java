@@ -51,7 +51,8 @@ public class MekLifeSupport extends Part {
         add(new Installable());
     }
 	
-	public MekLifeSupport clone() {
+	@Override
+    public MekLifeSupport clone() {
 		MekLifeSupport clone = new MekLifeSupport(campaign);
         clone.copyBaseData(this);
 		return clone;

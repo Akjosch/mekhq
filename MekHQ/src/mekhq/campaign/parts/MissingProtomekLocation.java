@@ -110,6 +110,7 @@ public class MissingProtomekLocation extends MissingPart {
     }
 
 
+    @Override
     public double getTonnage() {
         //TODO: how much should this weigh?
         return 0;

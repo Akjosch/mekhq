@@ -124,6 +124,7 @@ public class MissingMekLocation extends MissingPart {
         return 3;
     }
 
+    @Override
     public double getTonnage() {
         //TODO: how much should this weigh?
         return 0;

@@ -53,12 +53,14 @@ public class MASC extends EquipmentPart {
         equipTonnage = calculateTonnage();
     }
     
+    @Override
     public MASC clone() {
     	MASC clone = new MASC(getUnitTonnage(), getType(), getEquipmentNum(), campaign, engineRating);
         clone.copyBaseData(this);
     	return clone;
     }
  
+    @Override
     public void setUnit(Unit u) {
     	super.setUnit(u);
     	if(null != unit && null != unit.getEntity().getEngine()) {

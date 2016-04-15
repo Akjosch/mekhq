@@ -65,6 +65,7 @@ public class AmmoStorage extends EquipmentPart implements IAcquisitionWork {
         remove(Installable.class);
     }
     
+    @Override
     public AmmoStorage clone() {
     	AmmoStorage storage = new AmmoStorage(0, getType(), shots, campaign);
         storage.copyBaseData(this);
@@ -206,7 +207,8 @@ public class AmmoStorage extends EquipmentPart implements IAcquisitionWork {
 		return false;
 	}
 	
-	public String getDesc() {
+	@Override
+    public String getDesc() {
 		String toReturn = "<html><font size='2'";
 		String scheduled = "";
 		if (getAssignedTeamId() != null) {

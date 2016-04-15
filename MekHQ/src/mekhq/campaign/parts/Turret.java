@@ -49,6 +49,7 @@ public class Turret extends TankLocation {
         this(loc, 0.0, c);
     }
     
+    @Override
     public Turret clone() {
         Turret clone = new Turret(0, weight, campaign);
         clone.copyBaseData(this);

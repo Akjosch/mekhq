@@ -48,6 +48,7 @@ public class DropshipDockingCollar extends Part {
         add(new Installable());
     }
     
+    @Override
     public DropshipDockingCollar clone() {
         DropshipDockingCollar clone = new DropshipDockingCollar(campaign);
         clone.copyBaseData(this);

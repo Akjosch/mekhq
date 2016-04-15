@@ -99,6 +99,7 @@ public class ProtomekLocation extends Part {
         }
     }
 
+    @Override
     public ProtomekLocation clone() {
         ProtomekLocation clone = new ProtomekLocation(loc, getUnitTonnage(), structureType, booster, forQuad, campaign);
         clone.copyBaseData(this);
@@ -122,6 +123,7 @@ public class ProtomekLocation extends Part {
 
 
 
+    @Override
     public double getTonnage() {
         return 0;
     }
@@ -573,6 +575,7 @@ public class ProtomekLocation extends Part {
         return super.getAllMods(tech);
     }
 
+    @Override
     public String getDesc() {
         if((!isBreached() && !isBlownOff()) || isSalvaging()) {
             return super.getDesc();
@@ -623,6 +626,7 @@ public class ProtomekLocation extends Part {
         return skillType.equals(SkillType.S_TECH_MECH);
     }
 
+    @Override
     public void doMaintenanceDamage(int d) {
         int points = unit.getEntity().getInternal(loc);
         points = Math.max(points -d, 1);

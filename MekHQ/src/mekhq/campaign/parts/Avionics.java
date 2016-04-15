@@ -48,6 +48,7 @@ public class Avionics extends Part {
         add(new Installable());
     }
     
+    @Override
     public Avionics clone() {
         Avionics clone = new Avionics(campaign);
         clone.copyBaseData(this);

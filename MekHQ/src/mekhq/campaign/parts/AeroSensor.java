@@ -45,7 +45,7 @@ public class AeroSensor extends Part {
         this(0, false, null);
     }
 
-    public AeroSensor(float tonnage, boolean lc, Campaign c) {
+    public AeroSensor(double tonnage, boolean lc, Campaign c) {
         super(c);
         this.name = "Aerospace Sensors";
         this.largeCraft = lc;
@@ -54,6 +54,7 @@ public class AeroSensor extends Part {
         get(Installable.class).setTonnageLimited(!largeCraft);
     }
 
+    @Override
     public AeroSensor clone() {
         AeroSensor clone = new AeroSensor(get(Installable.class).getUnitTonnage(), largeCraft, campaign);
         clone.copyBaseData(this);

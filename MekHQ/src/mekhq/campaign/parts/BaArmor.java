@@ -56,6 +56,7 @@ public class BaArmor extends Armor implements IAcquisitionWork {
         super(tonnage, type, points, loc, false, clan, c);
     }
     
+    @Override
     public BaArmor clone() {
         BaArmor clone = new BaArmor(0, amount, type, location, clan, campaign);
         clone.copyBaseData(this);
@@ -136,6 +137,7 @@ public class BaArmor extends Armor implements IAcquisitionWork {
         return !hasParentPart() && !part.hasParentPart() && this.getDaysToArrival() == part.getDaysToArrival();
     }
 
+    @Override
     public double getArmorWeight(int points) {
         return points * 50/1000.0;
     }
@@ -172,10 +174,12 @@ public class BaArmor extends Armor implements IAcquisitionWork {
         return new BaArmor(0, (int)Math.round(5 * getPointsPerTon()), type, -1, clan, campaign);
     }
 
+    @Override
     public Part getNewPart() {
         return new BaArmor(0, (int)Math.round(5 * getPointsPerTon()), type, -1, clan, campaign);
     }
     
+    @Override
     public int getAmountAvailable() {
         for(Part part : campaign.getSpareParts()) {
             if(part instanceof BaArmor) {

@@ -46,7 +46,7 @@ public class MissingAeroSensor extends MissingPart {
     	this(0, false, null);
     }
     
-    public MissingAeroSensor(float tonnage, boolean drop, Campaign c) {
+    public MissingAeroSensor(double tonnage, boolean drop, Campaign c) {
     	super(c);
     	this.name = "Aero Sensors";
     	this.dropship = drop;
