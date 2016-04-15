@@ -79,7 +79,7 @@ public class EquipmentPart extends Part {
     	this(0, null, -1, null);
     }
 
-    public EquipmentPart(int tonnage, EquipmentType et, int equipNum, Campaign c) {
+    public EquipmentPart(double tonnage, EquipmentType et, int equipNum, Campaign c) {
         super(c);
         this.type =et;
         if(null != type) {
@@ -115,7 +115,7 @@ public class EquipmentPart extends Part {
 
     @Override
     public EquipmentPart clone() {
-    	EquipmentPart clone = new EquipmentPart(getUnitTonnage(), type, equipmentNum, campaign);
+    	EquipmentPart clone = new EquipmentPart(get(Installable.class).getUnitTonnage(), type, equipmentNum, campaign);
         clone.copyBaseData(this);
         if(hasVariableTonnage(type)) {
             clone.setEquipTonnage(equipTonnage);

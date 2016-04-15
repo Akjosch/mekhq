@@ -32,6 +32,7 @@ import megamek.common.TechConstants;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.MissingPart;
 import mekhq.campaign.parts.Part;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.unit.Unit;
 
 /**
@@ -47,7 +48,7 @@ public class MASC extends EquipmentPart {
     	this(0, null, -1, null, 0);
     }
     
-    public MASC(int tonnage, EquipmentType et, int equipNum, Campaign c, int rating) {
+    public MASC(double tonnage, EquipmentType et, int equipNum, Campaign c, int rating) {
         super(tonnage, et, equipNum, c);
         this.engineRating = rating;
         equipTonnage = calculateTonnage();
@@ -55,7 +56,7 @@ public class MASC extends EquipmentPart {
     
     @Override
     public MASC clone() {
-    	MASC clone = new MASC(getUnitTonnage(), getType(), getEquipmentNum(), campaign, engineRating);
+    	MASC clone = new MASC(get(Installable.class).getUnitTonnage(), getType(), getEquipmentNum(), campaign, engineRating);
         clone.copyBaseData(this);
     	return clone;
     }
@@ -133,7 +134,7 @@ public class MASC extends EquipmentPart {
 	
 	@Override
 	public MissingPart getMissingPart() {
-		return new MissingMASC(getUnitTonnage(), type, equipmentNum, campaign, equipTonnage, engineRating);
+		return new MissingMASC(get(Installable.class).getUnitTonnage(), type, equipmentNum, campaign, equipTonnage, engineRating);
 	}
 	
 	@Override
@@ -144,7 +145,7 @@ public class MASC extends EquipmentPart {
 		if(isSupercharger()) {
 			return super.getDetails() + ", " + getEngineRating() + " rating";
 		}
-		return super.getDetails() + ", " + getUnitTonnage() + " tons, " + getEngineRating() + " rating";
+		return super.getDetails() + ", " + get(Installable.class).getUnitTonnage() + " tons, " + getEngineRating() + " rating";
 	 }
 	
 	@Override

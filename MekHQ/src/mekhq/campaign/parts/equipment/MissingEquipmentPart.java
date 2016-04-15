@@ -64,7 +64,7 @@ public class MissingEquipmentPart extends MissingPart {
     	this(0, null, -1, null, 0);
     }
 
-    public MissingEquipmentPart(int tonnage, EquipmentType et, int equipNum, Campaign c, double eTonnage) {
+    public MissingEquipmentPart(double tonnage, EquipmentType et, int equipNum, Campaign c, double eTonnage) {
         // TODO Memorize all entity attributes needed to calculate cost
         // As it is a part bought with one entity can be used on another entity
         // on which it would have a different price (only tonnage is taken into

@@ -28,6 +28,7 @@ import megamek.common.EquipmentType;
 import megamek.common.MiscType;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.Part;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.unit.Unit;
 
 /**
@@ -35,86 +36,86 @@ import mekhq.campaign.unit.Unit;
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class MissingMASC extends MissingEquipmentPart {
-	private static final long serialVersionUID = 2892728320891712304L;
+    private static final long serialVersionUID = 2892728320891712304L;
 
-	protected int engineRating;
-	
-	public MissingMASC() {
-    	this(0, null, -1, null, 0, 0);
+    protected int engineRating;
+    
+    public MissingMASC() {
+        this(0, null, -1, null, 0, 0);
     }
     
-    public MissingMASC(int tonnage, EquipmentType et, int equipNum, Campaign c, double etonnage, int rating) {
+    public MissingMASC(double tonnage, EquipmentType et, int equipNum, Campaign c, double etonnage, int rating) {
         super(tonnage, et, equipNum, c, etonnage);
         this.engineRating = rating;
     }
  
     @Override
     public void setUnit(Unit u) {
-    	super.setUnit(u);
-    	if(null != unit && null != unit.getEntity().getEngine()) {
-    		engineRating = unit.getEntity().getEngine().getRating();
-    	}
+        super.setUnit(u);
+        if(null != unit && null != unit.getEntity().getEngine()) {
+            engineRating = unit.getEntity().getEngine().getRating();
+        }
     }
     
     @Override
     public long getStickerPrice() {
-    	if (isSupercharger()) {
-    		return engineRating * 10000;
-    	} else {           
+        if (isSupercharger()) {
+            return engineRating * 10000;
+        } else {           
             return (long)(engineRating * getTonnage() * 1000);
         }
     }
     
     public int getEngineRating() {
-    	return engineRating;
+        return engineRating;
     }
     
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		NodeList nl = wn.getChildNodes();
-		
-		for (int x=0; x<nl.getLength(); x++) {
-			Node wn2 = nl.item(x);
-			if (wn2.getNodeName().equalsIgnoreCase("equipmentNum")) {
-				equipmentNum = Integer.parseInt(wn2.getTextContent());
-			}
-			else if (wn2.getNodeName().equalsIgnoreCase("typeName")) {
-				typeName = wn2.getTextContent();
-			}
-			else if (wn2.getNodeName().equalsIgnoreCase("equipTonnage")) {
-				equipTonnage = Double.parseDouble(wn2.getTextContent());
-			}
-			else if (wn2.getNodeName().equalsIgnoreCase("engineRating")) {
-				engineRating = Integer.parseInt(wn2.getTextContent());
-			}
-		}
-		restore();
-	}
-	
-	@Override
-	public boolean isAcceptableReplacement(Part part, boolean refit) {
-		if(part instanceof MASC) {
-			EquipmentPart eqpart = (EquipmentPart)part;
-			EquipmentType et = eqpart.getType();
-			return type.equals(et) && getTonnage() == part.getTonnage()
-					&& ((MASC)part).getEngineRating() == engineRating;
-		}
-		return false;
-	}
-	
-	private boolean isSupercharger() {
-		return type.hasSubType(MiscType.S_SUPERCHARGER);
-	}
-	
-	@Override
-	public Part getNewPart() {
-		MASC epart = new MASC(getUnitTonnage(), type, -1, campaign, engineRating);
-		epart.setEquipTonnage(equipTonnage);
-		return epart;
-	}
-	
-	@Override
+    @Override
+    protected void loadFieldsFromXmlNode(Node wn) {
+        NodeList nl = wn.getChildNodes();
+        
+        for (int x=0; x<nl.getLength(); x++) {
+            Node wn2 = nl.item(x);
+            if (wn2.getNodeName().equalsIgnoreCase("equipmentNum")) {
+                equipmentNum = Integer.parseInt(wn2.getTextContent());
+            }
+            else if (wn2.getNodeName().equalsIgnoreCase("typeName")) {
+                typeName = wn2.getTextContent();
+            }
+            else if (wn2.getNodeName().equalsIgnoreCase("equipTonnage")) {
+                equipTonnage = Double.parseDouble(wn2.getTextContent());
+            }
+            else if (wn2.getNodeName().equalsIgnoreCase("engineRating")) {
+                engineRating = Integer.parseInt(wn2.getTextContent());
+            }
+        }
+        restore();
+    }
+    
+    @Override
+    public boolean isAcceptableReplacement(Part part, boolean refit) {
+        if(part instanceof MASC) {
+            EquipmentPart eqpart = (EquipmentPart)part;
+            EquipmentType et = eqpart.getType();
+            return type.equals(et) && getTonnage() == part.getTonnage()
+                    && ((MASC)part).getEngineRating() == engineRating;
+        }
+        return false;
+    }
+    
+    private boolean isSupercharger() {
+        return type.hasSubType(MiscType.S_SUPERCHARGER);
+    }
+    
+    @Override
+    public Part getNewPart() {
+        MASC epart = new MASC(get(Installable.class).getUnitTonnage(), type, -1, campaign, engineRating);
+        epart.setEquipTonnage(equipTonnage);
+        return epart;
+    }
+    
+    @Override
     public boolean isOmniPoddable() {
-    	return false;
+        return false;
     }
 }
