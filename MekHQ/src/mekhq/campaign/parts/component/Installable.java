@@ -132,19 +132,4 @@ public class Installable extends Component {
     public void setTonnageLimited(boolean isTonnageLimited) {
         this.isTonnageLimited = isTonnageLimited;
     }
-    
-    /**
-     * @return <code>true</code> if the {@link Unit} is either <code>null</code>,
-     *          has no {@link Entity} attached, or is a valid place to install
-     *          the corresponding component holder.
-     */
-    public boolean canBeInstalled(Unit unit) {
-        if(null == unit || null == unit.getEntity()) {
-            return true;
-        }
-        if(isTonnageLimited && unit.getEntity().getWeight() != unitTonnage) {
-            return false;
-        }
-        return true;
-    }
 }

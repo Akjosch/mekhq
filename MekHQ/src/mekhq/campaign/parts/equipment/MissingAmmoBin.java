@@ -28,6 +28,8 @@ import megamek.common.AmmoType;
 import megamek.common.EquipmentType;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.Part;
+import mekhq.campaign.parts.component.Installable;
+import mekhq.campaign.unit.Unit;
 
 /**
  *
@@ -39,11 +41,11 @@ public class MissingAmmoBin extends MissingEquipmentPart {
 	protected boolean oneShot;
 	
     public MissingAmmoBin() {
-    	this(0, null, -1, false, null);
+    	this(null, -1, false, null);
     }
     
-    public MissingAmmoBin(int tonnage, EquipmentType et, int equipNum, boolean singleShot, Campaign c) {
-        super(tonnage, et, equipNum, c, 1);
+    public MissingAmmoBin(EquipmentType et, int equipNum, boolean singleShot, Campaign c) {
+        super(0.0, et, equipNum, c, 1);
         this.oneShot = singleShot;
         if(null != name) {
         	this.name += " Bin";
@@ -58,7 +60,8 @@ public class MissingAmmoBin extends MissingEquipmentPart {
 	@Override 
 	public void fix() {
 		Part replacement = findReplacement(false);
-		if(null != replacement) {
+        Unit unit = get(Installable.class).getUnit();
+		if(null != replacement && null != unit) {
 			Part actualReplacement = replacement.clone();
 			unit.addPart(actualReplacement);
 			campaign.addPart(actualReplacement, 0);
@@ -94,7 +97,7 @@ public class MissingAmmoBin extends MissingEquipmentPart {
 	
 	@Override
 	public Part getNewPart() {
-		return new AmmoBin(getUnitTonnage(), type, -1, getFullShots(), oneShot, campaign);
+		return new AmmoBin(type, -1, getFullShots(), oneShot, campaign);
 	}
 	
 	@Override

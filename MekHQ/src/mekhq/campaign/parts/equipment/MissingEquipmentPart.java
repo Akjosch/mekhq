@@ -284,17 +284,6 @@ public class MissingEquipmentPart extends MissingPart {
 	}
 */
 
-	public int getLocation() {
-    	if(null != unit) {
-    		Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
-			if(null != mounted) {
-				return mounted.getLocation();
-			}
-    	}
-    	return -1;
-    }
-
-
     public boolean isRearFacing() {
         Unit unit = get(Installable.class).getUnit();
     	if(null != unit) {
@@ -324,48 +313,5 @@ public class MissingEquipmentPart extends MissingPart {
     public boolean isOmniPoddable() {
     	//TODO: is this on equipment type?
     	return true;
-    }
-
-	@Override
-	public String getLocationName() {
-		if(null != unit) {
-			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
-			if(null != mounted && mounted.getLocation() != -1) {
-				return unit.getEntity().getLocationName(mounted.getLocation());
-			}
-    	}
-		return null;
-	}
-
-	@Override
-    public boolean isInLocation(String loc) {
-		if(null == unit || null == unit.getEntity() || null == unit.getEntity().getEquipment(equipmentNum)) {
-			return false;
-		}
-
-		Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
-		if(null == mounted) {
-			return false;
-		}
-		int location = unit.getEntity().getLocationFromAbbr(loc);
-		for (int i = 0; i < unit.getEntity().getNumberOfCriticals(location); i++) {
-	            CriticalSlot slot = unit.getEntity().getCritical(location, i);
-	            // ignore empty & non-hittable slots
-	            if ((slot == null) || !slot.isEverHittable() || slot.getType()!=CriticalSlot.TYPE_EQUIPMENT
-	            		|| null == slot.getMount()) {
-	                continue;
-	            }
-	            if(unit.getEntity().getEquipmentNum(slot.getMount()) == equipmentNum) {
-	            	return true;
-	            }
-		}
-		//if we are still here, lets just double check by the mounted's location and secondary location
-		if(mounted.getLocation() == location) {
-			return true;
-		}
-		if(mounted.getSecondLocation() == location) {
-			return true;
-		}
-		return false;
     }
 }

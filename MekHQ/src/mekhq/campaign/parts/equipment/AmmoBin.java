@@ -218,7 +218,7 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
 	}
 
 	public void restoreMunitionType() {
-		for (AmmoType atype : Utilities.getMunitionsFor(unit.getEntity(),(AmmoType)type, CampaignOptions.TECH_EXPERIMENTAL)) {
+		for (AmmoType atype : Utilities.getMunitionsFor(get(Installable.class).getEntity(),(AmmoType)type, CampaignOptions.TECH_EXPERIMENTAL)) {
     		if (atype.getMunitionType() == munition && atype.getInternalName().equals(type.getInternalName())) {
     			type = atype;
     			break;

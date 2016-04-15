@@ -31,6 +31,10 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.UUID;
 
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import megamek.common.ASFBay;
 import megamek.common.Aero;
 import megamek.common.AmmoType;
@@ -156,6 +160,8 @@ import mekhq.campaign.parts.Turret;
 import mekhq.campaign.parts.TurretLock;
 import mekhq.campaign.parts.VeeSensor;
 import mekhq.campaign.parts.VeeStabiliser;
+import mekhq.campaign.parts.component.Installable;
+import mekhq.campaign.parts.component.InstallableManager;
 import mekhq.campaign.parts.equipment.AmmoBin;
 import mekhq.campaign.parts.equipment.BattleArmorAmmoBin;
 import mekhq.campaign.parts.equipment.BattleArmorEquipmentPart;
@@ -174,10 +180,6 @@ import mekhq.campaign.personnel.SkillType;
 import mekhq.campaign.work.IAcquisitionWork;
 import mekhq.campaign.work.IMothballWork;
 import mekhq.campaign.work.Modes;
-
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * This is a wrapper class for entity, so that we can add some functionality to
@@ -1645,8 +1647,11 @@ public class Unit implements MekHqXmlSerializable, IMothballWork {
     }
 
     public void addPart(Part part) {
-    	part.setUnit(this);
-    	parts.add(part);
+        Installable installable = part.get(Installable.class);
+        if(InstallableManager.canBeInstalled(installable, this)) {
+            installable.setUnit(this);
+        	parts.add(part);
+        }
     }
 
     /**
