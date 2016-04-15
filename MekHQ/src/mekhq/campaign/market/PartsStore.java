@@ -404,11 +404,13 @@ public class PartsStore implements Serializable {
 	}
 
 	private void stockVeeComponents(Campaign c) {
-		parts.add(new VeeSensor( c));
+		parts.add(new VeeSensor(c));
 		parts.add(new VeeStabiliser(-1, c));
-		for(int ton = 5; ton <= 100; ton=ton+5) {
+		for(int ton = 5; ton <= 100; ton += 5) {
 			parts.add(new Rotor(ton, c));
-			parts.add(new Turret(ton, -1, c));
+		}
+		for(int turretWeight = 1; turretWeight < 100; ++ turretWeight) {
+		    parts.add(new Turret(-1, turretWeight * 0.5, c));
 		}
 	}
 

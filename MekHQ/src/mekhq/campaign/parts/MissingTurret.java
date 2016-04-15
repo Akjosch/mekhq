@@ -23,122 +23,126 @@ package mekhq.campaign.parts;
 
 import java.io.PrintWriter;
 
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import megamek.common.IArmorState;
 import megamek.common.Tank;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import mekhq.campaign.parts.component.Installable;
 
 /**
  *
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class MissingTurret extends MissingPart {
-	private static final long serialVersionUID = 719267861685599789L;
+    private static final long serialVersionUID = 719267861685599789L;
 
-	double weight;
-	
-	public MissingTurret() {
-		this(0,0, null);
-	}
-	
-	public MissingTurret(int tonnage, double weight, Campaign c) {
-        super(tonnage, c);
+    double weight;
+    
+    public MissingTurret() {
+        this(0.0, null);
+    }
+    
+    public MissingTurret(double weight, Campaign c) {
+        super(c);
         this.weight = weight;
         this.name = "Turret";
     }
-	
-	@Override 
-	public int getBaseTime() {
-		return 160;
-	}
-	
-	@Override
-	public int getDifficulty() {
-		return -1;
-	}
+    
+    @Override 
+    public int getBaseTime() {
+        return 160;
+    }
+    
+    @Override
+    public int getDifficulty() {
+        return -1;
+    }
 
-	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<weight>"
-				+weight
-				+"</weight>");
-		writeToXmlEnd(pw1, indent);
-	}
+    @Override
+    public void writeToXml(PrintWriter pw1, int indent) {
+        writeToXmlBegin(pw1, indent);
+        pw1.println(MekHqXmlUtil.indentStr(indent+1)
+                +"<weight>"
+                +weight
+                +"</weight>");
+        writeToXmlEnd(pw1, indent);
+    }
 
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		NodeList nl = wn.getChildNodes();
-		
-		for (int x=0; x<nl.getLength(); x++) {
-			Node wn2 = nl.item(x);
-			
-			if (wn2.getNodeName().equalsIgnoreCase("weight")) {
-				weight = Double.parseDouble(wn2.getTextContent());
-			} 
-		}
-	}
+    @Override
+    protected void loadFieldsFromXmlNode(Node wn) {
+        NodeList nl = wn.getChildNodes();
+        
+        for (int x=0; x<nl.getLength(); x++) {
+            Node wn2 = nl.item(x);
+            
+            if (wn2.getNodeName().equalsIgnoreCase("weight")) {
+                weight = Double.parseDouble(wn2.getTextContent());
+            } 
+        }
+    }
 
-	@Override
-	public int getAvailability(int era) {
-		return EquipmentType.RATING_C;
-	}
+    @Override
+    public int getAvailability(int era) {
+        return EquipmentType.RATING_C;
+    }
 
-	@Override
-	public int getTechRating() {
-		return EquipmentType.RATING_B;
-	}
+    @Override
+    public int getTechRating() {
+        return EquipmentType.RATING_B;
+    }
 
 
-	@Override
-	public boolean isAcceptableReplacement(Part part, boolean refit) {
-		return part instanceof Turret 
-			&& (((TankLocation)part).getLoc() == Tank.LOC_TURRET || ((TankLocation)part).getLoc() == Tank.LOC_TURRET_2);
-	}
-	
-	@Override
-	public String checkFixable() {
-		return null;
-	}
+    @Override
+    public boolean isAcceptableReplacement(Part part, boolean refit) {
+        return part instanceof Turret
+            && weight >= part.getTonnage()
+            && (part.get(Installable.class).getMainLocation() == Tank.LOC_TURRET
+                || part.get(Installable.class).getMainLocation() == Tank.LOC_TURRET_2);
+    }
+    
+    @Override
+    public String checkFixable() {
+        return null;
+    }
 
-	@Override
-	public Part getNewPart() {
-		//TODO: how to get second turret location?
-		return new Turret(Tank.LOC_TURRET, getUnitTonnage(), weight, campaign);
-	}
+    @Override
+    public Part getNewPart() {
+        //TODO: how to get second turret location?
+        return new Turret(Tank.LOC_TURRET, weight, campaign);
+    }
 
-	@Override
-	public double getTonnage() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    @Override
+    public double getTonnage() {
+        // TODO Auto-generated method stub
+        return 0;
+    }
 
-	@Override
-	public void updateConditionFromPart() {
-		if(null != unit) {
-			unit.getEntity().setInternal(IArmorState.ARMOR_DESTROYED, Tank.LOC_TURRET);
-		}
-	}
+    @Override
+    public void updateConditionFromPart() {
+        Entity entity = get(Installable.class).getEntity();
+        if(null != entity) {
+            entity.setInternal(IArmorState.ARMOR_DESTROYED, Tank.LOC_TURRET);
+        }
+    }
 
-	@Override
-	public int getIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
-	
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
+    
 }

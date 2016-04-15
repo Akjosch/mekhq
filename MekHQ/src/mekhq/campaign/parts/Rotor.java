@@ -25,16 +25,17 @@ import megamek.common.EquipmentType;
 import megamek.common.IArmorState;
 import megamek.common.VTOL;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 
 /**
  *
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class Rotor extends TankLocation {
-	private static final long serialVersionUID = -122291037522319765L;
+    private static final long serialVersionUID = -122291037522319765L;
 
     public Rotor() {
-    	this(0, null);
+        this(0, null);
     }
     
     public Rotor(int tonnage, Campaign c) {
@@ -44,140 +45,147 @@ public class Rotor extends TankLocation {
     }
     
     public Rotor clone() {
-    	Rotor clone = new Rotor(getUnitTonnage(), campaign);
+        Rotor clone = new Rotor(get(Installable.class).getUnitTonnage(), campaign);
         clone.copyBaseData(this);
-    	clone.loc = this.loc;
-    	clone.damage = this.damage;
-    	clone.breached = this.breached;
-    	return clone;
+        clone.get(Installable.class).setLocations(get(Installable.class).getLocations());
+        clone.damage = this.damage;
+        clone.breached = this.breached;
+        return clone;
     }
  
     @Override
     public boolean isSamePartType(Part part) {
         return part instanceof Rotor 
-        		&& getLoc() == ((Rotor)part).getLoc() 
-        		&& getUnitTonnage() == ((Rotor)part).getUnitTonnage()
-        		&& this.getDamage() == ((Rotor)part).getDamage()
-        		&& part.getSkillMin() == this.getSkillMin();
+                && get(Installable.class).getMainLocation() == part.get(Installable.class).getMainLocation()
+                && get(Installable.class).getUnitTonnage() == part.get(Installable.class).getUnitTonnage()
+                && getDamage() == ((Rotor)part).getDamage()
+                && part.getSkillMin() == getSkillMin();
     }
 
-	@Override
-	public int getAvailability(int era) {
-		//go with conventional fighter avionics
-		if(era == EquipmentType.ERA_SL) {
-			return EquipmentType.RATING_C;
-		} else if(era == EquipmentType.ERA_SW) {
-			return EquipmentType.RATING_D;
-		} else {
-			return EquipmentType.RATING_C;
-		}
-	}
-
-	@Override
-	public int getTechRating() {
-		return EquipmentType.RATING_B;
-	}
-
-	@Override
-	public void fix() {
-		super.fix();
-		damage--;
-		if(null != unit && unit.getEntity() instanceof VTOL) {
-		    int currIsVal = unit.getEntity().getInternal(VTOL.LOC_ROTOR); 
-		    int maxIsVal = unit.getEntity().getOInternal(VTOL.LOC_ROTOR); 
-		    int repairedIsVal = Math.min(maxIsVal, currIsVal + 1);
-			unit.getEntity().setInternal(repairedIsVal, VTOL.LOC_ROTOR);
-		}
-	}
-
-	@Override
-	public MissingPart getMissingPart() {
-		return new MissingRotor(getUnitTonnage(), campaign);
-	}
-
-	@Override
-	public void remove(boolean salvage) {
-		if(null != unit && unit.getEntity() instanceof VTOL) {
-			unit.getEntity().setInternal(IArmorState.ARMOR_DESTROYED, VTOL.LOC_ROTOR);
-			Part spare = campaign.checkForExistingSparePart(this);
-			if(!salvage) {
-				campaign.removePart(this);
-			} else if(null != spare) {
-				spare.incrementQuantity();
-				campaign.removePart(this);
-			}
-			unit.removePart(this);
-			Part missing = getMissingPart();
-			unit.addPart(missing);
-			campaign.addPart(missing, 0);
-			((VTOL)unit.getEntity()).resetMovementDamage();
-			for(Part part : unit.getParts()) {
-				if(part instanceof MotiveSystem) {
-					part.updateConditionFromEntity(false);
-				}
-			}
-		}
-		setUnit(null);
-	}
-	
-	@Override 
-	public int getBaseTime() {
-		if(isSalvaging()) {
-			return 300;
-		}
-		return 120;
-	}
-	
-	@Override
-	public int getDifficulty() {
-		if(isSalvaging()) {
-			return 0;
-		}
-		return 2;
-	}
-	
-	@Override
-	public void updateConditionFromPart() {
-		if(null != unit && unit.getEntity() instanceof VTOL) {
-			unit.getEntity().setInternal(unit.getEntity().getOInternal(VTOL.LOC_ROTOR) - damage, VTOL.LOC_ROTOR);
-		}
-	}
-	
-	@Override 
-	public String checkFixable() {
-		if(null == unit) {
-			return null;
-		}
-		if(isSalvaging()) {
-			//check for armor
-	        if(unit.getEntity().getArmorForReal(loc, false) > 0) {
-	        	return "must salvage armor in this location first";
-	        }
-		}
-		return null;
-	}
-	
-	@Override
-	public String checkScrappable() {
-		//check for armor
-        if(unit.getEntity().getArmor(loc, false) != IArmorState.ARMOR_DESTROYED) {
-        	return "You must scrap armor in the rotor first";
+    @Override
+    public int getAvailability(int era) {
+        //go with conventional fighter avionics
+        if(era == EquipmentType.ERA_SL) {
+            return EquipmentType.RATING_C;
+        } else if(era == EquipmentType.ERA_SW) {
+            return EquipmentType.RATING_D;
+        } else {
+            return EquipmentType.RATING_C;
         }
-		return null;
-	}
-	
-	@Override
-	public boolean canNeverScrap() {
-		return false;
-	}
-	
-	@Override
-	public double getTonnage() {
-		return 0.1 * getUnitTonnage();
-	}
+    }
 
-	@Override
-	public long getStickerPrice() {
-		return (long)(40000 * getTonnage());
-	}
+    @Override
+    public int getTechRating() {
+        return EquipmentType.RATING_B;
+    }
+
+    @Override
+    public void fix() {
+        super.fix();
+        damage--;
+        VTOL vtol = get(Installable.class).getEntity(VTOL.class);
+        if(null != vtol) {
+            int currIsVal = vtol.getInternal(VTOL.LOC_ROTOR); 
+            int maxIsVal = vtol.getOInternal(VTOL.LOC_ROTOR); 
+            int repairedIsVal = Math.min(maxIsVal, currIsVal + 1);
+            vtol.setInternal(repairedIsVal, VTOL.LOC_ROTOR);
+        }
+    }
+
+    @Override
+    public MissingPart getMissingPart() {
+        return new MissingRotor(get(Installable.class).getUnitTonnage(), campaign);
+    }
+
+    @Override
+    public void remove(boolean salvage) {
+        VTOL vtol = get(Installable.class).getEntity(VTOL.class);
+        if(null != vtol) {
+            vtol.setInternal(IArmorState.ARMOR_DESTROYED, VTOL.LOC_ROTOR);
+            Part spare = campaign.checkForExistingSparePart(this);
+            if(!salvage) {
+                campaign.removePart(this);
+            } else if(null != spare) {
+                spare.incrementQuantity();
+                campaign.removePart(this);
+            }
+            get(Installable.class).getUnit().removePart(this);
+            Part missing = getMissingPart();
+            get(Installable.class).getUnit().addPart(missing);
+            campaign.addPart(missing, 0);
+            vtol.resetMovementDamage();
+            for(Part part : get(Installable.class).getUnit().getParts()) {
+                if(part instanceof MotiveSystem) {
+                    part.updateConditionFromEntity(false);
+                }
+            }
+        }
+        get(Installable.class).setUnit(null);
+    }
+    
+    @Override 
+    public int getBaseTime() {
+        if(isSalvaging()) {
+            return 300;
+        }
+        return 120;
+    }
+    
+    @Override
+    public int getDifficulty() {
+        if(isSalvaging()) {
+            return 0;
+        }
+        return 2;
+    }
+    
+    @Override
+    public void updateConditionFromPart() {
+        VTOL vtol = get(Installable.class).getEntity(VTOL.class);
+        if(null != vtol) {
+            vtol.setInternal(vtol.getOInternal(VTOL.LOC_ROTOR) - damage, VTOL.LOC_ROTOR);
+        }
+    }
+    
+    @Override 
+    public String checkFixable() {
+        VTOL vtol = get(Installable.class).getEntity(VTOL.class);
+        if(null == vtol) {
+            return null;
+        }
+        if(isSalvaging()) {
+            //check for armor
+            if(vtol.getArmorForReal(get(Installable.class).getMainLocation(), false) > 0) {
+                return "must salvage armor in this location first";
+            }
+        }
+        return null;
+    }
+    
+    @Override
+    public String checkScrappable() {
+        VTOL vtol = get(Installable.class).getEntity(VTOL.class);
+        //check for armor
+        if(null != vtol) {
+            if(vtol.getArmor(get(Installable.class).getMainLocation(), false) != IArmorState.ARMOR_DESTROYED) {
+                return "You must scrap armor in the rotor first";
+            }
+        }
+        return null;
+    }
+    
+    @Override
+    public boolean canNeverScrap() {
+        return false;
+    }
+    
+    @Override
+    public double getTonnage() {
+        return Math.ceil(0.2 * get(Installable.class).getUnitTonnage()) / 2.0;
+    }
+
+    @Override
+    public long getStickerPrice() {
+        return Math.round(40000L * getTonnage());
+    }
 }
