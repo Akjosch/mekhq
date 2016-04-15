@@ -3,7 +3,6 @@ package mekhq.campaign.parts.component;
 import java.util.UUID;
 
 import megamek.common.Entity;
-import megamek.common.Protomech;
 import mekhq.campaign.parts.Part;
 import mekhq.campaign.unit.Unit;
 

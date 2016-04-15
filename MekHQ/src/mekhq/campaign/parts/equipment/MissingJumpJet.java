@@ -25,6 +25,7 @@ import megamek.common.EquipmentType;
 import megamek.common.MiscType;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.Part;
+import mekhq.campaign.parts.component.Installable;
 
 /**
  *
@@ -39,6 +40,7 @@ public class MissingJumpJet extends MissingEquipmentPart {
     
     public MissingJumpJet(int tonnage, EquipmentType et, int equipNum, Campaign c) {
         super(tonnage, et, equipNum, c, 1);
+        get(Installable.class).setTonnageLimited(true);
     }
     
     @Override 
@@ -53,15 +55,15 @@ public class MissingJumpJet extends MissingEquipmentPart {
     
     @Override
 	public Part getNewPart() {
-		return new JumpJet(getUnitTonnage(), type, -1, campaign);
+		return new JumpJet(get(Installable.class).getUnitTonnage(), type, -1, campaign);
 	}
     
     @Override
     public double getTonnage() {
     	double ton = 0.5;
-    	if(getUnitTonnage() >= 90) {
+    	if(get(Installable.class).getUnitTonnage() >= 90) {
     		ton = 2.0;
-    	} else if(getUnitTonnage() >= 60) {
+    	} else if(get(Installable.class).getUnitTonnage() >= 60) {
     		ton = 1.0;
     	}
     	if(type.hasSubType(MiscType.S_IMPROVED)) {
