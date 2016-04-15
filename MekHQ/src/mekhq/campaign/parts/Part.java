@@ -42,6 +42,7 @@ import mekhq.MekHqXmlUtil;
 import mekhq.Version;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Component;
+import mekhq.campaign.parts.component.ComponentHolder;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.personnel.SkillType;
@@ -65,7 +66,7 @@ import mekhq.campaign.work.Modes;
  * this work
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
-public abstract class Part implements Serializable, MekHqXmlSerializable, IPartWork {
+public abstract class Part implements Serializable, MekHqXmlSerializable, IPartWork, ComponentHolder {
 	private static final long serialVersionUID = 6185232893259168810L;
 	public static final int PART_TYPE_ARMOR = 0;
 	public static final int PART_TYPE_WEAPON = 1;
@@ -194,7 +195,8 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 		this.isTeamSalvaging = false;
 	}
 
-	/** @return the component associated with this Part, or <code>null</code> */
+	// ComponentHolder methods
+	
     public <T extends Component> T get(Class<T> cls) {
 	    if(components.containsKey(cls)) {
 	        return cls.cast(components.get(cls));
@@ -202,12 +204,7 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 	    return (T) null;
 	}
 	
-	/**
-	 * Add a component to this part. Only one component of a given class per part possible.
-	 * If there is already a component in place, doesn't replace it.
-	 * 
-	 * @return <code>false</code> if there already was a component in place, else <code>true</code>
-	 */
+    @Override
 	public boolean add(Component component) {
 	    Class<? extends Component> componentClass = component.getClass();
 	    if(has(componentClass)) {
@@ -219,7 +216,7 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
         return true;
 	}
 	
-	/** Like add(), but replaces the component if there was one already */
+    @Override
 	public void replace(Component component) {
 	    Class<? extends Component> componentClass = component.getClass();
 	    Component oldComponent = components.put(componentClass, component);
@@ -229,7 +226,7 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 	    component.setOwner(this);
 	}
 	
-	/** Remove a given component class */
+    @Override
 	public void remove(Class<? extends Component> cls) {
 	    Component oldComponent = components.remove(cls);
         if(null != oldComponent) {
@@ -237,7 +234,7 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
         }
 	}
 	
-	/** @return <code>true</code> is this part has the given component class, <code>false</code> otherwise */
+    @Override
 	public boolean has(Class<? extends Component> cls) {
 	    return components.containsKey(cls);
 	}
@@ -1009,7 +1006,8 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 	@Override
 	public boolean isSalvaging() {
 		if(has(Installable.class) && get(Installable.class).isInstalled()) {
-			return get(Installable.class).getUnit().isSalvage() || isMountedOnDestroyedLocation() || isTeamSalvaging();
+			return get(Installable.class).getUnit().isSalvage()
+			    || get(Installable.class).isMountedOnDestroyedLocation() || isTeamSalvaging();
 		}
 		return false;
 	}

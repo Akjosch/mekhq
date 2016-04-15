@@ -374,7 +374,8 @@ public class PartsStore implements Serializable {
 	private void stockMekComponents(Campaign c) {
 		parts.add(new MekLifeSupport(c));
 		for(int ton = 20; ton <= 100; ton += 5) {
-			parts.add(new MekSensor(ton, c));
+			parts.add(new MekSensor(ton, false, c));
+            parts.add(new MekSensor(ton, true, c));
 		}
 		for(int type = Mech.COCKPIT_STANDARD; type < Mech.COCKPIT_STRING.length; type++) {
 		    parts.add(new MekCockpit(type, false, c));

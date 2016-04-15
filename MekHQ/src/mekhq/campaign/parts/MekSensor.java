@@ -42,21 +42,29 @@ import org.w3c.dom.Node;
  */
 public class MekSensor extends Part {
     private static final long serialVersionUID = 931907976883324097L;
+    
+    private boolean torsoMounted;
 
     public MekSensor() {
-        this(0, null);
+        this(0, false, null);
     }
 
-    public MekSensor(int tonnage, Campaign c) {
+    public MekSensor(int tonnage, boolean torsoMounted, Campaign c) {
         super(c);
         this.name = "Mech Sensors";
+        this.torsoMounted = torsoMounted;
         add(new Installable());
         get(Installable.class).setUnitTonnage(tonnage);
         get(Installable.class).setTonnageLimited(true);
+        if(torsoMounted) {
+            get(Installable.class).setLocations(Mech.LOC_HEAD, Mech.LOC_CT);
+        } else {
+            get(Installable.class).setLocations(Mech.LOC_HEAD);
+        }
     }
 
     public MekSensor clone() {
-        MekSensor clone = new MekSensor(get(Installable.class).getUnitTonnage(), campaign);
+        MekSensor clone = new MekSensor(get(Installable.class).getUnitTonnage(), torsoMounted, campaign);
         clone.copyBaseData(this);
         return clone;
     }
@@ -74,11 +82,9 @@ public class MekSensor extends Part {
 
     @Override
     public boolean isSamePartType(Part part) {
-        //the cost of sensors varies by tonnage, so according to
-        //pg. 180 of StratOps that means they can only be exchanged
-        //between meks of the same tonnage
-        return part instanceof MekSensor
-                && get(Installable.class).getUnitTonnage() == part.get(Installable.class).getUnitTonnage();
+        return part instanceof MekSensor 
+            && get(Installable.class).getUnitTonnage() == part.get(Installable.class).getUnitTonnage()
+            && torsoMounted == ((MekSensor) part).torsoMounted;
     }
 
     @Override
@@ -118,7 +124,7 @@ public class MekSensor extends Part {
 
     @Override
     public MissingPart getMissingPart() {
-        return new MissingMekSensor(get(Installable.class).getUnitTonnage(), campaign);
+        return new MissingMekSensor(get(Installable.class).getUnitTonnage(), torsoMounted, campaign);
     }
 
     @Override
@@ -231,21 +237,6 @@ public class MekSensor extends Part {
     }
 
     @Override
-    public boolean isMountedOnDestroyedLocation() {
-        Unit unit = get(Installable.class).getUnit();
-        if(null == unit) {
-            return false;
-        }
-        for(int i = 0; i < unit.getEntity().locations(); i++) {
-             if(unit.getEntity().getNumberOfCriticals(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_SENSORS, i) > 0
-                     && unit.isLocationDestroyed(i)) {
-                 return true;
-             }
-         }
-        return false;
-    }
-
-    @Override
     public String getDetails() {
         return super.getDetails() + ", " + get(Installable.class).getUnitTonnage() + " tons";
     }
@@ -274,21 +265,8 @@ public class MekSensor extends Part {
     public int getReIntroDate() {
         return EquipmentType.DATE_NONE;
     }
-
-    @Override
-    public boolean isInLocation(String loc) {
-         if(null == unit || null == unit.getEntity() || !(unit.getEntity() instanceof Mech)) {
-             return false;
-         }
-         if (unit.getEntity().getLocationFromAbbr(loc) == Mech.LOC_HEAD) {
-             return true;
-         }
-         if(((Mech)unit.getEntity()).getCockpitType() == Mech.COCKPIT_TORSO_MOUNTED) {
-             if(unit.getEntity().getLocationFromAbbr(loc) == Mech.LOC_CT) {
-                 return true;
-             }
-         }
-         return false;
+    
+    public boolean isTorsoMounted() {
+        return torsoMounted;
     }
-
 }
