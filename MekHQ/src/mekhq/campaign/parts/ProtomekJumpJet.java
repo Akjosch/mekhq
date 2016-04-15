@@ -247,7 +247,7 @@ public class ProtomekJumpJet extends Part {
         if(unit.isLocationBreached(Protomech.LOC_TORSO)) {
             return unit.getEntity().getLocationName(Protomech.LOC_TORSO) + " is breached.";
         }
-        if(isMountedOnDestroyedLocation()) {
+        if(get(Installable.class).isMountedOnDestroyedLocation()) {
             return unit.getEntity().getLocationName(Protomech.LOC_TORSO) + " is destroyed.";
         }
         return null;

@@ -29,6 +29,8 @@ import megamek.common.Mounted;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.Part;
+import mekhq.campaign.parts.component.Installable;
+import mekhq.campaign.unit.Unit;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -122,6 +124,7 @@ public class MissingBattleArmorEquipmentPart extends MissingEquipmentPart {
 
 
     private boolean isModular() {
+        Unit unit = get(Installable.class).getUnit();
     	if(null == unit) {
     		return false;
     	}

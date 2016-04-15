@@ -32,6 +32,7 @@ import megamek.common.SmallCraft;
 import megamek.common.TechConstants;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -69,11 +70,12 @@ public class StructuralIntegrity extends Part {
 	
 	@Override
 	public int getAvailability(int era) {
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			if(unit.getEntity() instanceof Dropship || unit.getEntity() instanceof SmallCraft) {
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+		if(null != aero) {
+			if(aero instanceof Dropship || aero instanceof SmallCraft) {
 				return EquipmentType.RATING_D;
 			}
-			else if(unit.getEntity() instanceof ConvFighter) {
+			else if(aero instanceof ConvFighter) {
 				return EquipmentType.RATING_C;
 			} else {
 				if(era == EquipmentType.ERA_SL) {
@@ -90,14 +92,15 @@ public class StructuralIntegrity extends Part {
 
 	@Override
 	public long getStickerPrice() {
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			if(unit.getEntity() instanceof Dropship || unit.getEntity() instanceof SmallCraft) {
-				return ((Aero)unit.getEntity()).get0SI() * 100000;
+	    Aero aero = get(Installable.class).getEntity(Aero.class);
+		if(null != aero) {
+			if(aero instanceof Dropship || aero) instanceof SmallCraft) {
+				return aero.get0SI() * 100000;
 			}
-			else if(unit.getEntity() instanceof ConvFighter) {
-				return ((Aero)unit.getEntity()).get0SI() * 4000;
+			else if(aero instanceof ConvFighter) {
+				return aero.get0SI() * 4000;
 			} else {
-				return ((Aero)unit.getEntity()).get0SI() * 50000;
+				return aero.get0SI() * 50000;
 			}
 		}
 		return 0;

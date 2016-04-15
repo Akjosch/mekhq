@@ -2005,7 +2005,7 @@ public class Unit implements MekHqXmlSerializable, IMothballWork {
     			partsToAdd.add(a);
     		}
     		if(entity instanceof Tank && null == stabilisers[i] && i != Tank.LOC_BODY) {
-    			VeeStabiliser s = new VeeStabiliser((int)getEntity().getWeight(),i, campaign);
+    			VeeStabiliser s = new VeeStabiliser(i, campaign);
     			addPart(s);
     			partsToAdd.add(s);
     		}
@@ -2057,7 +2057,7 @@ public class Unit implements MekHqXmlSerializable, IMothballWork {
     	        int eqnum = entity.getEquipmentNum(m);
     	        Part epart = heatSinks.get(eqnum);
     	        if(null == epart) {
-    	            epart = new HeatSink((int)entity.getWeight(), m.getType(), eqnum, campaign);
+    	            epart = new HeatSink(m.getType(), eqnum, campaign);
     	            addPart(epart);
     	            partsToAdd.add(epart);
     	        }
@@ -2127,7 +2127,7 @@ public class Unit implements MekHqXmlSerializable, IMothballWork {
     			partsToAdd.add(gyro);
     		}
     		if(null == lifeSupport) {
-    			lifeSupport = new MekLifeSupport((int) entity.getWeight(), campaign);
+    			lifeSupport = new MekLifeSupport(campaign);
     			addPart(lifeSupport);
     			partsToAdd.add(lifeSupport);
     		}
@@ -2137,7 +2137,7 @@ public class Unit implements MekHqXmlSerializable, IMothballWork {
     			partsToAdd.add(sensor);
     		}
     		if(null == cockpit) {
-    			cockpit = new MekCockpit((int) entity.getWeight(), ((Mech)entity).getCockpitType(), entity.isClan(), campaign);
+    			cockpit = new MekCockpit(((Mech)entity).getCockpitType(), entity.isClan(), campaign);
     			addPart(cockpit);
     			partsToAdd.add(cockpit);
     		}
@@ -2239,15 +2239,21 @@ public class Unit implements MekHqXmlSerializable, IMothballWork {
     			partsToAdd.add(structuralIntegrity);
     		}
     		if(null == avionics) {
-    			avionics = new Avionics((int)entity.getWeight(), campaign);
+    			avionics = new Avionics(campaign);
     			addPart(avionics);
     			partsToAdd.add(avionics);
     		}
     		if(null == fcs) {
-    			fcs = new FireControlSystem((int)entity.getWeight(), 0, campaign);
+    		    int firingArcs = 0;
+    		    if(entity instanceof SmallCraft) {
+    		        firingArcs = ((SmallCraft) entity).getArcswGuns();
+    		    }
+    		    if(entity instanceof Jumpship) {
+    		        firingArcs = ((Jumpship) entity).getArcswGuns();
+    		    }
+    			fcs = new FireControlSystem(firingArcs, campaign);
     			addPart(fcs);
     			partsToAdd.add(fcs);
-    			((FireControlSystem)fcs).calculateCost();
     		}
     		if(null == sensor) {
     			sensor = new AeroSensor((int) entity.getWeight(), entity instanceof Dropship || entity instanceof Jumpship, campaign);
@@ -2260,19 +2266,19 @@ public class Unit implements MekHqXmlSerializable, IMothballWork {
     			partsToAdd.add(landingGear);
     		}
     		if(null == lifeSupport) {
-    			lifeSupport = new AeroLifeSupport((int) entity.getWeight(), 0, !(entity instanceof SmallCraft || entity instanceof Jumpship), campaign);
+    			lifeSupport = new AeroLifeSupport(0, !(entity instanceof SmallCraft || entity instanceof Jumpship), campaign);
     			addPart(lifeSupport);
     			partsToAdd.add(lifeSupport);
     			((AeroLifeSupport)lifeSupport).calculateCost();
     		}
     		if(null == dropCollar && entity instanceof Dropship) {
-    			dropCollar = new DropshipDockingCollar((int) entity.getWeight(), campaign);
+    			dropCollar = new DropshipDockingCollar(campaign);
     			addPart(dropCollar);
     			partsToAdd.add(dropCollar);
     		}
     		int hsinks = ((Aero)entity).getOHeatSinks() - aeroHeatSinks.size();
     		while(hsinks > 0) {
-    			AeroHeatSink aHeatSink = new AeroHeatSink((int)entity.getWeight(), ((Aero)entity).getHeatType(), campaign);
+    			AeroHeatSink aHeatSink = new AeroHeatSink(((Aero)entity).getHeatType(), campaign);
     			addPart(aHeatSink);
     			partsToAdd.add(aHeatSink);
     			hsinks--;
@@ -2295,7 +2301,7 @@ public class Unit implements MekHqXmlSerializable, IMothballWork {
     			partsToAdd.add(motiveSystem);
     		}
     		if(null == sensor) {
-    			sensor = new VeeSensor((int) entity.getWeight(), campaign);
+    			sensor = new VeeSensor(campaign);
     			addPart(sensor);
     			partsToAdd.add(sensor);
     		}

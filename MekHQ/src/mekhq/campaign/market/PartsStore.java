@@ -192,7 +192,7 @@ public class PartsStore implements Serializable {
 					parts.add(new AmmoStorage(0, et, ((AmmoType)et).getShots(), c));
 				}
 			} else if(et instanceof MiscType && (((MiscType)et).hasFlag(MiscType.F_HEAT_SINK) || ((MiscType)et).hasFlag(MiscType.F_DOUBLE_HEAT_SINK))) {
-            	parts.add(new HeatSink(0, et, -1, c));
+            	parts.add(new HeatSink(et, -1, c));
 			} else if(et instanceof MiscType && ((MiscType)et).hasFlag(MiscType.F_JUMP_JET)) {
 				//need to do it by rating and unit tonnage
 				for(int ton = 10; ton <= 100; ton += 5) {

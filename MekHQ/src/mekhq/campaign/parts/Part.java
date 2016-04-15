@@ -1115,10 +1115,6 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
 		return false;
 	}
 
-	public boolean isMountedOnDestroyedLocation() {
-		return false;
-	}
-
 	public boolean isPartForEquipmentNum(int index, int loc) {
 		return false;
 	}

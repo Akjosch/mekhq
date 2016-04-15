@@ -27,6 +27,7 @@ import java.util.HashSet;
 
 import megamek.common.AmmoType;
 import megamek.common.CriticalSlot;
+import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import megamek.common.Mounted;
 import megamek.common.Protomech;
@@ -67,11 +68,11 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
 	protected boolean oneShot;
 
     public AmmoBin() {
-    	this(0, null, -1, 0, false, null);
+    	this(null, -1, 0, false, null);
     }
 
-    public AmmoBin(int tonnage, EquipmentType et, int equipNum, int shots, boolean singleShot, Campaign c) {
-        super(tonnage, et, equipNum, c);
+    public AmmoBin(EquipmentType et, int equipNum, int shots, boolean singleShot, Campaign c) {
+        super(0, et, equipNum, c);
         this.shotsNeeded = shots;
         this.oneShot = singleShot;
         this.checkedToday = false;
@@ -84,7 +85,7 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
     }
 
     public AmmoBin clone() {
-    	AmmoBin clone = new AmmoBin(getUnitTonnage(), getType(), getEquipmentNum(), shotsNeeded, oneShot, campaign);
+    	AmmoBin clone = new AmmoBin(getType(), getEquipmentNum(), shotsNeeded, oneShot, campaign);
         clone.copyBaseData(this);
         clone.shotsNeeded = this.shotsNeeded;
         clone.munition = this.munition;
@@ -121,8 +122,9 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
     	int shots = getFullShots() - shotsNeeded;
     	//replace with actual entity values if entity not null because the previous number will not
     	//be correct for ammo swaps
-    	if(null != unit && null != unit.getEntity()) {
-    		Mounted m = unit.getEntity().getEquipment(equipmentNum);
+    	Entity entity = get(Installable.class).getEntity();
+    	if(null != entity) {
+    		Mounted m = entity.getEquipment(equipmentNum);
     		if(null != m) {
     			shots = m.getBaseShotsLeft();
     		}
@@ -138,8 +140,9 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
     	//if on a unit, then use the ammo type on the existing entity, to avoid getting it wrong due to 
     	//ammo swaps
     	EquipmentType curType = type;
-    	if(null != unit && null != unit.getEntity()) {
-			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
+        Entity entity = get(Installable.class).getEntity();
+    	if(null != entity) {
+			Mounted mounted = entity.getEquipment(equipmentNum);
 			if(null != mounted && (mounted.getType() instanceof AmmoType)) {
 				curType = mounted.getType();
 			}
@@ -172,7 +175,8 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
 
     public void changeMunition(long m) {
     	this.munition = m;
-    	for (AmmoType atype : Utilities.getMunitionsFor(unit.getEntity(),(AmmoType)type, CampaignOptions.TECH_EXPERIMENTAL)) {
+    	for (AmmoType atype : Utilities.getMunitionsFor(get(Installable.class).getEntity(),
+    	    (AmmoType)type, CampaignOptions.TECH_EXPERIMENTAL)) {
     		if (atype.getMunitionType() == munition) {
     			type = atype;
     			break;
@@ -295,6 +299,7 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
 
 	public void loadBin() {
 		int shots = Math.min(getAmountAvailable(), shotsNeeded);
+		Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
 			if(null != mounted && mounted.getType() instanceof AmmoType) {
@@ -336,6 +341,7 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
 		//some AmmoStorage instead if we implement customization of these units
 		int shots = getFullShots() - shotsNeeded;
 		AmmoType curType = (AmmoType)type;
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
 			if(null != mounted && mounted.getType() instanceof AmmoType) {
@@ -360,7 +366,7 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
 
 	@Override
 	public MissingPart getMissingPart() {
-		return new MissingAmmoBin(getUnitTonnage(), type, equipmentNum, oneShot, campaign);
+		return new MissingAmmoBin(type, equipmentNum, oneShot, campaign);
 	}
 
 	public boolean isOneShot() {
@@ -377,6 +383,7 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
 
 	@Override
 	public void updateConditionFromEntity(boolean checkForDestruction) {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
 			if(null != mounted) {
@@ -404,6 +411,7 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
 		if(isSalvaging()) {
 			return 120;
 		}
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
 			if(null != mounted) {
@@ -429,6 +437,7 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
 
 	@Override
 	public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
 			if(null != mounted) {
@@ -477,6 +486,7 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
     	if(isSalvaging()) {
     		return super.getDetails();
     	}
+        Unit unit = get(Installable.class).getUnit();
     	if(null != unit) {
     		String availability = "";
     		int shotsAvailable = getAmountAvailable();
@@ -497,6 +507,7 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
 		if(!isSalvaging() && getAmountAvailable() == 0) {
 			return "No ammo of this type is available";
 		}
+        Unit unit = get(Installable.class).getUnit();
 		if(null == unit) {
 			return "Ammo bins can only be loaded when installed on units";
 		}

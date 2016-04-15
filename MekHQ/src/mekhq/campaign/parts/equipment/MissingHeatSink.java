@@ -24,7 +24,6 @@ package mekhq.campaign.parts.equipment;
 import megamek.common.EquipmentType;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.Part;
-import mekhq.campaign.parts.component.Installable;
 
 /**
  *
@@ -34,11 +33,11 @@ public class MissingHeatSink extends MissingEquipmentPart {
 	private static final long serialVersionUID = 2892728320891712304L;
 
 	public MissingHeatSink() {
-    	this(0, null, -1, null);
+    	this(null, -1, null);
     }
     
-    public MissingHeatSink(int tonnage, EquipmentType et, int equipNum, Campaign c) {
-        super(tonnage, et, equipNum, c, 1);
+    public MissingHeatSink(EquipmentType et, int equipNum, Campaign c) {
+        super(0, et, equipNum, c, 1);
     }
     
     @Override 
@@ -54,6 +53,6 @@ public class MissingHeatSink extends MissingEquipmentPart {
 
 	@Override
 	public Part getNewPart() {
-		return new HeatSink(get(Installable.class).getUnitTonnage(), type, -1, campaign);
+		return new HeatSink(type, -1, campaign);
 	}
 }

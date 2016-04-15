@@ -32,6 +32,7 @@ import megamek.common.Jumpship;
 import megamek.common.TechConstants;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
 
 import org.w3c.dom.Node;
@@ -118,22 +119,24 @@ public class Thrusters extends Part {
 	@Override
 	public void fix() {
 		super.fix();
-		if(null != unit && unit.getEntity() instanceof Aero) {
+		Aero aero = get(Installable.class).getEntity(Aero.class);
+		if(null != aero) {
 			if (isLeftThrusters) {
-				((Aero)unit.getEntity()).setLeftThrustHits(0);
+			    aero.setLeftThrustHits(0);
 			} else {
-				((Aero)unit.getEntity()).setRightThrustHits(0);
+			    aero.setRightThrustHits(0);
 			}
 		}
 	}
 
 	@Override
 	public void remove(boolean salvage) {
-		if(null != unit && unit.getEntity() instanceof Aero) {
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+		if(null != aero) {
 			if (isLeftThrusters) {
-				((Aero)unit.getEntity()).setLeftThrustHits(4);
+			    aero.setLeftThrustHits(4);
 			} else {
-				((Aero)unit.getEntity()).setRightThrustHits(4);
+			    aero.setRightThrustHits(4);
 			}
 			Part spare = campaign.checkForExistingSparePart(this);
 			if(!salvage) {
@@ -147,7 +150,7 @@ public class Thrusters extends Part {
 			unit.addPart(missing);
 			campaign.addPart(missing, 0);
 		}
-		setUnit(null);
+		get(Installable.class).setUnit(null);
 		updateConditionFromEntity(false);
 	}
 

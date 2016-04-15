@@ -195,10 +195,6 @@ public class Armor extends Part implements IAcquisitionWork {
         return location;
     }
 
-    public String getLocationName() {
-        return unit.getEntity().getLocationName(location);
-    }
-
     public boolean isRearMounted() {
         return rear;
     }
@@ -493,6 +489,7 @@ public class Armor extends Part implements IAcquisitionWork {
         if(isReservedForRefit()) {
             return;
         }
+        Unit unit = get(Installable.class).getUnit();
         if(null == unit) {
             return;
         }
@@ -505,6 +502,7 @@ public class Armor extends Part implements IAcquisitionWork {
     
     @Override 
     public int getBaseTime() {
+        Unit unit = get(Installable.class).getUnit();
         if(isSalvaging()) {
             return getBaseTimeFor(unit.getEntity()) * amount;
         }
@@ -545,16 +543,10 @@ public class Armor extends Part implements IAcquisitionWork {
         if(getAmountAvailable() == 0) {
             return "No spare armor available";
         }
-        if (isMountedOnDestroyedLocation()) {
+        if (get(Installable.class).isMountedOnDestroyedLocation()) {
             return unit.getEntity().getLocationName(location) + " is destroyed.";
         }
         return null;
-    }
-
-    @Override
-    public boolean isMountedOnDestroyedLocation() {
-        Unit unit = get(Installable.class).getUnit();
-        return null != unit && unit.isLocationDestroyed(location);
     }
 
     @Override

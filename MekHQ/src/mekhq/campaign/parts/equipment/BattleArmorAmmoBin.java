@@ -31,6 +31,8 @@ import mekhq.Utilities;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.AmmoStorage;
 import mekhq.campaign.parts.Part;
+import mekhq.campaign.parts.component.Installable;
+import mekhq.campaign.unit.Unit;
 import mekhq.campaign.work.IAcquisitionWork;
 
 /**
@@ -94,6 +96,7 @@ public class BattleArmorAmmoBin extends AmmoBin implements IAcquisitionWork {
     
     @Override
     public void updateConditionFromEntity(boolean checkForDestruction) {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
             if(null != mounted) {
@@ -113,6 +116,7 @@ public class BattleArmorAmmoBin extends AmmoBin implements IAcquisitionWork {
     
     @Override 
 	public int getBaseTime() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
 			if(null != mounted) {
@@ -131,6 +135,7 @@ public class BattleArmorAmmoBin extends AmmoBin implements IAcquisitionWork {
     
     @Override
     public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
             if(null != mounted) {
@@ -148,6 +153,7 @@ public class BattleArmorAmmoBin extends AmmoBin implements IAcquisitionWork {
         int shots = Math.min(getAmountAvailable(), shotsNeeded);
         int shotsPerTrooper = shots / getNumTroopers();
         shots = shotsPerTrooper * getNumTroopers();
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
             if(null != mounted) {

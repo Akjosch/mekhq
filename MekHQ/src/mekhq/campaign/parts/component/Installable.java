@@ -3,6 +3,7 @@ package mekhq.campaign.parts.component;
 import java.util.UUID;
 
 import megamek.common.Entity;
+import megamek.common.Protomech;
 import mekhq.campaign.parts.Part;
 import mekhq.campaign.unit.Unit;
 
@@ -91,6 +92,18 @@ public class Installable extends Component {
                         return true;
                     }
                 }
+            }
+        }
+        return false;
+    }
+    
+    public boolean isMountedOnDestroyedLocation() {
+        if(null == unit) {
+            return false;
+        }
+        for(int loc : locations) {
+            if(unit.isLocationDestroyed(loc)) {
+                return true;
             }
         }
         return false;

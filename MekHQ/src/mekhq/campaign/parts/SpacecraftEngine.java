@@ -34,7 +34,9 @@ import megamek.common.TechConstants;
 import megamek.common.Warship;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
+import mekhq.campaign.unit.Unit;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -167,6 +169,7 @@ public class SpacecraftEngine extends Part {
 	@Override
 	public void fix() {
 		super.fix();
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			if(unit.getEntity() instanceof Aero) {
 				((Aero)unit.getEntity()).setEngineHits(0);
@@ -181,6 +184,7 @@ public class SpacecraftEngine extends Part {
 
 	@Override
 	public void remove(boolean salvage) {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_ENGINE);
 			if(unit.getEntity() instanceof Aero) {
@@ -198,12 +202,13 @@ public class SpacecraftEngine extends Part {
 			unit.addPart(missing);
 			campaign.addPart(missing, 0);
 		}
-		setUnit(null);
+		get(Installable.class).setUnit(null);
 		updateConditionFromEntity(false);
 	}
 
 	@Override
 	public void updateConditionFromEntity(boolean checkForDestruction) {
+	    Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			int engineHits = 0;
 			int engineCrits = 0;
@@ -255,11 +260,6 @@ public class SpacecraftEngine extends Part {
 		 return null;
 	 }
 	
-	@Override
-	public boolean isMountedOnDestroyedLocation() {
-		return false;
-	}
-	 
 	 @Override
 	 public boolean isRightTechType(String skillType) {
 		 return skillType.equals(SkillType.S_TECH_AERO);	

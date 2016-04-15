@@ -33,8 +33,10 @@ import megamek.common.TargetRoll;
 import megamek.common.TechConstants;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.personnel.SkillType;
+import mekhq.campaign.unit.Unit;
 import mekhq.campaign.work.Modes;
 
 import org.w3c.dom.Node;
@@ -130,6 +132,7 @@ public class ProtomekLocation extends Part {
     @Override
     public long getStickerPrice() {
         double nloc = 7.0;
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             nloc = unit.getEntity().locations();
         }
@@ -265,6 +268,7 @@ public class ProtomekLocation extends Part {
     @Override
     public void fix() {
         super.fix();
+        Unit unit = get(Installable.class).getUnit();
         if(isBlownOff()) {
             blownOff = false;
             unit.getEntity().setLocationBlownOff(loc, false);
@@ -311,6 +315,7 @@ public class ProtomekLocation extends Part {
     @Override
     public void remove(boolean salvage) {
         blownOff = false;
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             unit.getEntity().setInternal(IArmorState.ARMOR_DESTROYED, loc);
             unit.getEntity().setLocationBlownOff(loc, false);
@@ -351,12 +356,13 @@ public class ProtomekLocation extends Part {
                 }
             }
         }
-        setUnit(null);
+        get(Installable.class).setUnit(null);
         updateConditionFromEntity(false);
     }
 
     @Override
     public void updateConditionFromEntity(boolean checkForDestruction) {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             blownOff = unit.getEntity().isLocationBlownOff(loc);
             breached = unit.isLocationBreached(loc);
@@ -432,6 +438,7 @@ public class ProtomekLocation extends Part {
     @Override
     public String getDetails() {
         String toReturn = "";
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             toReturn = unit.getEntity().getLocationName(loc);
             if(isBlownOff()) {
@@ -465,6 +472,7 @@ public class ProtomekLocation extends Part {
 
     @Override
     public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             unit.getEntity().setInternal((int)Math.round(percent * unit.getEntity().getOInternal(loc)), loc);
             //if all the system crits are marked off on the entity in this location, then we need to
@@ -489,6 +497,7 @@ public class ProtomekLocation extends Part {
 
     @Override
     public String checkFixable() {
+        Unit unit = get(Installable.class).getUnit();
     	if(null == unit) {
     		return null;
     	}
@@ -548,6 +557,7 @@ public class ProtomekLocation extends Part {
             return "Protomech's Torso cannot be scrapped";
         }
         //check for armor
+        Unit unit = get(Installable.class).getUnit();
         if(unit.getEntity().getArmor(loc, false) > 0
                 || (unit.getEntity().hasRearArmor(loc) && unit.getEntity().getArmor(loc, true) > 0 )) {
             return "You must first remove the armor from this location before you scrap it";

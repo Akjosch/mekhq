@@ -30,7 +30,9 @@ import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.MissingPart;
 import mekhq.campaign.parts.Part;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.Person;
+import mekhq.campaign.unit.Unit;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -124,6 +126,7 @@ public class BattleArmorEquipmentPart extends EquipmentPart {
 
     @Override
     public void remove(boolean salvage) {
+        Unit unit = get(Installable.class).getUnit();
     	if(null != unit) {
             unit.removePart(this);
             Part missing = getMissingPart();
@@ -155,6 +158,7 @@ public class BattleArmorEquipmentPart extends EquipmentPart {
 
     @Override
     public void updateConditionFromEntity(boolean checkForDestruction) {
+        Unit unit = get(Installable.class).getUnit();
     	if(null != unit && isModular()) {
 			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
 			if(null != mounted) {
@@ -209,6 +213,7 @@ public class BattleArmorEquipmentPart extends EquipmentPart {
 
     @Override
     public String getDetails() {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             return unit.getEntity().getLocationName(trooper);
         }
@@ -241,6 +246,7 @@ public class BattleArmorEquipmentPart extends EquipmentPart {
     }
 
     public int getBaMountLocation() {
+        Unit unit = get(Installable.class).getUnit();
     	if(null != unit) {
     		Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
 			if(null != mounted) {
@@ -251,6 +257,7 @@ public class BattleArmorEquipmentPart extends EquipmentPart {
     }
 
     private boolean isModular() {
+        Unit unit = get(Installable.class).getUnit();
     	if(null == unit) {
     		return false;
     	}

@@ -39,6 +39,7 @@ import megamek.common.TechConstants;
 import megamek.common.loaders.EntityLoadingException;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.parts.equipment.BattleArmorEquipmentPart;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.personnel.SkillType;
@@ -461,6 +462,7 @@ public class BattleArmorSuit extends Part {
     @Override
     public void fix() {
         super.fix();
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             unit.getEntity().setInternal(unit.getEntity().getOInternal(trooper), trooper);
         }
@@ -474,6 +476,7 @@ public class BattleArmorSuit extends Part {
     @Override
     public void remove(boolean salvage) {
         ArrayList<Part> trooperParts = new ArrayList<Part>();
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             Person trooperToRemove = null;
             if(unit.getEntity().getInternal(trooper) > 0) {
@@ -526,12 +529,13 @@ public class BattleArmorSuit extends Part {
 			spare.incrementQuantity();
 			campaign.removePart(this);
 		}
-        setUnit(null);
+        get(Installable.class).setUnit(null);
         updateConditionFromEntity(false);
     }
 
     @Override
     public void updateConditionFromEntity(boolean checkForDestruction) {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
         	if(trooper < 0) {
                 System.err.println("Trooper location -1 found on BattleArmorSuit attached to unit");

@@ -28,6 +28,8 @@ import megamek.common.MiscType;
 import megamek.common.Mounted;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.MissingPart;
+import mekhq.campaign.parts.component.Installable;
+import mekhq.campaign.unit.Unit;
 
 /**
  *
@@ -92,6 +94,7 @@ public class JumpJet extends EquipmentPart {
 
 	@Override
 	public void updateConditionFromEntity(boolean checkForDestruction) {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			int priorHits = hits;
 			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);

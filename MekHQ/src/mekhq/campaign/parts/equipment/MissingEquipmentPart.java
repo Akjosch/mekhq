@@ -31,6 +31,7 @@ import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.MissingPart;
 import mekhq.campaign.parts.Part;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.unit.Unit;
 import mekhq.campaign.universe.Era;
 
@@ -71,7 +72,7 @@ public class MissingEquipmentPart extends MissingPart {
         // As it is a part bought with one entity can be used on another entity
         // on which it would have a different price (only tonnage is taken into
         // account for compatibility)
-        super(tonnage, c);
+        super(c);
         this.type =et;
         if(null != type) {
         	this.name = type.getName();
@@ -79,6 +80,7 @@ public class MissingEquipmentPart extends MissingPart {
         }
         this.equipmentNum = equipNum;
         this.equipTonnage = eTonnage;
+        get(Installable.class).setUnitTonnage(tonnage);
     }
 
     @Override
@@ -208,6 +210,7 @@ public class MissingEquipmentPart extends MissingPart {
     public String checkFixable() {
 	    // The part is only fixable if the location is not destroyed.
         // be sure to check location and second location
+	    Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             Mounted m = unit.getEntity().getEquipment(equipmentNum);
             if(null != m) {
@@ -236,6 +239,7 @@ public class MissingEquipmentPart extends MissingPart {
 
 	@Override
 	public boolean onBadHipOrShoulder() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			for(int loc = 0; loc < unit.getEntity().locations(); loc++) {
 	            for (int i = 0; i < unit.getEntity().getNumberOfCriticals(loc); i++) {
@@ -313,6 +317,7 @@ public class MissingEquipmentPart extends MissingPart {
 
 
     public boolean isRearFacing() {
+        Unit unit = get(Installable.class).getUnit();
     	if(null != unit) {
     		Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
 			if(null != mounted) {
@@ -324,6 +329,7 @@ public class MissingEquipmentPart extends MissingPart {
 
 	@Override
 	public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
 			if(null != mounted) {

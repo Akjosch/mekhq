@@ -31,10 +31,12 @@ import megamek.common.IArmorState;
 import megamek.common.TargetRoll;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.parts.equipment.BattleArmorEquipmentPart;
 import mekhq.campaign.parts.equipment.EquipmentPart;
 import mekhq.campaign.parts.equipment.MissingBattleArmorEquipmentPart;
 import mekhq.campaign.personnel.Person;
+import mekhq.campaign.unit.Unit;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -252,6 +254,7 @@ public class MissingBattleArmorSuit extends MissingPart {
     @Override
     public void fix() {
         Part replacement = findReplacement(false);
+        Unit unit = get(Installable.class).getUnit();
         if(null != replacement) {
         	BattleArmorSuit newSuit = (BattleArmorSuit)replacement.clone();
             //lets also clone the subparts
@@ -313,6 +316,7 @@ public class MissingBattleArmorSuit extends MissingPart {
 
 	@Override
     public String getDetails() {
+        Unit unit = get(Installable.class).getUnit();
     	if(null == unit) {
     		return super.getDetails();
 

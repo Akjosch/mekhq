@@ -27,6 +27,8 @@ import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
+import mekhq.campaign.unit.Unit;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -132,6 +134,7 @@ public class InfantryArmorPart extends Part {
 
 	@Override
 	public void remove(boolean salvage) {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			Part spare = campaign.checkForExistingSparePart(this);
 			if(!salvage) {
@@ -146,7 +149,7 @@ public class InfantryArmorPart extends Part {
 			}
 			unit.removePart(this);
 		}	
-		setUnit(null);
+		get(Installable.class).setUnit(null);
 	}
 
 	@Override

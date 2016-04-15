@@ -30,7 +30,9 @@ import megamek.common.Protomech;
 import megamek.common.TechConstants;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
+import mekhq.campaign.unit.Unit;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -152,6 +154,7 @@ public class ProtomekArmActuator extends Part {
 
     @Override
     public void remove(boolean salvage) {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             int h = Math.max(1, hits);
             unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Protomech.SYSTEM_ARMCRIT, location, h);
@@ -167,13 +170,14 @@ public class ProtomekArmActuator extends Part {
             unit.addPart(missing);
             campaign.addPart(missing, 0);
         }   
-        setUnit(null);
+        get(Installable.class).setUnit(null);
         updateConditionFromEntity(false);
         location = -1;
     }
 
     @Override
     public void updateConditionFromEntity(boolean checkForDestruction) {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {      
         	int priorHits = hits;
             hits = unit.getEntity().getDamagedCriticals(CriticalSlot.TYPE_SYSTEM, Protomech.SYSTEM_ARMCRIT, location);
@@ -225,6 +229,7 @@ public class ProtomekArmActuator extends Part {
     
     @Override
     public String getDetails() {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             return unit.getEntity().getLocationName(location);
         }
@@ -233,6 +238,7 @@ public class ProtomekArmActuator extends Part {
 
     @Override
     public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             if(hits > 0) {
                 unit.damageSystem(CriticalSlot.TYPE_SYSTEM, Protomech.SYSTEM_ARMCRIT, location, 1);
@@ -244,6 +250,7 @@ public class ProtomekArmActuator extends Part {
     
     @Override
     public String checkFixable() {
+        Unit unit = get(Installable.class).getUnit();
     	if(null == unit) {
     		return null;
     	}
@@ -253,15 +260,10 @@ public class ProtomekArmActuator extends Part {
         if(unit.isLocationBreached(location)) {
             return unit.getEntity().getLocationName(location) + " is breached.";
         }
-        if(isMountedOnDestroyedLocation()) {
+        if(get(Installable.class).isMountedOnDestroyedLocation()) {
             return unit.getEntity().getLocationName(location) + " is destroyed.";
         }
         return null;
-    }
-    
-    @Override
-    public boolean isMountedOnDestroyedLocation() {
-        return null != unit && unit.isLocationDestroyed(location);
     }
     
     @Override

@@ -29,7 +29,9 @@ import megamek.common.EquipmentType;
 import megamek.common.Protomech;
 import megamek.common.TechConstants;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
+import mekhq.campaign.unit.Unit;
 
 import org.w3c.dom.Node;
 
@@ -119,6 +121,7 @@ public class ProtomekLegActuator extends Part {
 
     @Override
     public void remove(boolean salvage) {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             int h = Math.max(2, hits);
             unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Protomech.SYSTEM_LEGCRIT, Protomech.LOC_LEG, h);
@@ -134,7 +137,7 @@ public class ProtomekLegActuator extends Part {
             unit.addPart(missing);
             campaign.addPart(missing, 0);
         }
-        setUnit(null);
+        get(Installable.class).setUnit(null);
         updateConditionFromEntity(false);
     }
 
@@ -211,6 +214,7 @@ public class ProtomekLegActuator extends Part {
 
     @Override
     public String checkFixable() {
+        Unit unit = get(Installable.class).getUnit();
     	if(null == unit) {
     		return null;
     	}
@@ -220,7 +224,7 @@ public class ProtomekLegActuator extends Part {
         if(unit.isLocationBreached(Protomech.LOC_LEG)) {
             return unit.getEntity().getLocationName(Protomech.LOC_LEG) + " is breached.";
         }
-        if(isMountedOnDestroyedLocation()) {
+        if(get(Installable.class).isMountedOnDestroyedLocation()) {
             return unit.getEntity().getLocationName(Protomech.LOC_LEG) + " is destroyed.";
         }
         return null;
