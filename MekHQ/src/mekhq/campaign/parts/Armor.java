@@ -21,11 +21,13 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.GregorianCalendar;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import megamek.common.Aero;
 import megamek.common.Entity;
@@ -34,7 +36,6 @@ import megamek.common.IArmorState;
 import megamek.common.Tank;
 import megamek.common.TargetRoll;
 import megamek.common.TechConstants;
-import mekhq.MekHqXmlUtil;
 import mekhq.Utilities;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
@@ -42,9 +43,6 @@ import mekhq.campaign.personnel.SkillType;
 import mekhq.campaign.unit.Unit;
 import mekhq.campaign.work.IAcquisitionWork;
 import mekhq.campaign.work.Modes;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -289,36 +287,6 @@ public class Armor extends Part implements IAcquisitionWork {
         double armorWeight = points / armorPerTon;
         armorWeight = Math.ceil(armorWeight * 2.0) / 2.0;
         return armorWeight;
-    }
-
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<amount>"
-                +amount
-                +"</amount>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<type>"
-                +type
-                +"</type>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<location>"
-                +location
-                +"</location>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<rear>"
-                +rear
-                +"</rear>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<amountNeeded>"
-                +amountNeeded
-                +"</amountNeeded>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<clan>"
-                +clan
-                +"</clan>");
-        writeToXmlEnd(pw1, indent);
     }
 
     @Override

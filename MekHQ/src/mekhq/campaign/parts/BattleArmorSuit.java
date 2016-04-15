@@ -21,8 +21,10 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import megamek.common.BattleArmor;
 import megamek.common.Compute;
@@ -45,9 +47,6 @@ import mekhq.campaign.personnel.Person;
 import mekhq.campaign.personnel.SkillType;
 import mekhq.campaign.unit.TestUnit;
 import mekhq.campaign.unit.Unit;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * Battle Armor suits are crazy - you cant crit the equipment in them, so
@@ -331,56 +330,6 @@ public class BattleArmorSuit extends Part {
                 && chassis.equals(((BattleArmorSuit)part).getChassis())
                 && model.equals(((BattleArmorSuit)part).getModel())
                 && this.getStickerPrice() == part.getStickerPrice();
-    }
-
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<chassis>"
-                +MekHqXmlUtil.escape(chassis)
-                +"</chassis>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<model>"
-                +MekHqXmlUtil.escape(model)
-                +"</model>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<clan>"
-                +clan
-                +"</clan>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<trooper>"
-                +trooper
-                +"</trooper>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<quad>"
-                +quad
-                +"</quad>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<groundMP>"
-                +groundMP
-                +"</groundMP>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<jumpMP>"
-                +jumpMP
-                +"</jumpMP>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<weightClass>"
-                +weightClass
-                +"</weightClass>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<jumpType>"
-                +MekHqXmlUtil.escape(EntityMovementMode.token(jumpType))
-                +"</jumpType>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<alternateCost>"
-                +alternateCost
-                +"</alternateCost>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<alternateTon>"
-                +alternateTon
-                +"</alternateTon>");
-        writeToXmlEnd(pw1, indent);
     }
 
     @Override

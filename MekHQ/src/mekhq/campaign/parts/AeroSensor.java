@@ -21,8 +21,6 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -30,7 +28,6 @@ import megamek.common.Aero;
 import megamek.common.Compute;
 import megamek.common.EquipmentType;
 import megamek.common.TechConstants;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
@@ -48,7 +45,7 @@ public class AeroSensor extends Part {
         this(0, false, null);
     }
 
-    public AeroSensor(int tonnage, boolean lc, Campaign c) {
+    public AeroSensor(float tonnage, boolean lc, Campaign c) {
         super(c);
         this.name = "Aerospace Sensors";
         this.largeCraft = lc;
@@ -152,7 +149,7 @@ public class AeroSensor extends Part {
         if(largeCraft) {
             return 80000;
         }
-        return 2000 * get(Installable.class).getUnitTonnage();
+        return Math.round(2000.0 * get(Installable.class).getUnitTonnage());
     }
 
     @Override
@@ -186,13 +183,6 @@ public class AeroSensor extends Part {
 
     public boolean isForDropShip() {
         return largeCraft;
-    }
-
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        pw1.println(MekHqXmlUtil.indentStr(indent + 1) + "<dropship>" + largeCraft + "</dropship>");
-        writeToXmlEnd(pw1, indent);
     }
 
     @Override

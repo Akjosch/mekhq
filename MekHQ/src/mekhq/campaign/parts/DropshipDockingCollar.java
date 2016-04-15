@@ -21,8 +21,6 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
-
 import org.w3c.dom.Node;
 
 import megamek.common.Compute;
@@ -185,12 +183,6 @@ public class DropshipDockingCollar extends Part {
         return part instanceof DropshipDockingCollar;
     }
     
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        writeToXmlEnd(pw1, indent);
-    }
-
     @Override
     protected void loadFieldsFromXmlNode(Node wn) {
         //nothing

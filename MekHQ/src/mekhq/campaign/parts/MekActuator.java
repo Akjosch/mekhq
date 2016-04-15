@@ -21,7 +21,8 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import megamek.common.BipedMech;
 import megamek.common.Compute;
@@ -29,14 +30,10 @@ import megamek.common.CriticalSlot;
 import megamek.common.EquipmentType;
 import megamek.common.Mech;
 import megamek.common.TechConstants;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
 import mekhq.campaign.unit.Unit;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -45,14 +42,14 @@ import org.w3c.dom.NodeList;
 public class MekActuator extends Part {
 	private static final long serialVersionUID = 719878556021696393L;
 	protected int type;
-	protected int location;
 
 	public MekActuator() {
 		this(0, 0, null);
 	}
 	
-	public MekActuator clone() {
-		MekActuator clone = new MekActuator(getUnitTonnage(), type, location, campaign);
+	@Override
+    public MekActuator clone() {
+		MekActuator clone = new MekActuator(get(Installable.class).getUnitTonnage(), type, get(Installable.class).getMainLocation(), campaign);
         clone.copyBaseData(this);
 		return clone;
 	}
@@ -61,20 +58,19 @@ public class MekActuator extends Part {
         return type;
     }
     
-    public void setLocation(int loc) {
-    	this.location = loc;
-    }
-    
     public MekActuator(int tonnage, int type, Campaign c) {
-        this(tonnage, type, -1, c);
+        this(tonnage, type, Mech.LOC_NONE, c);
     }
     
-    public MekActuator(int tonnage, int type, int loc, Campaign c) {
-    	super(tonnage, c);
+    public MekActuator(double tonnage, int type, int loc, Campaign c) {
+    	super(c);
         this.type = type;
         Mech m = new BipedMech();
         this.name = m.getSystemName(type) + " Actuator" ;
-        this.location = loc;
+        add(new Installable());
+        get(Installable.class).setLocations(loc);
+        get(Installable.class).setUnitTonnage(tonnage);
+        get(Installable.class).setTonnageLimited(true);
     }
 
     @Override
@@ -123,34 +119,16 @@ public class MekActuator extends Part {
                 break;
             }
         }
-        return getUnitTonnage() * unitCost;
+        return Math.round(get(Installable.class).getUnitTonnage() * unitCost);
     }
 
     @Override
     public boolean isSamePartType (Part part) {
         return part instanceof MekActuator
                 && getType() == ((MekActuator)part).getType()
-                && getUnitTonnage() == ((MekActuator)part).getUnitTonnage();
+                && get(Installable.class).getUnitTonnage() == part.get(Installable.class).getUnitTonnage();
     }
     
-    public int getLocation() {
-    	return location;
-    }
-    
-	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<type>"
-				+type
-				+"</type>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<location>"
-				+location
-				+"</location>");
-		writeToXmlEnd(pw1, indent);
-	}
-
 	@Override
 	protected void loadFieldsFromXmlNode(Node wn) {
 		NodeList nl = wn.getChildNodes();
@@ -161,7 +139,7 @@ public class MekActuator extends Part {
 			if (wn2.getNodeName().equalsIgnoreCase("type")) {
 				type = Integer.parseInt(wn2.getTextContent());
 			} else if (wn2.getNodeName().equalsIgnoreCase("location")) {
-				location = Integer.parseInt(wn2.getTextContent());
+			    get(Installable.class).setLocations(Integer.parseInt(wn2.getTextContent()));
 			} 
 		}
 	}
@@ -179,8 +157,9 @@ public class MekActuator extends Part {
 	@Override
 	public void fix() {
 		super.fix();
+		Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
-			unit.repairSystem(CriticalSlot.TYPE_SYSTEM, type, location);
+			unit.repairSystem(CriticalSlot.TYPE_SYSTEM, type, get(Installable.class).getMainLocation());
 		}
 	}
 	
@@ -191,14 +170,14 @@ public class MekActuator extends Part {
 
 	@Override
 	public MissingPart getMissingPart() {
-		return new MissingMekActuator(getUnitTonnage(), type, location, campaign);
+		return new MissingMekActuator(get(Installable.class).getUnitTonnage(), type, get(Installable.class).getMainLocation(), campaign);
 	}
 
 	@Override
 	public void remove(boolean salvage) {
         Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
-			unit.destroySystem(CriticalSlot.TYPE_SYSTEM, type, location);
+			unit.destroySystem(CriticalSlot.TYPE_SYSTEM, type, get(Installable.class).getMainLocation());
 			Part spare = campaign.checkForExistingSparePart(this);
 			if(!salvage) {
 				campaign.removePart(this);
@@ -213,14 +192,16 @@ public class MekActuator extends Part {
 		}	
 		get(Installable.class).setUnit(null);
 		updateConditionFromEntity(false);
-		location = -1;
+		get(Installable.class).setLocations(Mech.LOC_NONE);
 	}
 
 	@Override
 	public void updateConditionFromEntity(boolean checkForDestruction) {
 		int priorHits = hits;
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			//check for missing equipment
+		    int location = get(Installable.class).getMainLocation();
 			if(unit.isSystemMissing(type, location)) {
 				remove(false);
 				return;
@@ -260,9 +241,9 @@ public class MekActuator extends Part {
 	public String getDetails() {
         Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
-			return unit.getEntity().getLocationName(location);
+			return unit.getEntity().getLocationName(get(Installable.class).getMainLocation());
 		}
-		return getUnitTonnage() + " tons";
+		return get(Installable.class).getUnitTonnage() + " tons";
 	}
 
 	@Override
@@ -270,9 +251,9 @@ public class MekActuator extends Part {
         Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			if(hits > 0) {
-				unit.damageSystem(CriticalSlot.TYPE_SYSTEM, type, location, 1);
+				unit.damageSystem(CriticalSlot.TYPE_SYSTEM, type, get(Installable.class).getMainLocation(), 1);
 			} else {
-				unit.repairSystem(CriticalSlot.TYPE_SYSTEM, type, location);
+				unit.repairSystem(CriticalSlot.TYPE_SYSTEM, type, get(Installable.class).getMainLocation());
 			}
 		}	
 	}
@@ -286,6 +267,7 @@ public class MekActuator extends Part {
 		if(isSalvaging()) {
 			return null;
 		}
+		int location = get(Installable.class).getMainLocation();
 		if(unit.isLocationBreached(location)) {
 			return unit.getEntity().getLocationName(location) + " is breached.";
 		}
@@ -297,12 +279,13 @@ public class MekActuator extends Part {
 	
 	@Override
 	public boolean onBadHipOrShoulder() {
-		return null != unit && unit.hasBadHipOrShoulder(location);
+        Unit unit = get(Installable.class).getUnit();
+		return null != unit && unit.hasBadHipOrShoulder(get(Installable.class).getMainLocation());
 	}
 	
 	@Override
 	public boolean isPartForEquipmentNum(int index, int loc) {
-		return index == type && loc == location;
+		return index == type && loc == get(Installable.class).getMainLocation();
 	}
 	
 	@Override

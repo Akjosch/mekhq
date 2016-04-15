@@ -21,8 +21,6 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
-
 import org.w3c.dom.Node;
 
 import megamek.common.EquipmentType;
@@ -91,12 +89,6 @@ public class TurretLock extends Part {
 
     @Override
     protected void loadFieldsFromXmlNode(Node wn) {
-        // TODO Auto-generated method stub
-        
-    }
-
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
         // TODO Auto-generated method stub
         
     }

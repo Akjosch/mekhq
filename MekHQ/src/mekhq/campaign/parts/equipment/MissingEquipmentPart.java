@@ -21,22 +21,19 @@
 
 package mekhq.campaign.parts.equipment;
 
-import java.io.PrintWriter;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import megamek.common.CriticalSlot;
 import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import megamek.common.Mounted;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.MissingPart;
 import mekhq.campaign.parts.Part;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.unit.Unit;
 import mekhq.campaign.universe.Era;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -114,24 +111,6 @@ public class MissingEquipmentPart extends MissingPart {
     public double getTonnage() {
     	return equipTonnage;
     }
-
-    @Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<typeName>"
-				+MekHqXmlUtil.escape(typeName)
-				+"</typeName>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<equipmentNum>"
-				+equipmentNum
-				+"</equipmentNum>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<equipTonnage>"
-				+equipTonnage
-				+"</equipTonnage>");
-		writeToXmlEnd(pw1, indent);
-	}
 
 	@Override
 	protected void loadFieldsFromXmlNode(Node wn) {

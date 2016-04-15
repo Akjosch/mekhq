@@ -21,8 +21,6 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
-
 import org.w3c.dom.Node;
 
 import megamek.common.CriticalSlot;
@@ -67,12 +65,6 @@ public class MissingProtomekSensor extends MissingPart {
         //TODO: how much do actuators weight?
         //apparently nothing
         return 0;
-    }
-
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        writeToXmlEnd(pw1, indent);
     }
 
     @Override

@@ -21,7 +21,6 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
 import java.util.GregorianCalendar;
 
 import org.w3c.dom.Node;
@@ -36,7 +35,6 @@ import megamek.common.Mech;
 import megamek.common.Protomech;
 import megamek.common.Tank;
 import megamek.common.verifier.TestEntity;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.unit.Unit;
@@ -54,7 +52,7 @@ public class MissingEnginePart extends MissingPart {
         this(0, null, null, false);
     }
 
-    public MissingEnginePart(int tonnage, Engine e, Campaign c, boolean hover) {
+    public MissingEnginePart(double tonnage, Engine e, Campaign c, boolean hover) {
         super(c);
         this.engine = e;
         this.forHover = hover;
@@ -130,27 +128,6 @@ public class MissingEnginePart extends MissingPart {
             return Math.max(TestEntity.ceilMaxHalf(get(Installable.class).getUnitTonnage()/5, TestEntity.CEIL_HALFTON), toReturn);
         }
         return toReturn;
-    }
-
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        // The engine is a MM object...
-        // And doesn't support XML serialization...
-        // But it's defined by 3 ints. So we'll save those here.
-        pw1.println(MekHqXmlUtil.indentStr(indent + 1) + "<engineType>"
-                + engine.getEngineType() + "</engineType>");
-        pw1.println(MekHqXmlUtil.indentStr(indent + 1) + "<engineRating>"
-                + engine.getRating() + "</engineRating>");
-         pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                 +"<engineFlags>"
-                 +engine.getFlags()
-                 +"</engineFlags>");
-         pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                    +"<forHover>"
-                    +forHover
-                    +"</forHover>");
-        writeToXmlEnd(pw1, indent);
     }
 
     @Override

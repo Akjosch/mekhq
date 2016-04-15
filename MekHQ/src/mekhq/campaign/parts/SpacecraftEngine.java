@@ -21,8 +21,6 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -34,7 +32,6 @@ import megamek.common.Mech;
 import megamek.common.SmallCraft;
 import megamek.common.TechConstants;
 import megamek.common.Warship;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
@@ -114,23 +111,6 @@ public class SpacecraftEngine extends Part {
         } else {
             return TechConstants.T_IS_TW_NON_BOX;
         }
-    }
-
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        // The engine is a MM object...
-        // And doesn't support XML serialization...
-        // But it's defined by 3 ints. So we'll save those here.
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<engineTonnage>"
-                +engineTonnage
-                +"</engineTonnage>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<clan>"
-                +clan
-                +"</clan>");
-        writeToXmlEnd(pw1, indent);
     }
 
     @Override

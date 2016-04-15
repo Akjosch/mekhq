@@ -21,8 +21,6 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
-
 import org.w3c.dom.Node;
 
 import megamek.common.CriticalSlot;
@@ -74,19 +72,13 @@ public class ProtomekJumpJet extends Part {
 
     @Override
     public long getStickerPrice() {
-        return get(Installable.class).getUnitTonnage() * 400;
+        return Math.round(get(Installable.class).getUnitTonnage() * 400.0);
     }
 
     @Override
     public boolean isSamePartType (Part part) {
         return part instanceof ProtomekJumpJet
                 && get(Installable.class).getUnitTonnage() == part.get(Installable.class).getUnitTonnage();
-    }
-
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        writeToXmlEnd(pw1, indent);
     }
 
     @Override

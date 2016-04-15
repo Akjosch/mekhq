@@ -21,15 +21,12 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import megamek.common.EquipmentType;
 import megamek.common.Tank;
 import megamek.common.TechConstants;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 
@@ -117,21 +114,6 @@ public class MotiveSystem extends Part {
                 penalty = Integer.parseInt(wn2.getTextContent());
             } 
         }
-        
-    }
-
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<damage>"
-                +damage
-                +"</damage>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<penalty>"
-                +penalty
-                +"</penalty>");
-        writeToXmlEnd(pw1, indent);
         
     }
 

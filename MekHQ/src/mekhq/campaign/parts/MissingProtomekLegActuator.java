@@ -21,7 +21,7 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
+import org.w3c.dom.Node;
 
 import megamek.common.CriticalSlot;
 import megamek.common.EquipmentType;
@@ -30,8 +30,6 @@ import megamek.common.TechConstants;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.unit.Unit;
-
-import org.w3c.dom.Node;
 
 /**
  *
@@ -64,12 +62,6 @@ public class MissingProtomekLegActuator extends MissingPart {
         //TODO: how much do actuators weight?
         //apparently nothing
         return 0;
-    }
-
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        writeToXmlEnd(pw1, indent);
     }
 
     @Override

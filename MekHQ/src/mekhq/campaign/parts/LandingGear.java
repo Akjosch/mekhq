@@ -21,8 +21,6 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
-
 import org.w3c.dom.Node;
 
 import megamek.common.Aero;
@@ -44,7 +42,7 @@ public class LandingGear extends Part {
         this(0, null);
     }
     
-    public LandingGear(int tonnage, Campaign c) {
+    public LandingGear(double tonnage, Campaign c) {
         super(c);
         this.name = "Landing Gear"; //$NON-NLS-1$
         add(new Installable());
@@ -52,6 +50,7 @@ public class LandingGear extends Part {
         get(Installable.class).setTonnageLimited(true);
     }
         
+    @Override
     public LandingGear clone() {
         LandingGear clone = new LandingGear(0, campaign);
         clone.copyBaseData(this);
@@ -149,7 +148,7 @@ public class LandingGear extends Part {
 
     @Override
     public long getStickerPrice() {
-        return 10 * get(Installable.class).getUnitTonnage();
+        return Math.round(10.0 * get(Installable.class).getUnitTonnage());
     }
 
     @Override
@@ -176,12 +175,6 @@ public class LandingGear extends Part {
     @Override
     public boolean isSamePartType(Part part) {
         return part instanceof LandingGear;
-    }
-
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        writeToXmlEnd(pw1, indent);
     }
 
     @Override

@@ -21,17 +21,16 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import megamek.common.CriticalSlot;
 import megamek.common.EquipmentType;
 import megamek.common.Protomech;
 import megamek.common.TechConstants;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import mekhq.campaign.parts.component.Installable;
+import mekhq.campaign.unit.Unit;
 
 /**
  *
@@ -81,16 +80,6 @@ public class MissingProtomekArmActuator extends MissingPart {
     }
     
     @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<location>"
-                +location
-                +"</location>");
-        writeToXmlEnd(pw1, indent);
-    }
-
-    @Override
     protected void loadFieldsFromXmlNode(Node wn) {
         NodeList nl = wn.getChildNodes();
         
@@ -129,6 +118,7 @@ public class MissingProtomekArmActuator extends MissingPart {
 
     @Override
     public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
               unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Protomech.SYSTEM_ARMCRIT, location, 1);
         }
@@ -136,6 +126,7 @@ public class MissingProtomekArmActuator extends MissingPart {
 
     @Override
     public String checkFixable() {
+        Unit unit = get(Installable.class).getUnit();
     	if(null == unit) {
     		return null;
     	}
@@ -151,7 +142,8 @@ public class MissingProtomekArmActuator extends MissingPart {
     @Override 
     public void fix() {
         Part replacement = findReplacement(false);
-        if(null != replacement) {
+        Unit unit = get(Installable.class).getUnit();
+        if(null != replacement && null != unit) {
             Part actualReplacement = replacement.clone();
             unit.addPart(actualReplacement);
             campaign.addPart(actualReplacement, 0);

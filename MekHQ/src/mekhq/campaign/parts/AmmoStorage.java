@@ -133,28 +133,6 @@ public class AmmoStorage extends EquipmentPart implements IAcquisitionWork {
     }
     
 	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);		
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<equipmentNum>"
-				+equipmentNum
-				+"</equipmentNum>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<typeName>"
-                +MekHqXmlUtil.escape(typeName)
-                +"</typeName>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<munition>"
-				+munition
-				+"</munition>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<shots>"
-				+shots
-				+"</shots>");
-		writeToXmlEnd(pw1, indent);
-	}
-
-	@Override
 	protected void loadFieldsFromXmlNode(Node wn) {
 		NodeList nl = wn.getChildNodes();
 		

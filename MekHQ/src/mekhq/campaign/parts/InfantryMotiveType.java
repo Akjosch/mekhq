@@ -21,28 +21,20 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
-import megamek.common.Entity;
 import megamek.common.EntityMovementMode;
 import megamek.common.EquipmentType;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.unit.Unit;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class InfantryMotiveType extends Part {
-	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -2915821210551422633L;
 	
 	private EntityMovementMode mode;
@@ -51,13 +43,13 @@ public class InfantryMotiveType extends Part {
     	this(0, null, null);
     }
 	
-	public InfantryMotiveType(int tonnage, Campaign c, EntityMovementMode m) {
-		super(tonnage, c);
+	public InfantryMotiveType(double tonnage, Campaign c, EntityMovementMode m) {
+		super(c);
 		this.mode = m;
 		if(null != mode) {
 			assignName();
 		}
-
+		add(new Installable());
 	}
 	
 	private void assignName() {
@@ -188,16 +180,6 @@ public class InfantryMotiveType extends Part {
 	@Override
 	public boolean isSamePartType(Part part) {
 		return part instanceof InfantryMotiveType && mode.equals(((InfantryMotiveType)part).getMovementMode());
-	}
-
-	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<moveMode>"
-				+mode
-				+"</moveMode>");
-		writeToXmlEnd(pw1, indent);
 	}
 
 	@Override

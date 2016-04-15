@@ -21,8 +21,6 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -32,7 +30,6 @@ import megamek.common.Dropship;
 import megamek.common.EquipmentType;
 import megamek.common.Jumpship;
 import megamek.common.TechConstants;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
@@ -226,16 +223,6 @@ public class Thrusters extends Part {
         return match;
     }
     
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<isLeftThrusters>"
-                +isLeftThrusters
-                +"</isLeftThrusters>");
-        writeToXmlEnd(pw1, indent);
-    }
-
     @Override
     protected void loadFieldsFromXmlNode(Node wn) {
         NodeList nl = wn.getChildNodes();

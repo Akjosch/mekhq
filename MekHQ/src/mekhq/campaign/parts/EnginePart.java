@@ -21,9 +21,11 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
 import java.util.GregorianCalendar;
 import java.util.Objects;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import megamek.common.Aero;
 import megamek.common.CriticalSlot;
@@ -36,14 +38,10 @@ import megamek.common.Protomech;
 import megamek.common.Tank;
 import megamek.common.TechConstants;
 import megamek.common.verifier.TestEntity;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
 import mekhq.campaign.unit.Unit;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -58,7 +56,7 @@ public class EnginePart extends Part {
         this(0, new Engine(0, 0, -1), null, false);
     }
 
-    public EnginePart(int tonnage, Engine e, Campaign c, boolean hover) {
+    public EnginePart(double tonnage, Engine e, Campaign c, boolean hover) {
         super(c);
         this.engine = Objects.requireNonNull(e);
         this.forHover = hover;
@@ -78,6 +76,7 @@ public class EnginePart extends Part {
         get(Installable.class).setTonnageLimited(true);
     }
 
+    @Override
     public EnginePart clone() {
         EnginePart clone = new EnginePart(get(Installable.class).getUnitTonnage(),
                 new Engine(engine.getRating(), engine.getEngineType(), engine.getFlags()), campaign, forHover);
@@ -180,27 +179,6 @@ public class EnginePart extends Part {
             return TechConstants.T_TECH_UNKNOWN;
         else
             return techLevel;
-    }
-
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        // The engine is a MM object...
-        // And doesn't support XML serialization...
-        // But it's defined by 3 ints. So we'll save those here.
-        pw1.println(MekHqXmlUtil.indentStr(indent + 1) + "<engineType>"
-                + engine.getEngineType() + "</engineType>");
-        pw1.println(MekHqXmlUtil.indentStr(indent + 1) + "<engineRating>"
-                + engine.getRating() + "</engineRating>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<engineFlags>"
-                +engine.getFlags()
-                +"</engineFlags>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<forHover>"
-                +forHover
-                +"</forHover>");
-        writeToXmlEnd(pw1, indent);
     }
 
     @Override
@@ -528,21 +506,6 @@ public class EnginePart extends Part {
         }
         return null;
      }
-
-    @Override
-    public boolean isMountedOnDestroyedLocation() {
-        Unit unit = get(Installable.class).getUnit();
-        if(null == unit) {
-            return false;
-        }
-        for(int i = 0; i < unit.getEntity().locations(); i++) {
-             if(unit.getEntity().getNumberOfCriticals(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_ENGINE, i) > 0
-                     && unit.isLocationDestroyed(i)) {
-                 return true;
-             }
-         }
-        return false;
-    }
 
      @Override
      public String getDetails() {

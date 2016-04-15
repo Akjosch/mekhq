@@ -21,16 +21,12 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
-
-import megamek.common.Entity;
-import megamek.common.EntityMovementMode;
-import megamek.common.EquipmentType;
-import mekhq.MekHqXmlUtil;
-import mekhq.campaign.Campaign;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import megamek.common.EntityMovementMode;
+import megamek.common.EquipmentType;
+import mekhq.campaign.Campaign;
 
 /**
  *
@@ -128,16 +124,6 @@ public class MissingInfantryMotiveType extends MissingPart {
 		return 0;
 	}
 	
-	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<moveMode>"
-				+mode
-				+"</moveMode>");
-		writeToXmlEnd(pw1, indent);
-	}
-
 	@Override
 	protected void loadFieldsFromXmlNode(Node wn) {
 		NodeList nl = wn.getChildNodes();

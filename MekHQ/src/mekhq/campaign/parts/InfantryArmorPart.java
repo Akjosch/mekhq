@@ -21,17 +21,14 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import megamek.common.Entity;
 import megamek.common.EquipmentType;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.unit.Unit;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -270,40 +267,6 @@ public class InfantryArmorPart extends Part {
 	
 	public boolean isSpaceSuit() {
 		return spaceSuit;
-	}
-	
-	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<damageDivisor>"
-				+damageDivisor
-				+"</damageDivisor>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<dest>"
-				+dest
-				+"</dest>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<encumbering>"
-				+encumbering
-				+"</encumbering>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<sneak_camo>"
-				+sneak_camo
-				+"</sneak_camo>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<sneak_ecm>"
-				+sneak_ecm
-				+"</sneak_ecm>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<sneak_ir>"
-				+sneak_ir
-				+"</sneak_ir>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<spaceSuit>"
-				+spaceSuit
-				+"</spaceSuit>");
-		writeToXmlEnd(pw1, indent);
 	}
 
 	@Override

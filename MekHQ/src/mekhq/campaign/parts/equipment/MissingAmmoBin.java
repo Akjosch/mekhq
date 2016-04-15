@@ -21,16 +21,13 @@
 
 package mekhq.campaign.parts.equipment;
 
-import java.io.PrintWriter;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import megamek.common.AmmoType;
 import megamek.common.EquipmentType;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.Part;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -98,28 +95,6 @@ public class MissingAmmoBin extends MissingEquipmentPart {
 	@Override
 	public Part getNewPart() {
 		return new AmmoBin(getUnitTonnage(), type, -1, getFullShots(), oneShot, campaign);
-	}
-	
-	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);		
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<equipmentNum>"
-				+equipmentNum
-				+"</equipmentNum>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<typeName>"
-				+MekHqXmlUtil.escape(typeName)
-				+"</typeName>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<daysToWait>"
-				+daysToWait
-				+"</daysToWait>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<oneShot>"
-				+oneShot
-				+"</oneShot>");
-		writeToXmlEnd(pw1, indent);
 	}
 	
 	@Override

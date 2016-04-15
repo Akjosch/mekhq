@@ -21,9 +21,11 @@
 
 package mekhq.campaign.parts.equipment;
 
-import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.HashSet;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import megamek.common.AmmoType;
 import megamek.common.CriticalSlot;
@@ -32,7 +34,6 @@ import megamek.common.EquipmentType;
 import megamek.common.Mounted;
 import megamek.common.Protomech;
 import megamek.common.TargetRoll;
-import mekhq.MekHqXmlUtil;
 import mekhq.Utilities;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.CampaignOptions;
@@ -45,9 +46,6 @@ import mekhq.campaign.personnel.Person;
 import mekhq.campaign.unit.Unit;
 import mekhq.campaign.universe.Era;
 import mekhq.campaign.work.IAcquisitionWork;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -184,36 +182,6 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
     	}
     	updateConditionFromEntity(false);
     }
-
-	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<equipmentNum>"
-				+equipmentNum
-				+"</equipmentNum>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<typeName>"
-				+MekHqXmlUtil.escape(type.getInternalName())
-				+"</typeName>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<munition>"
-				+munition
-				+"</munition>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<shotsNeeded>"
-				+shotsNeeded
-				+"</shotsNeeded>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<checkedToday>"
-				+checkedToday
-				+"</checkedToday>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<oneShot>"
-				+oneShot
-				+"</oneShot>");
-		writeToXmlEnd(pw1, indent);
-	}
 
 	@Override
 	protected void loadFieldsFromXmlNode(Node wn) {

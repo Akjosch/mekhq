@@ -21,17 +21,14 @@
 
 package mekhq.campaign.parts.equipment;
 
-import java.io.PrintWriter;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import megamek.common.EquipmentType;
 import megamek.common.MiscType;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.Part;
 import mekhq.campaign.unit.Unit;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -71,28 +68,6 @@ public class MissingMASC extends MissingEquipmentPart {
     	return engineRating;
     }
     
-    @Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);		
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<equipmentNum>"
-				+equipmentNum
-				+"</equipmentNum>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<typeName>"
-                +MekHqXmlUtil.escape(typeName)
-                +"</typeName>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<equipTonnage>"
-				+equipTonnage
-				+"</equipTonnage>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<engineRating>"
-				+engineRating
-				+"</engineRating>");
-		writeToXmlEnd(pw1, indent);
-	}
-
 	@Override
 	protected void loadFieldsFromXmlNode(Node wn) {
 		NodeList nl = wn.getChildNodes();

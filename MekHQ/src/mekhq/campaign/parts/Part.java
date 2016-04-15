@@ -21,7 +21,6 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,8 +36,6 @@ import megamek.common.EquipmentType;
 import megamek.common.TargetRoll;
 import megamek.common.TechConstants;
 import mekhq.MekHQ;
-import mekhq.MekHqXmlSerializable;
-import mekhq.MekHqXmlUtil;
 import mekhq.Version;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Component;
@@ -66,7 +63,7 @@ import mekhq.campaign.work.Modes;
  * this work
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
-public abstract class Part implements Serializable, MekHqXmlSerializable, IPartWork, ComponentHolder {
+public abstract class Part implements Serializable, IPartWork, ComponentHolder {
 	private static final long serialVersionUID = 6185232893259168810L;
 	public static final int PART_TYPE_ARMOR = 0;
 	public static final int PART_TYPE_WEAPON = 1;
@@ -531,112 +528,6 @@ public abstract class Part implements Serializable, MekHqXmlSerializable, IPartW
     protected boolean isClanTechBase() {
         return TechConstants.isClan(getTechLevel());
     }
-
-	public abstract void writeToXml(PrintWriter pw1, int indent);
-
-	protected void writeToXmlBegin(PrintWriter pw1, int indent) {
-		pw1.println(MekHqXmlUtil.indentStr(indent) + "<part id=\""
-				+id
-				+"\" type=\""
-				+this.getClass().getName()
-				+"\">");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<id>"
-				+this.id
-				+"</id>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<name>"
-				+MekHqXmlUtil.escape(name)
-				+"</name>");
-		/*
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<unitTonnage>"
-				+unitTonnage
-				+"</unitTonnage>");
-				*/
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<hits>"
-				+hits
-				+"</hits>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<timeSpent>"
-				+timeSpent
-				+"</timeSpent>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<mode>"
-				+mode
-				+"</mode>");
-		if(null != teamId) {
-			pw1.println(MekHqXmlUtil.indentStr(indent+1)
-					+"<teamId>"
-					+teamId.toString()
-					+"</teamId>");
-		}
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<skillMin>"
-				+skillMin
-				+"</skillMin>");
-		/*
-		if(null != unitId) {
-			pw1.println(MekHqXmlUtil.indentStr(indent+1)
-					+"<unitId>"
-					+unitId.toString()
-					+"</unitId>");
-		}
-		*/
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<workingOvertime>"
-				+workingOvertime
-				+"</workingOvertime>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<shorthandedMod>"
-				+shorthandedMod
-				+"</shorthandedMod>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<refitId>"
-				+refitId
-				+"</refitId>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<daysToArrival>"
-				+daysToArrival
-				+"</daysToArrival>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<brandNew>"
-				+brandNew
-				+"</brandNew>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<quantity>"
-				+quantity
-				+"</quantity>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<daysToWait>"
-                +daysToWait
-                +"</daysToWait>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<replacementId>"
-                +replacementId
-                +"</replacementId>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<quality>"
-                +quality
-                +"</quality>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<isTeamSalvaging>"
-                +isTeamSalvaging
-                +"</isTeamSalvaging>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<parentPartId>"
-                +parentPartId
-                +"</parentPartId>");
-        for(int childId : childPartIds) {
-			pw1.println(MekHqXmlUtil.indentStr(indent + 1) + "<childPartId>"
-					+ childId + "</childPartId>");
-		}
-	}
-
-	protected void writeToXmlEnd(PrintWriter pw1, int indent) {
-		pw1.println(MekHqXmlUtil.indentStr(indent) + "</part>");
-	}
 
 	public static Part generateInstanceFromXML(Node wn, Version version) {
 		Part retVal = null;

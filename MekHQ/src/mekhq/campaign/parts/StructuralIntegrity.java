@@ -21,8 +21,6 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
@@ -32,7 +30,6 @@ import megamek.common.Dropship;
 import megamek.common.EquipmentType;
 import megamek.common.SmallCraft;
 import megamek.common.TechConstants;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 
@@ -135,16 +132,6 @@ public class StructuralIntegrity extends Part {
                 pointsNeeded = Integer.parseInt(wn2.getTextContent());
             } 
         }    
-    }
-
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<pointsNeeded>"
-                +pointsNeeded
-                +"</pointsNeeded>");
-        writeToXmlEnd(pw1, indent);
     }
 
     @Override

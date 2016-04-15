@@ -21,8 +21,6 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
-
 import org.w3c.dom.Node;
 
 import megamek.common.Compute;
@@ -50,7 +48,8 @@ public class VeeSensor extends Part {
         add(new Installable());
     }
 
-	public VeeSensor clone() {
+	@Override
+    public VeeSensor clone() {
 		VeeSensor clone = new VeeSensor(campaign);
         clone.copyBaseData(this);
 		return clone;
@@ -60,12 +59,6 @@ public class VeeSensor extends Part {
     public boolean isSamePartType(Part part) {
         return part instanceof VeeSensor;
     }
-
-	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);
-		writeToXmlEnd(pw1, indent);
-	}
 
 	@Override
 	protected void loadFieldsFromXmlNode(Node wn) {

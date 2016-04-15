@@ -21,15 +21,12 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.UUID;
 
 import megamek.common.EquipmentType;
 import megamek.common.TargetRoll;
-import mekhq.MekHqXmlSerializable;
-import mekhq.MekHqXmlUtil;
 import mekhq.Utilities;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
@@ -44,7 +41,7 @@ import mekhq.campaign.work.Modes;
  * task needs to be performed
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
-public abstract class MissingPart extends Part implements Serializable, MekHqXmlSerializable, IPartWork, IAcquisitionWork {
+public abstract class MissingPart extends Part implements Serializable, IPartWork, IAcquisitionWork {
 
     /**
      * 
@@ -302,25 +299,6 @@ public abstract class MissingPart extends Part implements Serializable, MekHqXml
     public String failToFind() {
         resetDaysToWait();
         return "<font color='red'><b> part not found</b>.</font>";
-    }
-    
-    @Override
-    public void writeToXmlBegin(PrintWriter pw1, int indent) {
-        super.writeToXmlBegin(pw1, indent);
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<daysToWait>"
-                +daysToWait
-                +"</daysToWait>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<replacementId>"
-                +replacementId
-                +"</replacementId>");
-    }
-    
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        writeToXmlEnd(pw1, indent);
     }
     
     @Override

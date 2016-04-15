@@ -21,19 +21,16 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import megamek.common.BipedMech;
 import megamek.common.CriticalSlot;
 import megamek.common.EquipmentType;
 import megamek.common.Mech;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.unit.Unit;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -42,7 +39,6 @@ import org.w3c.dom.NodeList;
 public class MissingMekActuator extends MissingPart {
 	private static final long serialVersionUID = 719878556021696393L;
 	protected int type;
-	protected int location;
 
 	public MissingMekActuator() {
 		this(0, 0, null);
@@ -56,12 +52,14 @@ public class MissingMekActuator extends MissingPart {
         this(tonnage, type, -1, c);
     }
     
-    public MissingMekActuator(int tonnage, int type, int loc, Campaign c) {
-    	super(tonnage, c);
+    public MissingMekActuator(double tonnage, int type, int loc, Campaign c) {
+    	super(c);
         this.type = type;
         Mech m = new BipedMech();
         this.name = m.getSystemName(type) + " Actuator" ;
-        this.location = loc;
+        get(Installable.class).setLocations(loc);
+        get(Installable.class).setUnitTonnage(tonnage);
+        get(Installable.class).setTonnageLimited(true);
     }
     
     @Override 
@@ -81,24 +79,6 @@ public class MissingMekActuator extends MissingPart {
     	return 0;
     }
     
-    public int getLocation() {
-    	return location;
-    }
-    
-	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<type>"
-				+type
-				+"</type>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<location>"
-				+location
-				+"</location>");
-		writeToXmlEnd(pw1, indent);
-	}
-
 	@Override
 	protected void loadFieldsFromXmlNode(Node wn) {
 		NodeList nl = wn.getChildNodes();

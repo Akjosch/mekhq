@@ -21,7 +21,7 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
+import org.w3c.dom.Node;
 
 import megamek.common.Compute;
 import megamek.common.CriticalSlot;
@@ -32,8 +32,6 @@ import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
 import mekhq.campaign.unit.Unit;
-
-import org.w3c.dom.Node;
 
 /**
  *
@@ -74,12 +72,6 @@ public class ProtomekLegActuator extends Part {
     public boolean isSamePartType (Part part) {
         return part instanceof ProtomekLegActuator
                 && getUnitTonnage() == ((ProtomekLegActuator)part).getUnitTonnage();
-    }
-
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        writeToXmlEnd(pw1, indent);
     }
 
     @Override

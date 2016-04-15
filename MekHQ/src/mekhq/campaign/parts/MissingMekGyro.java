@@ -21,15 +21,12 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import megamek.common.CriticalSlot;
 import megamek.common.EquipmentType;
 import megamek.common.Mech;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.unit.Unit;
@@ -76,20 +73,6 @@ public class MissingMekGyro extends MissingPart {
     @Override
     public double getTonnage() {
         return gyroTonnage;
-    }
-
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<type>"
-                +type
-                +"</type>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<gyroTonnage>"
-                +gyroTonnage
-                +"</gyroTonnage>");
-        writeToXmlEnd(pw1, indent);
     }
 
     @Override

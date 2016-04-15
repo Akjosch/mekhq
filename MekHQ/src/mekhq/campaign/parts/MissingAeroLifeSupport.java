@@ -21,17 +21,13 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
-
-import megamek.common.Aero;
-import megamek.common.Entity;
-import megamek.common.EquipmentType;
-import mekhq.MekHqXmlUtil;
-import mekhq.campaign.Campaign;
-import mekhq.campaign.parts.component.Installable;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import megamek.common.Aero;
+import megamek.common.EquipmentType;
+import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 
 /**
  *
@@ -88,13 +84,6 @@ public class MissingAeroLifeSupport extends MissingPart {
 
     @Override public int getAvailability(int era) {
         return EquipmentType.RATING_C;
-    }
-
-    @Override public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        pw1.println(MekHqXmlUtil.indentStr(indent + 1) + "<fighter>" + fighter + "</fighter>");
-        pw1.println(MekHqXmlUtil.indentStr(indent + 1) + "<cost>" + cost + "</cost>");
-        writeToXmlEnd(pw1, indent);
     }
 
     @Override protected void loadFieldsFromXmlNode(Node wn) {

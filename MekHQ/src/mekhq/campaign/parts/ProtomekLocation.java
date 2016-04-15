@@ -21,7 +21,8 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import megamek.common.CriticalSlot;
 import megamek.common.EquipmentType;
@@ -31,16 +32,12 @@ import megamek.common.Mounted;
 import megamek.common.Protomech;
 import megamek.common.TargetRoll;
 import megamek.common.TechConstants;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.personnel.SkillType;
 import mekhq.campaign.unit.Unit;
 import mekhq.campaign.work.Modes;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -177,36 +174,6 @@ public class ProtomekLocation extends Part {
 
     public double getPercent() {
         return percent;
-    }
-
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<loc>"
-                +loc
-                +"</loc>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<structureType>"
-                +structureType
-                +"</structureType>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<booster>"
-                +booster
-                +"</booster>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<percent>"
-                +percent
-                +"</percent>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<forQuad>"
-                +forQuad
-                +"</forQuad>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<breached>"
-                +breached
-                +"</breached>");
-        writeToXmlEnd(pw1, indent);
     }
 
     @Override

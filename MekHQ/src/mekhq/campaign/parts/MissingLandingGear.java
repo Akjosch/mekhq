@@ -39,7 +39,7 @@ public class MissingLandingGear extends MissingPart {
         this(0, null);
     }
     
-    public MissingLandingGear(int tonnage, Campaign c) {
+    public MissingLandingGear(double tonnage, Campaign c) {
         super(c);
         this.name = "Landing Gear"; //$NON-NLS-1$
         get(Installable.class).setUnitTonnage(tonnage);

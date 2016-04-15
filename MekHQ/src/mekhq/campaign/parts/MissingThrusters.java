@@ -21,14 +21,11 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
-
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import megamek.common.Aero;
 import megamek.common.EquipmentType;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.unit.Unit;
@@ -122,16 +119,6 @@ public class MissingThrusters extends MissingPart {
                 aero.setRightThrustHits(4);
             }
         }
-    }
-    
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<isLeftThrusters>"
-                +isLeftThrusters
-                +"</isLeftThrusters>");
-        writeToXmlEnd(pw1, indent);
     }
     
     @Override

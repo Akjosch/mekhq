@@ -21,7 +21,8 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import megamek.common.CriticalSlot;
 import megamek.common.Entity;
@@ -32,14 +33,10 @@ import megamek.common.Mounted;
 import megamek.common.Tank;
 import megamek.common.TargetRoll;
 import megamek.common.TechConstants;
-import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.personnel.SkillType;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -111,24 +108,6 @@ public class TankLocation extends Part {
     public int getDamage() {
     	return damage;
     }
-    
-	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<loc>"
-				+loc
-				+"</loc>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<damage>"
-				+damage
-				+"</damage>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<breached>"
-				+breached
-				+"</breached>");
-		writeToXmlEnd(pw1, indent);
-	}
 
 	@Override
 	protected void loadFieldsFromXmlNode(Node wn) {

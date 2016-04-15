@@ -8,7 +8,7 @@ import mekhq.campaign.unit.Unit;
 
 /** A {@link Part} with an Installable component can be installed on a {@link Unit} */
 public class Installable extends Component {
-    private int unitTonnage = -1;
+    private double unitTonnage = -1;
     private boolean isTonnageLimited = false;
     
     private Unit unit = null;
@@ -37,11 +37,11 @@ public class Installable extends Component {
         this.unitId = unitId;
     }
 
-    public int getUnitTonnage() {
+    public double getUnitTonnage() {
         return unitTonnage;
     }
 
-    public void setUnitTonnage(int unitTonnage) {
+    public void setUnitTonnage(double unitTonnage) {
         this.unitTonnage = unitTonnage;
     }
     
@@ -123,5 +123,20 @@ public class Installable extends Component {
 
     public void setTonnageLimited(boolean isTonnageLimited) {
         this.isTonnageLimited = isTonnageLimited;
+    }
+    
+    /**
+     * @return <code>true</code> if the {@link Unit} is either <code>null</code>,
+     *          has no {@link Entity} attached, or is a valid place to install
+     *          the corresponding component holder.
+     */
+    public boolean canBeInstalled(Unit unit) {
+        if(null == unit || null == unit.getEntity()) {
+            return true;
+        }
+        if(isTonnageLimited && unit.getEntity().getWeight() != unitTonnage) {
+            return false;
+        }
+        return true;
     }
 }

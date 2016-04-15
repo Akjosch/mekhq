@@ -21,8 +21,10 @@
 
 package mekhq.campaign.parts;
 
-import java.io.PrintWriter;
 import java.util.ArrayList;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import megamek.common.EntityMovementMode;
 import megamek.common.EntityWeightClass;
@@ -37,9 +39,6 @@ import mekhq.campaign.parts.equipment.EquipmentPart;
 import mekhq.campaign.parts.equipment.MissingBattleArmorEquipmentPart;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.unit.Unit;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -174,48 +173,6 @@ public class MissingBattleArmorSuit extends MissingPart {
 
     public int getTrooper() {
         return trooper;
-    }
-
-    @Override
-    public void writeToXml(PrintWriter pw1, int indent) {
-        writeToXmlBegin(pw1, indent);
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<chassis>"
-                +MekHqXmlUtil.escape(chassis)
-                +"</chassis>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<model>"
-                +MekHqXmlUtil.escape(model)
-                +"</model>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<clan>"
-                +clan
-                +"</clan>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<trooper>"
-                +trooper
-                +"</trooper>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<quad>"
-                +quad
-                +"</quad>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<groundMP>"
-                +groundMP
-                +"</groundMP>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<jumpMP>"
-                +jumpMP
-                +"</jumpMP>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<weightClass>"
-                +weightClass
-                +"</weightClass>");
-        pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<jumpType>"
-                +MekHqXmlUtil.escape(EntityMovementMode.token(jumpType))
-                +"</jumpType>");
-        writeToXmlEnd(pw1, indent);
     }
 
     @Override
