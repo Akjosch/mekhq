@@ -98,8 +98,7 @@ public class EquipmentPart extends Part {
 	        	//System.out.println("Found a null entity while calculating tonnage for " + name);
 	        }
         }
-        add(new Installable());
-        get(Installable.class).setUnitTonnage(tonnage);
+        add(new Installable(tonnage, false));
     }
 
     @Override

@@ -55,13 +55,14 @@ public class MekGyro extends Part {
                 isClan, c);
     }
 
-    public MekGyro(int tonnage, int type, double gyroTonnage, boolean isClan,
+    public MekGyro(double tonnage, int type, double gyroTonnage, boolean isClan,
             Campaign c) {
-    	super(tonnage, c);
+    	super(c);
         this.type = type;
         this.name = Mech.getGyroTypeString(type);
         this.gyroTonnage = gyroTonnage;
         this.isClan = isClan;
+        add(new Installable(tonnage, true));
     }
 
     @Override

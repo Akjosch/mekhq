@@ -52,13 +52,11 @@ public class ProtomekSensor extends Part {
     }
 
 
-    public ProtomekSensor(int tonnage, Campaign c) {
+    public ProtomekSensor(double tonnage, Campaign c) {
         super(c);
         this.name = "Protomech Sensors";
-        add(new Installable());
+        add(new Installable(tonnage, true));
         get(Installable.class).setLocations(Protomech.LOC_HEAD);
-        get(Installable.class).setUnitTonnage(tonnage);
-        get(Installable.class).setTonnageLimited(true);
     }
 
     @Override
@@ -70,7 +68,7 @@ public class ProtomekSensor extends Part {
 
     @Override
     public long getStickerPrice() {
-        return get(Installable.class).getUnitTonnage() * 2000;
+        return Math.round(get(Installable.class).getUnitTonnage() * 2000);
     }
 
     @Override

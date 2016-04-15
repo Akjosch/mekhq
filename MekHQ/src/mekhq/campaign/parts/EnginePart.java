@@ -61,7 +61,7 @@ public class EnginePart extends Part {
         this.engine = Objects.requireNonNull(e);
         this.forHover = hover;
         this.name = engine.getEngineName() + " Engine";
-        add(new Installable());
+        add(new Installable(tonnage, true));
         switch(engine.getEngineType()) {
             case Engine.XL_ENGINE:
             case Engine.LIGHT_ENGINE:
@@ -72,8 +72,6 @@ public class EnginePart extends Part {
                 get(Installable.class).setLocations(Mech.LOC_CT);
                 break;
         }
-        get(Installable.class).setUnitTonnage(tonnage);
-        get(Installable.class).setTonnageLimited(true);
     }
 
     @Override

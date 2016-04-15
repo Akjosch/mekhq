@@ -421,74 +421,74 @@ public class PartsStore implements Serializable {
 		 */
 		//Standard armor
 		int amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_STANDARD, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_STANDARD, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_STANDARD, amount, -1, false, false, c));
 		//Ferro-Fibrous
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_FERRO_FIBROUS, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_FERRO_FIBROUS, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_FERRO_FIBROUS, amount, -1, false, false, c));
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_FERRO_FIBROUS, true));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_FERRO_FIBROUS, amount, -1, false, true, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_FERRO_FIBROUS, amount, -1, false, true, c));
 		//Reactive
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_REACTIVE, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_REACTIVE, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_REACTIVE, amount, -1, false, false, c));
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_REACTIVE, true));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_REACTIVE, amount, -1, false, true, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_REACTIVE, amount, -1, false, true, c));
 		//Reflective
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_REFLECTIVE, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_REFLECTIVE, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_REFLECTIVE, amount, -1, false, false, c));
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_REFLECTIVE, true));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_REFLECTIVE, amount, -1, false, true, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_REFLECTIVE, amount, -1, false, true, c));
 		//Hardened
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_HARDENED, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_HARDENED, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_HARDENED, amount, -1, false, false, c));
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_HARDENED, true));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_HARDENED, amount, -1, false, true, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_HARDENED, amount, -1, false, true, c));
 		//Light/Heavy FF
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_LIGHT_FERRO, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_LIGHT_FERRO, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_LIGHT_FERRO, amount, -1, false, false, c));
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_LIGHT_FERRO, true));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_LIGHT_FERRO, amount, -1, false, true, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_LIGHT_FERRO, amount, -1, false, true, c));
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_HEAVY_FERRO, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_HEAVY_FERRO, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_HEAVY_FERRO, amount, -1, false, false, c));
 		//Stealth
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_STEALTH, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_STEALTH, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_STEALTH, amount, -1, false, false, c));
 		//Commercial
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_COMMERCIAL, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_COMMERCIAL, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_COMMERCIAL, amount, -1, false, false, c));
 		//Industrial
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_INDUSTRIAL, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_INDUSTRIAL, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_INDUSTRIAL, amount, -1, false, false, c));
 		//Heavy Industrial
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_HEAVY_INDUSTRIAL, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_HEAVY_INDUSTRIAL, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_HEAVY_INDUSTRIAL, amount, -1, false, false, c));
 		//Ferro-Lamellor
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_FERRO_LAMELLOR, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_FERRO_LAMELLOR, amount, -1, false, true, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_FERRO_LAMELLOR, amount, -1, false, true, c));
 		//Ferro-Aluminum
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_ALUM, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_ALUM, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_ALUM, amount, -1, false, false, c));
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_ALUM, true));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_ALUM, amount, -1, false, true, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_ALUM, amount, -1, false, true, c));
 		//Light/Heavy Ferro-Aluminum
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_LIGHT_ALUM, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_LIGHT_ALUM, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_LIGHT_ALUM, amount, -1, false, false, c));
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_HEAVY_ALUM, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_HEAVY_ALUM, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_HEAVY_ALUM, amount, -1, false, false, c));
 		//Primitive
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_PRIMITIVE, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_PRIMITIVE, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_PRIMITIVE, amount, -1, false, false, c));
 		/*
 		 * Warship armors
 		*/
 		//Ferro-Carbide
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_FERRO_CARBIDE, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_FERRO_CARBIDE, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_FERRO_CARBIDE, amount, -1, false, false, c));
 		//Lemellor Ferro Carbide
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_LAMELLOR_FERRO_CARBIDE, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_LAMELLOR_FERRO_CARBIDE, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_LAMELLOR_FERRO_CARBIDE, amount, -1, false, false, c));
 		//Improved Ferro-Aluminum
 		amount = (int) (5.0 * 16.0 * EquipmentType.getArmorPointMultiplier(EquipmentType.T_ARMOR_FERRO_IMP, false));
-		parts.add(new Armor(0, EquipmentType.T_ARMOR_FERRO_IMP, amount, -1, false, false, c));
+		parts.add(new Armor(EquipmentType.T_ARMOR_FERRO_IMP, amount, -1, false, false, c));
 		/*
 		 * Protomek Armor
 		 */

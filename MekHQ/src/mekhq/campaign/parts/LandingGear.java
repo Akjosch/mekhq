@@ -45,9 +45,7 @@ public class LandingGear extends Part {
     public LandingGear(double tonnage, Campaign c) {
         super(c);
         this.name = "Landing Gear"; //$NON-NLS-1$
-        add(new Installable());
-        get(Installable.class).setUnitTonnage(tonnage);
-        get(Installable.class).setTonnageLimited(true);
+        add(new Installable(tonnage, true));
     }
         
     @Override

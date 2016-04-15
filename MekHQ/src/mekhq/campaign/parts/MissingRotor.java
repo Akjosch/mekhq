@@ -40,7 +40,7 @@ public class MissingRotor extends MissingPart {
         this(0, null);
     }
     
-    public MissingRotor(int tonnage, Campaign c) {
+    public MissingRotor(double tonnage, Campaign c) {
         super(c);
         this.name = "Rotor";
         get(Installable.class).setLocations(VTOL.LOC_ROTOR);

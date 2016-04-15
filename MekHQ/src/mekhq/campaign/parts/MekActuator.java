@@ -67,10 +67,8 @@ public class MekActuator extends Part {
         this.type = type;
         Mech m = new BipedMech();
         this.name = m.getSystemName(type) + " Actuator" ;
-        add(new Installable());
+        add(new Installable(tonnage, true));
         get(Installable.class).setLocations(loc);
-        get(Installable.class).setUnitTonnage(tonnage);
-        get(Installable.class).setTonnageLimited(true);
     }
 
     @Override

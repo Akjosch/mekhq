@@ -64,7 +64,7 @@ public class TankLocation extends Part {
     	return clone;
     }
     
-    public TankLocation(int loc, int tonnage, Campaign c) {
+    public TankLocation(int loc, double tonnage, Campaign c) {
         super(c);
         this.damage = 0;
         this.breached = false;
@@ -83,10 +83,8 @@ public class TankLocation extends Part {
                 this.name = "Vehicle Rear";
                 break;
         }
-        add(new Installable());
+        add(new Installable(tonnage, true));
         get(Installable.class).setLocations(loc);
-        get(Installable.class).setUnitTonnage(tonnage);
-        get(Installable.class).setTonnageLimited(true);
         computeCost();
     }
     

@@ -42,7 +42,7 @@ public class MissingProtomekSensor extends MissingPart {
         this(0, null);
     }
 
-    public MissingProtomekSensor(int tonnage, Campaign c) {
+    public MissingProtomekSensor(double tonnage, Campaign c) {
         super(c);
         this.name = "Protomech Sensors";
         get(Installable.class).setLocations(Protomech.LOC_HEAD);

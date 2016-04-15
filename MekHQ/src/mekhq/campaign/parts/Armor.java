@@ -53,20 +53,18 @@ public class Armor extends Part implements IAcquisitionWork {
     protected int type;
     protected int amount;
     protected int amountNeeded;
-    protected int location;
     private boolean rear;
     protected boolean clan;
 
     public Armor() {
-        this(0, 0, 0, -1, false, false, null);
+        this(0, 0, -1, false, false, null);
     }
 
-    public Armor(int tonnage, int t, int points, int loc, boolean r, boolean clan, Campaign c) {
+    public Armor(int t, int points, int loc, boolean r, boolean clan, Campaign c) {
         // Amount is used for armor quantity, not tonnage
-        super(tonnage, c);
+        super(c);
         this.type = t;
         this.amount = points;
-        this.location = loc;
         this.rear = r;
         this.clan = clan;
         this.name = "Armor";
@@ -74,11 +72,12 @@ public class Armor extends Part implements IAcquisitionWork {
             this.name += " (" + EquipmentType.armorNames[type] + ")";
         }
         add(new Installable());
+        get(Installable.class).setLocations(loc);
     }
 
     @Override
     public Armor clone() {
-        Armor clone = new Armor(0, type, amount, -1, false, clan, campaign);
+        Armor clone = new Armor(type, amount, -1, false, clan, campaign);
         clone.copyBaseData(this);
         return clone;
     }
@@ -431,7 +430,7 @@ public class Armor extends Part implements IAcquisitionWork {
 
     @Override
     public IAcquisitionWork getAcquisitionWork() {
-        return new Armor(0, type, (int)Math.round(5 * getArmorPointsPerTon()), -1, false, clan, campaign);
+        return new Armor(type, (int)Math.round(5 * getArmorPointsPerTon()), -1, false, clan, campaign);
     }
 
     @Override

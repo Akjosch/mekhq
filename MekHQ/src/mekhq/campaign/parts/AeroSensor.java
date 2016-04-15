@@ -49,9 +49,7 @@ public class AeroSensor extends Part {
         super(c);
         this.name = "Aerospace Sensors";
         this.largeCraft = lc;
-        add(new Installable());
-        get(Installable.class).setUnitTonnage(tonnage);
-        get(Installable.class).setTonnageLimited(!largeCraft);
+        add(new Installable(tonnage, !largeCraft));
     }
 
     @Override

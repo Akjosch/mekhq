@@ -38,7 +38,7 @@ public class Rotor extends TankLocation {
         this(0, null);
     }
     
-    public Rotor(int tonnage, Campaign c) {
+    public Rotor(double tonnage, Campaign c) {
         super(VTOL.LOC_ROTOR, tonnage, c);
         this.name = "Rotor";
         this.damage = 0;

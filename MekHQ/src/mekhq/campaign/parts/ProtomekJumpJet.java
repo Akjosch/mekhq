@@ -54,10 +54,8 @@ public class ProtomekJumpJet extends Part {
     public ProtomekJumpJet(int tonnage, Campaign c) {
         super(c);
         this.name = "Protomech Jump Jet"; //$NON-NLS-1$
-        add(new Installable());
+        add(new Installable(tonnage, true));
         get(Installable.class).setLocations(Protomech.LOC_TORSO);
-        get(Installable.class).setUnitTonnage(tonnage);
-        get(Installable.class).setTonnageLimited(true);
     }
 
     @Override

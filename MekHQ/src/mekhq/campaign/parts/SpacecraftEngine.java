@@ -50,14 +50,12 @@ public class SpacecraftEngine extends Part {
         this(0, 0, null, false);
     }
 
-    public SpacecraftEngine(int tonnage, double etonnage, Campaign c, boolean clan) {
+    public SpacecraftEngine(double tonnage, double etonnage, Campaign c, boolean clan) {
         super(c);
         this.engineTonnage = etonnage;
         this.clan = clan;
         this.name = "Spacecraft Engine";
-        add(new Installable());
-        get(Installable.class).setUnitTonnage(tonnage);
-        get(Installable.class).setTonnageLimited(true);
+        add(new Installable(tonnage, true));
     }
     
     @Override

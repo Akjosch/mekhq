@@ -15,6 +15,14 @@ public class Installable extends Component {
     private UUID unitId = null;
     private int[] locations = new int[]{Entity.LOC_NONE};
 
+    public Installable() {
+    }
+    
+    public Installable(double unitTonnage, boolean isTonnageLimited) {
+        this.unitTonnage = unitTonnage;
+        this.isTonnageLimited = isTonnageLimited;
+    }
+
     public Unit getUnit() {
         return unit;
     }

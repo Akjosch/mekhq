@@ -51,9 +51,7 @@ public class MekSensor extends Part {
         super(c);
         this.name = "Mech Sensors";
         this.torsoMounted = torsoMounted;
-        add(new Installable());
-        get(Installable.class).setUnitTonnage(tonnage);
-        get(Installable.class).setTonnageLimited(true);
+        add(new Installable(tonnage, true));
         if(torsoMounted) {
             get(Installable.class).setLocations(Mech.LOC_HEAD, Mech.LOC_CT);
         } else {

@@ -312,21 +312,6 @@ public class MekCockpit extends Part {
         return null;
     }
     
-    @Override
-    public boolean isMountedOnDestroyedLocation() {
-        Unit unit = get(Installable.class).getUnit();
-        if(null == unit) {
-            return false;
-        }
-        for(int i = 0; i < unit.getEntity().locations(); i++) {
-             if(unit.getEntity().getNumberOfCriticals(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_COCKPIT, i) > 0
-                     && unit.isLocationDestroyed(i)) {
-                 return true;
-             }
-         }
-        return false;
-    }
-    
      @Override
      public boolean isPartForEquipmentNum(int index, int loc) {
          return Mech.SYSTEM_COCKPIT == index;
