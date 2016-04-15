@@ -23,46 +23,51 @@ package mekhq.campaign.parts;
 
 import java.io.PrintWriter;
 
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import megamek.common.CriticalSlot;
 import megamek.common.EquipmentType;
 import megamek.common.Mech;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import mekhq.campaign.parts.component.Installable;
+import mekhq.campaign.unit.Unit;
 
 /**
  *
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class MissingMekGyro extends MissingPart {
-	private static final long serialVersionUID = 3420475726506139139L;
-	protected int type;
+    private static final long serialVersionUID = 3420475726506139139L;
+    protected int type;
     protected double gyroTonnage;
     protected boolean isClan;
 
     public MissingMekGyro() {
-    	this(0, 0, 0, false, null);
+        this(0, 0, 0, false, null);
     }
 
     public MissingMekGyro(int tonnage, int type, double gyroTonnage, boolean isClan, Campaign c) {
-        super(tonnage, c);
+        super(c);
         this.type = type;
         this.name = Mech.getGyroTypeString(type);
         this.gyroTonnage = gyroTonnage;
         this.isClan = isClan;
+        get(Installable.class).setUnitTonnage(tonnage);
+        get(Installable.class).setTonnageLimited(true);
+        get(Installable.class).setLocations(Mech.LOC_CT);
     }
 
     @Override
-	public int getBaseTime() {
-		return 200;
-	}
+    public int getBaseTime() {
+        return 200;
+    }
 
-	@Override
-	public int getDifficulty() {
-		return 0;
-	}
+    @Override
+    public int getDifficulty() {
+        return 0;
+    }
 
     public int getType() {
         return type;
@@ -70,132 +75,129 @@ public class MissingMekGyro extends MissingPart {
 
     @Override
     public double getTonnage() {
-    	return gyroTonnage;
+        return gyroTonnage;
     }
 
-	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<type>"
-				+type
-				+"</type>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<gyroTonnage>"
-				+gyroTonnage
-				+"</gyroTonnage>");
-		writeToXmlEnd(pw1, indent);
-	}
+    @Override
+    public void writeToXml(PrintWriter pw1, int indent) {
+        writeToXmlBegin(pw1, indent);
+        pw1.println(MekHqXmlUtil.indentStr(indent+1)
+                +"<type>"
+                +type
+                +"</type>");
+        pw1.println(MekHqXmlUtil.indentStr(indent+1)
+                +"<gyroTonnage>"
+                +gyroTonnage
+                +"</gyroTonnage>");
+        writeToXmlEnd(pw1, indent);
+    }
 
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		NodeList nl = wn.getChildNodes();
+    @Override
+    protected void loadFieldsFromXmlNode(Node wn) {
+        NodeList nl = wn.getChildNodes();
 
-		for (int x=0; x<nl.getLength(); x++) {
-			Node wn2 = nl.item(x);
+        for (int x=0; x<nl.getLength(); x++) {
+            Node wn2 = nl.item(x);
 
-			int walkMP = -1;
-			if (wn2.getNodeName().equalsIgnoreCase("type")) {
-				type = Integer.parseInt(wn2.getTextContent());
-			} else if (wn2.getNodeName().equalsIgnoreCase("gyroTonnage")) {
-				gyroTonnage = Double.parseDouble(wn2.getTextContent());
-			} else if (wn2.getNodeName().equalsIgnoreCase("walkMP")) {
-				walkMP = Integer.parseInt(wn2.getTextContent());
-			}
-			if(walkMP > -1) {
-				//need to calculate gyroTonnage for reverse compatability
-		        gyroTonnage = MekGyro.getGyroTonnage(walkMP, type, getUnitTonnage());
-			}
-		}
-	}
+            int walkMP = -1;
+            if (wn2.getNodeName().equalsIgnoreCase("type")) {
+                type = Integer.parseInt(wn2.getTextContent());
+            } else if (wn2.getNodeName().equalsIgnoreCase("gyroTonnage")) {
+                gyroTonnage = Double.parseDouble(wn2.getTextContent());
+            } else if (wn2.getNodeName().equalsIgnoreCase("walkMP")) {
+                walkMP = Integer.parseInt(wn2.getTextContent());
+            }
+            if(walkMP > -1) {
+                //need to calculate gyroTonnage for reverse compatability
+                gyroTonnage = MekGyro.getGyroTonnage(walkMP, type, get(Installable.class).getUnitTonnage());
+            }
+        }
+    }
 
-	@Override
-	public int getAvailability(int era) {
-		switch(type) {
-		case Mech.GYRO_COMPACT:
-		case Mech.GYRO_HEAVY_DUTY:
-		case Mech.GYRO_XL:
-			if(era == EquipmentType.ERA_SL) {
-				return EquipmentType.RATING_X;
-			} else if(era == EquipmentType.ERA_SW) {
-				return EquipmentType.RATING_X;
-			} else {
-				return EquipmentType.RATING_E;
-			}
-		default:
-			return EquipmentType.RATING_C;
-		}
-	}
+    @Override
+    public int getAvailability(int era) {
+        switch(type) {
+        case Mech.GYRO_COMPACT:
+        case Mech.GYRO_HEAVY_DUTY:
+        case Mech.GYRO_XL:
+            if(era == EquipmentType.ERA_SL) {
+                return EquipmentType.RATING_X;
+            } else if(era == EquipmentType.ERA_SW) {
+                return EquipmentType.RATING_X;
+            } else {
+                return EquipmentType.RATING_E;
+            }
+        default:
+            return EquipmentType.RATING_C;
+        }
+    }
 
-	@Override
-	public int getTechRating() {
-		switch(type) {
-		case Mech.GYRO_COMPACT:
-		case Mech.GYRO_HEAVY_DUTY:
-		case Mech.GYRO_XL:
-			return EquipmentType.RATING_E;
-		default:
-			return EquipmentType.RATING_D;
-		}
-	}
+    @Override
+    public int getTechRating() {
+        switch(type) {
+        case Mech.GYRO_COMPACT:
+        case Mech.GYRO_HEAVY_DUTY:
+        case Mech.GYRO_XL:
+            return EquipmentType.RATING_E;
+        default:
+            return EquipmentType.RATING_D;
+        }
+    }
 
-	@Override
-	public boolean isAcceptableReplacement(Part part, boolean refit) {
-		if(part instanceof MekGyro) {
-			MekGyro gyro = (MekGyro)part;
-			return getType() == gyro.getType() && getTonnage() == gyro.getTonnage();
-		}
-		return false;
-	}
+    @Override
+    public boolean isAcceptableReplacement(Part part, boolean refit) {
+        if(part instanceof MekGyro) {
+            MekGyro gyro = (MekGyro)part;
+            return getType() == gyro.getType() && getTonnage() == gyro.getTonnage();
+        }
+        return false;
+    }
 
-	@Override
-	public String checkFixable() {
-		if(null == unit) {
-			return null;
-		}
-		if(unit.isLocationBreached(Mech.LOC_CT)) {
-    		return unit.getEntity().getLocationName(Mech.LOC_CT) + " is breached.";
-		}
-		return null;
-	}
+    @Override
+    public String checkFixable() {
+        Unit unit = get(Installable.class).getUnit();
+        if(null == unit) {
+            return null;
+        }
+        if(unit.isLocationBreached(Mech.LOC_CT)) {
+            return unit.getEntity().getLocationName(Mech.LOC_CT) + " is breached.";
+        }
+        return null;
+    }
 
-	@Override
-	public Part getNewPart() {
-		return new MekGyro(getUnitTonnage(), getType(), getTonnage(), isClan, campaign);
-	}
+    @Override
+    public Part getNewPart() {
+        return new MekGyro(get(Installable.class).getUnitTonnage(), getType(), getTonnage(), isClan, campaign);
+    }
 
-	@Override
-	public void updateConditionFromPart() {
-		if(null != unit) {
-			unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_GYRO, Mech.LOC_CT);
-		}
-	}
+    @Override
+    public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
+        if(null != unit) {
+            unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_GYRO, Mech.LOC_CT);
+        }
+    }
 
-	@Override
-	public int getLocation() {
-		return Mech.LOC_CT;
-	}
+    @Override
+    public int getIntroDate() {
+        switch(type) {
+        case Mech.GYRO_COMPACT:
+            return 3068;
+        case Mech.GYRO_HEAVY_DUTY:
+        case Mech.GYRO_XL:
+            return 3067;
+        default:
+            return EquipmentType.DATE_NONE;
+        }
+    }
 
-	@Override
-	public int getIntroDate() {
-		switch(type) {
-		case Mech.GYRO_COMPACT:
-			return 3068;
-		case Mech.GYRO_HEAVY_DUTY:
-		case Mech.GYRO_XL:
-			return 3067;
-		default:
-			return EquipmentType.DATE_NONE;
-		}
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
-
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 }

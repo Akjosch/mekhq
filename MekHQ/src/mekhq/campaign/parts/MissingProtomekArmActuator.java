@@ -68,8 +68,7 @@ public class MissingProtomekArmActuator extends MissingPart {
     public void setLocation(int loc) {
         this.location = loc;
     }
-    
-   
+
     @Override
     public double getTonnage() {
         //TODO: how much do actuators weight?
