@@ -349,7 +349,7 @@ public class EnginePart extends Part {
 
 	@Override
 	public MissingPart getMissingPart() {
-		return new MissingEnginePart(getUnitTonnage(), new Engine(engine.getRating(), engine.getEngineType(), engine.getFlags()), campaign, forHover);
+		return new MissingEnginePart(get(Installable.class).getUnitTonnage(), new Engine(engine.getRating(), engine.getEngineType(), engine.getFlags()), campaign, forHover);
 	}
 
 	@Override
@@ -380,7 +380,7 @@ public class EnginePart extends Part {
 			unit.addPart(missing);
 			campaign.addPart(missing, 0);
 		}
-		setUnit(null);
+		get(Installable.class).setUnit(null);
 	}
 
 	@Override
@@ -554,7 +554,7 @@ public class EnginePart extends Part {
 		 if(forHover) {
 			 hvrString = " (hover)";
 		 }
-		 return super.getDetails() + ", " + getUnitTonnage() + " tons" + hvrString;
+		 return super.getDetails() + ", " + get(Installable.class).getUnitTonnage() + " tons" + hvrString;
 	 }
 
 	 @Override

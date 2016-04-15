@@ -285,11 +285,6 @@ public class ProtomekArmActuator extends Part {
     }
 
 	@Override
-	public String getLocationName() {
-		return unit.getEntity().getLocationName(location);
-	}
-	
-	@Override
 	public int getIntroDate() {
 		return 3055;
 	}

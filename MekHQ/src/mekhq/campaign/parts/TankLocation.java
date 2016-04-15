@@ -24,6 +24,7 @@ package mekhq.campaign.parts;
 import java.io.PrintWriter;
 
 import megamek.common.CriticalSlot;
+import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import megamek.common.IArmorState;
 import megamek.common.ILocationExposureStatus;
@@ -33,6 +34,7 @@ import megamek.common.TargetRoll;
 import megamek.common.TechConstants;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.personnel.SkillType;
 
@@ -45,7 +47,6 @@ import org.w3c.dom.NodeList;
  */
 public class TankLocation extends Part {
 	private static final long serialVersionUID = -122291037522319765L;
-	protected int loc;
 	protected int damage;
 	protected boolean breached;
 
@@ -53,22 +54,20 @@ public class TankLocation extends Part {
     	this(0, 0, null);
     }
     
+    protected TankLocation(Installable installable, Campaign campaign) {
+        this(installable.getMainLocation(), installable.getUnitTonnage(), campaign);
+    }
+    
     public TankLocation clone() {
-    	TankLocation clone = new TankLocation(loc, getUnitTonnage(), campaign);
+    	TankLocation clone = new TankLocation(get(Installable.class), campaign);
         clone.copyBaseData(this);
-    	clone.loc = this.loc;
     	clone.damage = this.damage;
     	clone.breached = this.breached;
     	return clone;
     }
     
-    public int getLoc() {
-        return loc;
-    }
-    
     public TankLocation(int loc, int tonnage, Campaign c) {
-        super(tonnage, c);
-        this.loc = loc;
+        super(c);
         this.damage = 0;
         this.breached = false;
         this.name = "Tank Location";
@@ -86,6 +85,10 @@ public class TankLocation extends Part {
                 this.name = "Vehicle Rear";
                 break;
         }
+        add(new Installable());
+        get(Installable.class).setLocations(loc);
+        get(Installable.class).setUnitTonnage(tonnage);
+        get(Installable.class).setTonnageLimited(true);
         computeCost();
     }
     
@@ -96,8 +99,8 @@ public class TankLocation extends Part {
     @Override
     public boolean isSamePartType(Part part) {
         return part instanceof TankLocation 
-        		&& getLoc() == ((TankLocation)part).getLoc() 
-        		&& getUnitTonnage() == ((TankLocation)part).getUnitTonnage();
+        		&& get(Installable.class).getMainLocation() == part.get(Installable.class).getMainLocation()
+        		&& get(Installable.class).getUnitTonnage() == part.get(Installable.class).getUnitTonnage();
     }	
     
     @Override
@@ -135,7 +138,7 @@ public class TankLocation extends Part {
 			Node wn2 = nl.item(x);
 			
 			if (wn2.getNodeName().equalsIgnoreCase("loc")) {
-				loc = Integer.parseInt(wn2.getTextContent());
+		        get(Installable.class).setLocations(Integer.parseInt(wn2.getTextContent()));
 			} else if (wn2.getNodeName().equalsIgnoreCase("damage")) {
 				damage = Integer.parseInt(wn2.getTextContent());
 			} else if (wn2.getNodeName().equalsIgnoreCase("breached")) {
@@ -165,11 +168,13 @@ public class TankLocation extends Part {
 	@Override
 	public void fix() {
 		super.fix();
+        Entity entity = get(Installable.class).getEntity();
+        int loc = get(Installable.class).getMainLocation();
 		if(isBreached()) {
 			breached = false;
-			unit.getEntity().setLocationStatus(loc, ILocationExposureStatus.NORMAL, true);
-			for (int i = 0; i < unit.getEntity().getNumberOfCriticals(loc); i++) {
-	            CriticalSlot slot = unit.getEntity().getCritical(loc, i);
+			entity.setLocationStatus(loc, ILocationExposureStatus.NORMAL, true);
+			for (int i = 0; i < entity.getNumberOfCriticals(loc); i++) {
+	            CriticalSlot slot = entity.getCritical(loc, i);
 	            // ignore empty & non-hittable slots
 	            if (slot == null) {
 	                continue;
@@ -181,9 +186,9 @@ public class TankLocation extends Part {
 	            }
 			}
 		} else {
-		damage = 0;
-			if(null != unit) {
-				unit.getEntity().setInternal(unit.getEntity().getOInternal(loc), loc);
+		    damage = 0;
+		    if(null != entity) {
+			    entity.setInternal(entity.getOInternal(loc), loc);
 			}
 		}
 	}
@@ -196,8 +201,9 @@ public class TankLocation extends Part {
 
 	@Override
 	public void remove(boolean salvage) {
-		if(null != unit) {
-			unit.getEntity().setInternal(IArmorState.ARMOR_DESTROYED, loc);
+        Entity entity = get(Installable.class).getEntity();
+		if(null != entity) {
+		    entity.setInternal(IArmorState.ARMOR_DESTROYED, get(Installable.class).getMainLocation());
 			Part spare = campaign.checkForExistingSparePart(this);
 			if(!salvage) {
 				campaign.removePart(this);
@@ -205,20 +211,22 @@ public class TankLocation extends Part {
 				spare.incrementQuantity();
 				campaign.removePart(this);
 			}
-			unit.removePart(this);
+			get(Installable.class).getUnit().removePart(this);
 		}
-		setUnit(null);
+		get(Installable.class).setUnit(null);
 		updateConditionFromEntity(false);
 	}
 
 	@Override
 	public void updateConditionFromEntity(boolean checkForDestruction) {
-		if(null != unit) {
-			if(IArmorState.ARMOR_DESTROYED == unit.getEntity().getInternal(loc)) {
+        Entity entity = get(Installable.class).getEntity();
+		if(null != entity) {
+	        int loc = get(Installable.class).getMainLocation();
+			if(IArmorState.ARMOR_DESTROYED == entity.getInternal(loc)) {
 				remove(false);
 			} else {
-				damage = unit.getEntity().getOInternal(loc) - unit.getEntity().getInternal(loc);	
-				if(unit.isLocationBreached(loc)) {
+				damage = entity.getOInternal(loc) - entity.getInternal(loc);	
+				if(get(Installable.class).getUnit().isLocationBreached(loc)) {
 					breached = true;
 				} 
 			}
@@ -323,22 +331,16 @@ public class TankLocation extends Part {
 	 }
 	 
 	 public void doMaintenanceDamage(int d) {
-         int points = unit.getEntity().getInternal(loc);
-         points = Math.max(points -d, 1);
-         unit.getEntity().setInternal(points, loc);
-         updateConditionFromEntity(false);
+	     Entity entity = get(Installable.class).getEntity();
+	     if(null != entity) {
+	         int loc = get(Installable.class).getMainLocation();
+             int points = entity.getInternal(loc);
+             points = Math.max(points -d, 1);
+             entity.setInternal(points, loc);
+             updateConditionFromEntity(false);
+	     }
      }
 
-	@Override
-	public String getLocationName() {
-		return unit.getEntity().getLocationName(loc);
-	}
-
-	@Override
-	public int getLocation() {
-		return loc;
-	}
-	
 	@Override
 	public int getIntroDate() {
 		return EquipmentType.DATE_NONE;

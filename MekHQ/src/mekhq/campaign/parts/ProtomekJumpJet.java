@@ -288,11 +288,6 @@ public class ProtomekJumpJet extends Part {
         return damagedJJ;
     }
 
-    @Override
-   	public String getLocationName() {
-   		return unit.getEntity().getLocationName(getLocation());
-   	}
-
 	@Override
 	public int getLocation() {
 		return Protomech.LOC_TORSO;

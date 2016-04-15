@@ -78,7 +78,7 @@ public class Installable extends Component {
     }
     
     public String getLocationName() {
-        return null;
+        return (null != getEntity()) ? getEntity().getLocationName(getMainLocation()) : null;
     }
 
     public boolean isInLocation(String loc) {

@@ -199,11 +199,6 @@ public class MissingMekCockpit extends MissingPart {
 	}
 
 	@Override
-	public String getLocationName() {
-		return null;
-	}
-
-	@Override
 	public int getLocation() {
 		if(type == Mech.COCKPIT_TORSO_MOUNTED) {
 			return Mech.LOC_CT;

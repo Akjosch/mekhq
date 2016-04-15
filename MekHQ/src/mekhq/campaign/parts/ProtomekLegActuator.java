@@ -257,11 +257,6 @@ public class ProtomekLegActuator extends Part {
 
     }
 
-    @Override
-   	public String getLocationName() {
-   		return unit.getEntity().getLocationName(getLocation());
-   	}
-
 	@Override
 	public int getLocation() {
 		return Protomech.LOC_LEG;

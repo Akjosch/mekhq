@@ -113,12 +113,6 @@ public class MissingMekSensor extends MissingPart {
 	}
 
 	@Override
-	public String getLocationName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public int getLocation() {
 		if(null != unit) {
 			Entity entity = unit.getEntity();

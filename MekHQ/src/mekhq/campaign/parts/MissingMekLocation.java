@@ -398,11 +398,6 @@ public class MissingMekLocation extends MissingPart {
 	}
 
 	@Override
-	public String getLocationName() {
-		return unit.getEntity().getLocationName(loc);
-	}
-
-	@Override
 	public int getLocation() {
 		return loc;
 	}

@@ -60,7 +60,7 @@ public class MissingBattleArmorSuit extends MissingPart {
     protected int weightClass;
 
     public MissingBattleArmorSuit() {
-        super(0, null);
+        super(null);
     }
 
 
@@ -304,13 +304,6 @@ public class MissingBattleArmorSuit extends MissingPart {
             remove(false);
         }
     }
-
-
-	@Override
-	public String getLocationName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 
 	@Override

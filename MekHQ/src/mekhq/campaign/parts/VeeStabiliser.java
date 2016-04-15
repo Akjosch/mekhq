@@ -225,11 +225,6 @@ public class VeeStabiliser extends Part {
 	}
 
 	@Override
-	public String getLocationName() {
-		return unit.getEntity().getLocationName(loc);
-	}
-	
-	@Override
 	public int getIntroDate() {
 		return EquipmentType.DATE_NONE;
 	}

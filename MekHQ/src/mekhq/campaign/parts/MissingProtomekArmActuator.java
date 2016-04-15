@@ -176,11 +176,6 @@ public class MissingProtomekArmActuator extends MissingPart {
     }
 
 	@Override
-	public String getLocationName() {
-		return unit.getEntity().getLocationName(location);
-	}
-	
-	@Override
 	public int getIntroDate() {
 		return 3055;
 	}

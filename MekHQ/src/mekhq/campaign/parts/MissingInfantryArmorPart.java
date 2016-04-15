@@ -257,17 +257,6 @@ public class MissingInfantryArmorPart extends MissingPart {
 	}
 
 	@Override
-	public String getLocationName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int getLocation() {
-		return Entity.LOC_NONE;
-	}
-	
-	@Override
 	public int getIntroDate() {
 		//I am going to kind of hack this together based on the actual kits
 		//this will be better if we implement Hammer's suggested Armor Kit MiscTypes

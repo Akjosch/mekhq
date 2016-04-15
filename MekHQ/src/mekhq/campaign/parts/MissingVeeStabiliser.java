@@ -48,7 +48,7 @@ public class MissingVeeStabiliser extends MissingPart {
     }
     
     public MissingVeeStabiliser(int tonnage, int loc, Campaign c) {
-    	super(0, c);
+    	super(c);
     	this.name = "Vehicle Stabiliser";
     	this.loc = loc;
     }
@@ -142,11 +142,6 @@ public class MissingVeeStabiliser extends MissingPart {
 		}
 	}
 
-	@Override
-	public String getLocationName() {
-		return unit.getEntity().getLocationName(loc);
-	}
-	
 	@Override
 	public int getIntroDate() {
 		return EquipmentType.DATE_NONE;

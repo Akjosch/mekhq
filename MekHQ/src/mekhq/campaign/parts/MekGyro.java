@@ -302,12 +302,6 @@ public class MekGyro extends Part {
 		 return skillType.equals(SkillType.S_TECH_MECH);
 	 }
 
-	@Override
-	public String getLocationName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public static final int GYRO_STANDARD = Mech.GYRO_STANDARD;
 
     public static final int GYRO_XL = Mech.GYRO_XL;

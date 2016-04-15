@@ -101,17 +101,6 @@ public class MissingLandingGear extends MissingPart {
 	protected void loadFieldsFromXmlNode(Node wn) {
 		//nothing to load
 	}
-
-	@Override
-	public String getLocationName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public int getLocation() {
-		return Entity.LOC_NONE;
-	}
 	
 	@Override
 	public int getIntroDate() {

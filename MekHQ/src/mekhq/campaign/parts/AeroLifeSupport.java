@@ -30,6 +30,7 @@ import megamek.common.EquipmentType;
 import megamek.common.TechConstants;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
 
 import org.w3c.dom.Node;
@@ -50,21 +51,22 @@ public class AeroLifeSupport extends Part {
 	private boolean fighter;
 	
 	public AeroLifeSupport() {
-    	this(0, 0, false, null);
+    	this(0, false, null);
     }
     
-    public AeroLifeSupport(int tonnage, long cost, boolean f, Campaign c) {
-        super(tonnage, c);
+    public AeroLifeSupport(long cost, boolean f, Campaign c) {
+        super(c);
         this.cost = cost;
-        this.name = "Fighter Life Support";
+        this.name = "Fighter Life Support"; //$NON-NLS-1$
         this.fighter = f;
         if(!fighter) {
-        	this.name = "Spacecraft Life Support";
+        	this.name = "Spacecraft Life Support"; //$NON-NLS-1$
         }
+        add(new Installable());
     }
     
     public AeroLifeSupport clone() {
-    	AeroLifeSupport clone = new AeroLifeSupport(getUnitTonnage(), cost, fighter, campaign);
+    	AeroLifeSupport clone = new AeroLifeSupport(cost, fighter, campaign);
         clone.copyBaseData(this);
     	return clone;
     }
@@ -72,8 +74,9 @@ public class AeroLifeSupport extends Part {
 	@Override
 	public void updateConditionFromEntity(boolean checkForDestruction) {
 		int priorHits = hits;
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			 if(((Aero)unit.getEntity()).hasLifeSupport()) {
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+		if(null != aero) {
+			 if(aero.hasLifeSupport()) {
 				 hits = 0;
 			 } else { 
 				 hits = 1;
@@ -105,11 +108,12 @@ public class AeroLifeSupport extends Part {
 
 	@Override
 	public void updateConditionFromPart() {
-		if(null != unit && unit.getEntity() instanceof Aero) {
+	    Aero aero = get(Installable.class).getEntity(Aero.class);
+		if(null != aero) {
 			if(hits > 0) {
-				((Aero)unit.getEntity()).setLifeSupport(false);
+			    aero.setLifeSupport(false);
 			} else {
-				((Aero)unit.getEntity()).setLifeSupport(true);
+			    aero.setLifeSupport(true);
 			}
 		}
 		
@@ -118,15 +122,17 @@ public class AeroLifeSupport extends Part {
 	@Override
 	public void fix() {
 		super.fix();
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			((Aero)unit.getEntity()).setLifeSupport(true);
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+		if(null != aero) {
+		    aero.setLifeSupport(true);
 		}
 	}
 
 	@Override
 	public void remove(boolean salvage) {
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			((Aero)unit.getEntity()).setLifeSupport(false);
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+		if(null != aero) {
+		    aero.setLifeSupport(false);
 			Part spare = campaign.checkForExistingSparePart(this);
 			if(!salvage) {
 				campaign.removePart(this);
@@ -134,18 +140,18 @@ public class AeroLifeSupport extends Part {
 				spare.incrementQuantity();
 				campaign.removePart(this);
 			}
-			unit.removePart(this);
+			get(Installable.class).getUnit().removePart(this);
 			Part missing = getMissingPart();
-			unit.addPart(missing);
+			get(Installable.class).getUnit().addPart(missing);
 			campaign.addPart(missing, 0);
 		}
-		setUnit(null);
+		get(Installable.class).setUnit(null);
 		updateConditionFromEntity(false);
 	}
 
 	@Override
 	public MissingPart getMissingPart() {
-		return new MissingAeroLifeSupport(getUnitTonnage(), cost, fighter, campaign);
+		return new MissingAeroLifeSupport(cost, fighter, campaign);
 	}
 
 	@Override
@@ -167,8 +173,9 @@ public class AeroLifeSupport extends Part {
 		if(fighter) {
 			cost = 50000;
 		}
-		if(null != unit) {
-			cost = 5000 * (((Aero)unit.getEntity()).getNCrew() + ((Aero)unit.getEntity()).getNPassenger());
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+		if(null != aero) {
+			cost = 5000 * (aero.getNCrew() + aero.getNPassenger());
 		}	
 	}
 

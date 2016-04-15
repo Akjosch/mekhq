@@ -340,12 +340,6 @@ public class MekCockpit extends Part {
 	 }
 
 	@Override
-	public String getLocationName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public int getLocation() {
 		if(type == Mech.COCKPIT_TORSO_MOUNTED) {
 			return Mech.LOC_CT;

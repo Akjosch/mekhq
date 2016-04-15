@@ -344,12 +344,6 @@ public class MissingEnginePart extends MissingPart {
 	}
 
 	@Override
-	public String getLocationName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public int getLocation() {
 		return Entity.LOC_NONE;
 	}
