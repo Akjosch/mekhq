@@ -39,6 +39,7 @@ import mekhq.Utilities;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
+import mekhq.campaign.unit.Unit;
 import mekhq.campaign.work.IAcquisitionWork;
 import mekhq.campaign.work.Modes;
 
@@ -552,11 +553,13 @@ public class Armor extends Part implements IAcquisitionWork {
 
     @Override
     public boolean isMountedOnDestroyedLocation() {
+        Unit unit = get(Installable.class).getUnit();
         return null != unit && unit.isLocationDestroyed(location);
     }
 
     @Override
     public boolean onBadHipOrShoulder() {
+        Unit unit = get(Installable.class).getUnit();
         return null != unit && unit.hasBadHipOrShoulder(location);
     }
 
@@ -720,7 +723,7 @@ public class Armor extends Part implements IAcquisitionWork {
     
            }
         }
-       updateConditionFromEntity(false);
+        updateConditionFromEntity(false);
     }
 
     @Override

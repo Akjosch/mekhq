@@ -45,7 +45,6 @@ public class MissingDropshipDockingCollar extends MissingPart {
     public MissingDropshipDockingCollar(Campaign c) {
         super(c);
         this.name = "Dropship Docking Collar"; //$NON-NLS-1$
-        add(new Installable());
     }
     
     @Override 

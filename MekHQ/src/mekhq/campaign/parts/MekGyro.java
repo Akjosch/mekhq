@@ -31,7 +31,9 @@ import megamek.common.Mech;
 import megamek.common.TechConstants;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
+import mekhq.campaign.unit.Unit;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -211,6 +213,7 @@ public class MekGyro extends Part {
 
 	@Override
 	public void remove(boolean salvage) {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			unit.destroySystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_GYRO, Mech.LOC_CT);
 			Part spare = campaign.checkForExistingSparePart(this);
@@ -272,6 +275,7 @@ public class MekGyro extends Part {
 
 	@Override
 	public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			if(hits == 0) {
 				unit.repairSystem(CriticalSlot.TYPE_SYSTEM, Mech.SYSTEM_GYRO, Mech.LOC_CT);
@@ -283,6 +287,7 @@ public class MekGyro extends Part {
 
 	@Override
 	public String checkFixable() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null == unit) {
 			return null;
 		}

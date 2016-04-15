@@ -45,7 +45,6 @@ public class MissingAeroHeatSink extends MissingPart {
     	super(c);
     	this.type = type;
     	this.name = "Aero Heat Sink"; //$NON-NLS-1$
-    	add(new Installable());
     }
     
     @Override 

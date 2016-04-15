@@ -43,7 +43,6 @@ public class MissingAvionics extends MissingPart {
     public MissingAvionics(Campaign c) {
         super(c);
         this.name = "Avionics"; //$NON-NLS-1$
-        add(new Installable());
     }
     
     @Override 

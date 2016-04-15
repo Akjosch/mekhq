@@ -30,7 +30,9 @@ import megamek.common.EquipmentType;
 import megamek.common.Mech;
 import megamek.common.TechConstants;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
+import mekhq.campaign.unit.Unit;
 
 import org.w3c.dom.Node;
 
@@ -134,6 +136,7 @@ public class MekLifeSupport extends Part {
 
 	@Override
 	public void updateConditionFromEntity(boolean checkForDestruction) {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			int priorHits = hits;
 			Entity entity = unit.getEntity();
@@ -197,6 +200,7 @@ public class MekLifeSupport extends Part {
 	
 	@Override
     public String checkFixable() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null == unit) {
 			return null;
 		}
@@ -218,6 +222,7 @@ public class MekLifeSupport extends Part {
 	
 	@Override
 	public boolean isMountedOnDestroyedLocation() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null == unit) {
 			return false;
 		}

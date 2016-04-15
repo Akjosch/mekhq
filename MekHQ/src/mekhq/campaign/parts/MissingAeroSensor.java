@@ -54,7 +54,6 @@ public class MissingAeroSensor extends MissingPart {
     	super(c);
     	this.name = "Aero Sensors";
     	this.dropship = drop;
-    	add(new Installable());
         get(Installable.class).setUnitTonnage(tonnage);
         get(Installable.class).setTonnageLimited(true);
     }

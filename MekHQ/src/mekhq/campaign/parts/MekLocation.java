@@ -34,8 +34,10 @@ import megamek.common.TargetRoll;
 import megamek.common.TechConstants;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.personnel.SkillType;
+import mekhq.campaign.unit.Unit;
 import mekhq.campaign.work.Modes;
 
 import org.w3c.dom.Node;
@@ -361,6 +363,7 @@ public class MekLocation extends Part {
 	@Override
 	public void fix() {
 		super.fix();
+        Unit unit = get(Installable.class).getUnit();
 		if(isBlownOff()) {
 			blownOff = false;
 			unit.getEntity().setLocationBlownOff(loc, false);
@@ -408,6 +411,7 @@ public class MekLocation extends Part {
 	public void remove(boolean salvage) {
 		blownOff = false;
 		breached = false;
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			unit.getEntity().setInternal(IArmorState.ARMOR_DESTROYED, loc);
 			unit.getEntity().setLocationBlownOff(loc, false);
@@ -521,6 +525,7 @@ public class MekLocation extends Part {
 	@Override
     public String getDetails() {
 	    String toReturn = "";
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			toReturn = unit.getEntity().getLocationName(loc);
 			if(isBlownOff()) {
@@ -577,6 +582,7 @@ public class MekLocation extends Part {
 	
 	@Override
     public String checkFixable() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null == unit) {
 			return null;
 		}
@@ -676,6 +682,7 @@ public class MekLocation extends Part {
 		//otherwise you will get weirdness where armor and actuators are 
 		//still attached but everything else is scrapped
 	    //cant salvage torsos until arms and legs are gone
+        Unit unit = get(Installable.class).getUnit();
         if(unit.getEntity() instanceof Mech && loc == Mech.LOC_RT && !unit.getEntity().isLocationBad(Mech.LOC_RARM)) {
             return "You must first remove the right arm before you scrap the right torso";
         }
@@ -811,16 +818,12 @@ public class MekLocation extends Part {
     }
 	
 	 public void doMaintenanceDamage(int d) {
+	        Unit unit = get(Installable.class).getUnit();
 	     int points = unit.getEntity().getInternal(loc);
          points = Math.max(points -d, 1);
          unit.getEntity().setInternal(points, loc);
          updateConditionFromEntity(false);
 	 }
-
-	@Override
-	public int getLocation() {
-		return Entity.LOC_NONE;
-	}
 	
 	@Override
 	public int getIntroDate() {

@@ -52,7 +52,6 @@ public class MissingAeroLifeSupport extends MissingPart {
         this.cost = cost;
         this.name = fighter ? "Fighter Life Support" : "Spacecraft Life Support"; //$NON-NLS-1$ //$NON-NLS-2$
         this.fighter = fighter;
-        add(new Installable());
     }
 
     @Override

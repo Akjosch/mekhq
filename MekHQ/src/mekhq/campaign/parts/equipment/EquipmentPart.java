@@ -39,6 +39,7 @@ import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.MissingPart;
 import mekhq.campaign.parts.Part;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.unit.Unit;
 import mekhq.campaign.universe.Era;
 
@@ -81,7 +82,7 @@ public class EquipmentPart extends Part {
     }
 
     public EquipmentPart(int tonnage, EquipmentType et, int equipNum, Campaign c) {
-        super(tonnage, c);
+        super(c);
         this.type =et;
         if(null != type) {
         	this.name = type.getName();
@@ -99,6 +100,8 @@ public class EquipmentPart extends Part {
 	        	//System.out.println("Found a null entity while calculating tonnage for " + name);
 	        }
         }
+        add(new Installable());
+        get(Installable.class).setUnitTonnage(tonnage);
     }
 
     @Override
@@ -242,6 +245,7 @@ public class EquipmentPart extends Part {
 	@Override
 	public void fix() {
 		super.fix();
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
 			if(null != mounted) {
@@ -256,11 +260,12 @@ public class EquipmentPart extends Part {
 
 	@Override
 	public MissingPart getMissingPart() {
-		return new MissingEquipmentPart(getUnitTonnage(), type, equipmentNum, campaign, equipTonnage);
+		return new MissingEquipmentPart(get(Installable.class).getUnitTonnage(), type, equipmentNum, campaign, equipTonnage);
 	}
 
 	@Override
 	public void remove(boolean salvage) {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
 			if(null != mounted) {
@@ -293,6 +298,7 @@ public class EquipmentPart extends Part {
 
 	@Override
 	public void updateConditionFromEntity(boolean checkForDestruction) {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			int priorHits = hits;
 			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
@@ -357,6 +363,7 @@ public class EquipmentPart extends Part {
 
     @Override
     public String getDetails() {
+        Unit unit = get(Installable.class).getUnit();
     	if(null != unit) {
 			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
 			if(null != mounted && mounted.getLocation() != -1) {
@@ -367,6 +374,7 @@ public class EquipmentPart extends Part {
     }
 
     public int getLocation() {
+        Unit unit = get(Installable.class).getUnit();
     	if(null != unit) {
     		Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
 			if(null != mounted) {
@@ -377,6 +385,7 @@ public class EquipmentPart extends Part {
     }
 
     public boolean isRearFacing() {
+        Unit unit = get(Installable.class).getUnit();
     	if(null != unit) {
     		Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
 			if(null != mounted) {
@@ -388,6 +397,7 @@ public class EquipmentPart extends Part {
 
 	@Override
 	public void updateConditionFromPart() {
+        Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
 			if(null != mounted) {
@@ -415,6 +425,7 @@ public class EquipmentPart extends Part {
 		}
         // The part is only fixable if the location is not destroyed.
         // be sure to check location and second location
+        Unit unit = get(Installable.class).getUnit();
         if(null != unit) {
             Mounted m = unit.getEntity().getEquipment(equipmentNum);
             if(null != m) {
@@ -441,6 +452,7 @@ public class EquipmentPart extends Part {
 
 	@Override
 	public boolean isMountedOnDestroyedLocation() {
+        Unit unit = get(Installable.class).getUnit();
 		// This should do the exact same as the big loop commented out below - Dylan
 		try {
 			return unit != null && unit.getEntity() != null && unit.getEntity().getEquipment(equipmentNum) != null && unit.isLocationDestroyed(unit.getEntity().getEquipment(equipmentNum).getLocation());
@@ -475,6 +487,7 @@ public class EquipmentPart extends Part {
 
 	@Override
 	public boolean onBadHipOrShoulder() {
+	    Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			for(int loc = 0; loc < unit.getEntity().locations(); loc++) {
 	            for (int i = 0; i < unit.getEntity().getNumberOfCriticals(loc); i++) {
@@ -517,15 +530,14 @@ public class EquipmentPart extends Part {
     	// use that to determine how to add things to the parts store and to
     	// determine whether what can be used as a replacement
     	//why does all the proto ammo have no cost?
-    	Entity en = null;
+        Entity en = get(Installable.class).getEntity();
     	boolean isArmored = false;
         double itemCost = type.getRawCost();
         if (itemCost == EquipmentType.COST_VARIABLE) {
             itemCost = resolveVariableCost(isArmored);
         }
-    	if (unit != null) {
-            en = unit.getEntity();
-            Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
+    	if(null != en) {
+            Mounted mounted = en.getEquipment(equipmentNum);
             if(null != mounted) {
             	isArmored = mounted.isArmored();
             }
@@ -541,10 +553,7 @@ public class EquipmentPart extends Part {
 
     private int resolveVariableCost(boolean isArmored) {
     	double varCost = 0;
-    	Entity en = null;
-    	if (getUnit() != null) {
-    		en = getUnit().getEntity();
-    	}
+    	Entity en = get(Installable.class).getEntity();
     	if (en != null) {
     		varCost = type.getCost(en, isArmored, getLocation());
     	} else if (type instanceof MiscType) {
@@ -674,6 +683,7 @@ public class EquipmentPart extends Part {
 
 	@Override
     public boolean isInLocation(String loc) {
+        Unit unit = get(Installable.class).getUnit();
 		if(null == unit || null == unit.getEntity() || null == unit.getEntity().getEquipment(equipmentNum)) {
 			return false;
 		}
@@ -713,7 +723,7 @@ public class EquipmentPart extends Part {
 	 * order to properly update weapon bay mounts on the entity
 	 */
 	private void checkWeaponBay() {
-		
+		Unit unit = get(Installable.class).getUnit();
 		if(type instanceof WeaponType && null != unit 
 				&& null != unit.getEntity()
 				&& unit.getEntity().usesWeaponBays()) {

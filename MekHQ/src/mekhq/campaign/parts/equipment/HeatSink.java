@@ -28,6 +28,8 @@ import megamek.common.MiscType;
 import megamek.common.Mounted;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.MissingPart;
+import mekhq.campaign.parts.component.Installable;
+import mekhq.campaign.unit.Unit;
 
 /**
  *
@@ -45,7 +47,7 @@ public class HeatSink extends EquipmentPart {
     }
     
     public HeatSink clone() {
-    	HeatSink clone = new HeatSink(getUnitTonnage(), getType(), getEquipmentNum(), campaign);
+    	HeatSink clone = new HeatSink(get(Installable.class).getUnitTonnage(), getType(), getEquipmentNum(), campaign);
         clone.copyBaseData(this);
     	return clone;
     }
@@ -65,11 +67,12 @@ public class HeatSink extends EquipmentPart {
 
 	@Override
 	public MissingPart getMissingPart() {
-		return new MissingHeatSink(getUnitTonnage(), type, equipmentNum, campaign);
+		return new MissingHeatSink(get(Installable.class).getUnitTonnage(), type, equipmentNum, campaign);
 	}
 
 	@Override
 	public void updateConditionFromEntity(boolean checkForDestruction) {
+	    Unit unit = get(Installable.class).getUnit();
 		if(null != unit) {
 			int priorHits = hits;
 			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);

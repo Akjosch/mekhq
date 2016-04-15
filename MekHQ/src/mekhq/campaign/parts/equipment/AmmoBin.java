@@ -39,7 +39,9 @@ import mekhq.campaign.parts.AmmoStorage;
 import mekhq.campaign.parts.Availability;
 import mekhq.campaign.parts.MissingPart;
 import mekhq.campaign.parts.Part;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.Person;
+import mekhq.campaign.unit.Unit;
 import mekhq.campaign.universe.Era;
 import mekhq.campaign.work.IAcquisitionWork;
 
@@ -96,6 +98,7 @@ public class AmmoBin extends EquipmentPart implements IAcquisitionWork {
 
     public int getFullShots() {
     	int fullShots = ((AmmoType)type).getShots();
+    	Unit unit = get(Installable.class).getUnit();
     	if(unit != null) {
 			Mounted m = unit.getEntity().getEquipment(equipmentNum);
             if(null != m && m.getOriginalShots() > 0) {

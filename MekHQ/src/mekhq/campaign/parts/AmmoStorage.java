@@ -31,6 +31,7 @@ import megamek.common.TargetRoll;
 import mekhq.MekHqXmlUtil;
 import mekhq.Utilities;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.parts.equipment.EquipmentPart;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.universe.Era;
@@ -61,7 +62,7 @@ public class AmmoStorage extends EquipmentPart implements IAcquisitionWork {
         if(null != type && type instanceof AmmoType) {
         	this.munition = ((AmmoType)type).getMunitionType();
         }
-
+        remove(Installable.class);
     }
     
     public AmmoStorage clone() {
