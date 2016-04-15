@@ -387,13 +387,20 @@ public class PartsStore implements Serializable {
 	private void stockAeroComponents(Campaign c) {
 		parts.add(new AeroHeatSink(Aero.HEAT_SINGLE, c));
 		parts.add(new AeroHeatSink(Aero.HEAT_DOUBLE, c));
+		// Small craft sensors and landing gear
 		for(int ton = 5; ton <= 200; ton += 5) {
 			parts.add(new AeroSensor(ton, false, c));
+            parts.add(new LandingGear(ton, c));
 		}
+		// Large craft sensors and landing gear
 		parts.add(new AeroSensor(0, true, c));
+        for(int ton = 300; ton <= 100000; ton += 100) {
+            parts.add(new LandingGear(ton, c));         
+        }
 		parts.add(new Avionics(c));
-		parts.add(new FireControlSystem(0, c));
-		parts.add(new LandingGear(0, c));
+		for(int firingArcs = 1; firingArcs <= 8; ++ firingArcs) {
+		    parts.add(new FireControlSystem(firingArcs, c));
+		}
 	}
 
 	private void stockVeeComponents(Campaign c) {

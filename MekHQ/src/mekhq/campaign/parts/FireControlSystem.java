@@ -29,8 +29,6 @@ import org.w3c.dom.NodeList;
 import megamek.common.Aero;
 import megamek.common.Compute;
 import megamek.common.EquipmentType;
-import megamek.common.Jumpship;
-import megamek.common.SmallCraft;
 import megamek.common.TechConstants;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
@@ -38,27 +36,29 @@ import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
 
 /**
- *
+ * This class actually treats the Fire Control Computer and Gunnery Control Systems
+ * as one part (see TM 283).
+ * 
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class FireControlSystem extends Part {
     private static final long serialVersionUID = -717866644605314883L;
     
-    private long cost;
+    private int firingArcs;
     
     public FireControlSystem() {
         this(0, null);
     }
     
-    public FireControlSystem(long cost, Campaign c) {
+    public FireControlSystem(int firingArcs, Campaign c) {
         super(c);
-        this.cost = cost;
+        this.firingArcs = firingArcs;
         this.name = "Fire Control System"; //$NON-NLS-1$
         add(new Installable());
     }
         
     public FireControlSystem clone() {
-        FireControlSystem clone = new FireControlSystem(cost, campaign);
+        FireControlSystem clone = new FireControlSystem(firingArcs, campaign);
         clone.copyBaseData(this);
         return clone;
     }
@@ -100,7 +100,6 @@ public class FireControlSystem extends Part {
         if(null != aero) {
             aero.setFCSHits(hits);
         }
-        
     }
 
     @Override
@@ -135,7 +134,7 @@ public class FireControlSystem extends Part {
 
     @Override
     public MissingPart getMissingPart() {
-        return new MissingFireControlSystem(cost, campaign);
+        return new MissingFireControlSystem(firingArcs, campaign);
     }
 
     @Override
@@ -150,20 +149,7 @@ public class FireControlSystem extends Part {
 
     @Override
     public long getStickerPrice() {
-        calculateCost();
-        return cost;
-    }
-
-    public void calculateCost() {
-        Aero aero = get(Installable.class).getEntity(Aero.class);
-        if(null != aero) {
-            if(aero instanceof SmallCraft) {
-                cost = 100000 + 10000 * ((SmallCraft) aero).getArcswGuns();
-            }
-            else if(aero instanceof Jumpship) {
-                cost = 100000 + 10000 * ((Jumpship) aero).getArcswGuns();
-            }
-        }
+        return 10000L * (10 + firingArcs);
     }
     
     @Override
@@ -188,7 +174,7 @@ public class FireControlSystem extends Part {
 
     @Override
     public boolean isSamePartType(Part part) {
-        return part instanceof FireControlSystem && cost == part.getStickerPrice();
+        return part instanceof FireControlSystem && firingArcs == ((FireControlSystem) part).firingArcs;
     }
     
     @Override
@@ -200,9 +186,9 @@ public class FireControlSystem extends Part {
     public void writeToXml(PrintWriter pw1, int indent) {
         writeToXmlBegin(pw1, indent);
         pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<cost>"
-                +cost
-                +"</cost>");
+                +"<firingArcs>"
+                +firingArcs
+                +"</firingArcs>");
         writeToXmlEnd(pw1, indent);
     }
 
@@ -212,8 +198,8 @@ public class FireControlSystem extends Part {
         
         for (int x=0; x<nl.getLength(); x++) {
             Node wn2 = nl.item(x);        
-            if (wn2.getNodeName().equalsIgnoreCase("cost")) {
-                cost = Long.parseLong(wn2.getTextContent());
+            if (wn2.getNodeName().equalsIgnoreCase("firingArcs")) {
+                firingArcs = Integer.parseInt(wn2.getTextContent());
             } 
         }
     }
@@ -231,5 +217,9 @@ public class FireControlSystem extends Part {
     @Override
     public int getReIntroDate() {
         return EquipmentType.DATE_NONE;
+    }
+
+    public int getFiringArcs() {
+        return firingArcs;
     }
 }

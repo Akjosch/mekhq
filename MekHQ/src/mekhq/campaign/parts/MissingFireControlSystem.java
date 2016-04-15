@@ -39,15 +39,15 @@ import mekhq.campaign.parts.component.Installable;
 public class MissingFireControlSystem extends MissingPart {
     private static final long serialVersionUID = 2806921577150714477L;
 
-    private long cost;
+    private int firingArcs;
     
     public MissingFireControlSystem() {
         this(0, null);
     }
     
-    public MissingFireControlSystem(long cost, Campaign c) {
+    public MissingFireControlSystem(int firingArcs, Campaign c) {
         super(c);
-        this.cost = cost;
+        this.firingArcs = firingArcs;
         this.name = "Fire Control System"; //$NON-NLS-1$
     }
     
@@ -68,12 +68,12 @@ public class MissingFireControlSystem extends MissingPart {
 
     @Override
     public Part getNewPart() {
-        return new FireControlSystem(cost, campaign);
+        return new FireControlSystem(firingArcs, campaign);
     }
 
     @Override
     public boolean isAcceptableReplacement(Part part, boolean refit) {
-        return part instanceof FireControlSystem && cost == part.getStickerPrice();
+        return part instanceof FireControlSystem && firingArcs == ((FireControlSystem) part).getFiringArcs();
     }
 
     @Override
@@ -103,9 +103,9 @@ public class MissingFireControlSystem extends MissingPart {
     public void writeToXml(PrintWriter pw1, int indent) {
         writeToXmlBegin(pw1, indent);
         pw1.println(MekHqXmlUtil.indentStr(indent+1)
-                +"<cost>"
-                +cost
-                +"</cost>");
+                +"<firingArcs>"
+                +firingArcs
+                +"</firingArcs>");
         writeToXmlEnd(pw1, indent);
     }
 
@@ -115,8 +115,8 @@ public class MissingFireControlSystem extends MissingPart {
         
         for (int x=0; x<nl.getLength(); x++) {
             Node wn2 = nl.item(x);        
-            if (wn2.getNodeName().equalsIgnoreCase("cost")) {
-                cost = Long.parseLong(wn2.getTextContent());
+            if (wn2.getNodeName().equalsIgnoreCase("firingArcs")) {
+                firingArcs = Integer.parseInt(wn2.getTextContent());
             } 
         }
     }

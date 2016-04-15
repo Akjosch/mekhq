@@ -23,18 +23,17 @@ package mekhq.campaign.parts;
 
 import java.io.PrintWriter;
 
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import megamek.common.Aero;
 import megamek.common.Compute;
-import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import megamek.common.TechConstants;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  *
@@ -55,7 +54,7 @@ public class AeroSensor extends Part {
         this.largeCraft = lc;
         add(new Installable());
         get(Installable.class).setUnitTonnage(tonnage);
-        get(Installable.class).setTonnageLimited(true);
+        get(Installable.class).setTonnageLimited(!largeCraft);
     }
 
     public AeroSensor clone() {
