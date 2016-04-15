@@ -41,10 +41,6 @@ import org.w3c.dom.NodeList;
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class AeroLifeSupport extends Part {
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -717866644605314883L;
 
 	private long cost;
@@ -54,14 +50,11 @@ public class AeroLifeSupport extends Part {
     	this(0, false, null);
     }
     
-    public AeroLifeSupport(long cost, boolean f, Campaign c) {
+    public AeroLifeSupport(long cost, boolean fighter, Campaign c) {
         super(c);
         this.cost = cost;
-        this.name = "Fighter Life Support"; //$NON-NLS-1$
-        this.fighter = f;
-        if(!fighter) {
-        	this.name = "Spacecraft Life Support"; //$NON-NLS-1$
-        }
+        this.name = fighter ? "Fighter Life Support" : "Spacecraft Life Support"; //$NON-NLS-1$ //$NON-NLS-2$
+        this.fighter = fighter;
         add(new Installable());
     }
     
@@ -116,7 +109,6 @@ public class AeroLifeSupport extends Part {
 			    aero.setLifeSupport(true);
 			}
 		}
-		
 	}
 
 	@Override

@@ -25,6 +25,7 @@ import megamek.common.Aero;
 import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 
 import org.w3c.dom.Node;
 
@@ -33,99 +34,91 @@ import org.w3c.dom.Node;
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class MissingAvionics extends MissingPart {
+    private static final long serialVersionUID = 2806921577150714477L;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2806921577150714477L;
-
-	public MissingAvionics() {
-    	this(0, null);
+    public MissingAvionics() {
+        this(null);
     }
     
-    public MissingAvionics(int tonnage, Campaign c) {
-    	super(0, c);
-    	this.name = "Avionics";
+    public MissingAvionics(Campaign c) {
+        super(c);
+        this.name = "Avionics"; //$NON-NLS-1$
+        add(new Installable());
     }
     
     @Override 
-	public int getBaseTime() {
-		return 4800;
-	}
-	
-	@Override
-	public int getDifficulty() {
-		return 1;
-	}
+    public int getBaseTime() {
+        return 4800;
+    }
     
-	@Override
-	public String checkFixable() {
-		return null;
-	}
+    @Override
+    public int getDifficulty() {
+        return 1;
+    }
+    
+    @Override
+    public String checkFixable() {
+        return null;
+    }
 
-	@Override
-	public Part getNewPart() {
-		return new Avionics(getUnitTonnage(), campaign);
-	}
+    @Override
+    public Part getNewPart() {
+        return new Avionics(campaign);
+    }
 
-	@Override
-	public boolean isAcceptableReplacement(Part part, boolean refit) {
-		return part instanceof Avionics;
-	}
+    @Override
+    public boolean isAcceptableReplacement(Part part, boolean refit) {
+        return part instanceof Avionics;
+    }
 
-	@Override
-	public double getTonnage() {
-		return 0;
-	}
+    @Override
+    public double getTonnage() {
+        return 0;
+    }
 
-	@Override
-	public int getTechRating() {
-		//go with conventional fighter avionics
-		return EquipmentType.RATING_B;
-	}
+    @Override
+    public int getTechRating() {
+        //go with conventional fighter avionics
+        return EquipmentType.RATING_B;
+    }
 
-	@Override
-	public int getAvailability(int era) {
-		//go with conventional fighter avionics
-		if(era == EquipmentType.ERA_SL) {
-			return EquipmentType.RATING_C;
-		} else if(era == EquipmentType.ERA_SW) {
-			return EquipmentType.RATING_D;
-		} else {
-			return EquipmentType.RATING_C;
-		}
-	}
+    @Override
+    public int getAvailability(int era) {
+        //go with conventional fighter avionics
+        if(era == EquipmentType.ERA_SL) {
+            return EquipmentType.RATING_C;
+        } else if(era == EquipmentType.ERA_SW) {
+            return EquipmentType.RATING_D;
+        } else {
+            return EquipmentType.RATING_C;
+        }
+    }
 
-	@Override
-	public void updateConditionFromPart() {
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			((Aero)unit.getEntity()).setAvionicsHits(3);
-		}
-	}
-	
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		//nothing to load
-	}
+    @Override
+    public void updateConditionFromPart() {
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+        if(null != aero) {
+            aero.setAvionicsHits(3);
+        }
+    }
+    
+    @Override
+    protected void loadFieldsFromXmlNode(Node wn) {
+        //nothing to load
+    }
 
-	@Override
-	public int getLocation() {
-		return Entity.LOC_NONE;
-	}
-	
-	@Override
-	public int getIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
-	
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 }

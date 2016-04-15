@@ -23,198 +23,196 @@ package mekhq.campaign.parts;
 
 import java.io.PrintWriter;
 
+import org.w3c.dom.Node;
+
 import megamek.common.Compute;
 import megamek.common.Dropship;
-import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import megamek.common.TechConstants;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
-
-import org.w3c.dom.Node;
 
 /**
  *
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class DropshipDockingCollar extends Part {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -717866644605314883L;
-
-	
-	public DropshipDockingCollar() {
-    	this(0, null);
+    private static final long serialVersionUID = -717866644605314883L;
+    
+    public DropshipDockingCollar() {
+        this(null);
     }
     
-    public DropshipDockingCollar(int tonnage, Campaign c) {
-        super(tonnage, c);
-        this.name = "Dropship Docking Collar";
+    public DropshipDockingCollar(Campaign c) {
+        super(c);
+        this.name = "Dropship Docking Collar"; //$NON-NLS-1$
+        add(new Installable());
     }
     
     public DropshipDockingCollar clone() {
-    	DropshipDockingCollar clone = new DropshipDockingCollar(getUnitTonnage(), campaign);
+        DropshipDockingCollar clone = new DropshipDockingCollar(campaign);
         clone.copyBaseData(this);
-    	return clone;
+        return clone;
     }
         
-	@Override
-	public void updateConditionFromEntity(boolean checkForDestruction) {
-		int priorHits = hits;
-		if(null != unit && unit.getEntity() instanceof Dropship) {
-			 if(((Dropship)unit.getEntity()).isDockCollarDamaged()) {
-				 hits = 1;
-			 } else { 
-				 hits = 0;
-			 }
-			 if(checkForDestruction 
-					 && hits > priorHits 
-					 && Compute.d6(2) < campaign.getCampaignOptions().getDestroyPartTarget()) {
-				 remove(false);
-				 return;
-			 }
-		}
-	}
-	
-	@Override 
-	public int getBaseTime() {
-		if(isSalvaging()) {
-			return 2880;
-		}
-		return 120;
-	}
-	
-	@Override
-	public int getDifficulty() {
-		if(isSalvaging()) {
-			return -2;
-		}
-		return 3;
-	}
+    @Override
+    public void updateConditionFromEntity(boolean checkForDestruction) {
+        int priorHits = hits;
+        Dropship dropship = get(Installable.class).getEntity(Dropship.class);
+        if(null != dropship) {
+             if(dropship.isDockCollarDamaged()) {
+                 hits = 1;
+             } else { 
+                 hits = 0;
+             }
+             if(checkForDestruction 
+                     && hits > priorHits 
+                     && Compute.d6(2) < campaign.getCampaignOptions().getDestroyPartTarget()) {
+                 remove(false);
+                 return;
+             }
+        }
+    }
+    
+    @Override 
+    public int getBaseTime() {
+        if(isSalvaging()) {
+            return 2880;
+        }
+        return 120;
+    }
+    
+    @Override
+    public int getDifficulty() {
+        if(isSalvaging()) {
+            return -2;
+        }
+        return 3;
+    }
 
-	@Override
-	public void updateConditionFromPart() {
-		if(null != unit && unit.getEntity() instanceof Dropship) {
-			if(hits > 0) {
-				((Dropship)unit.getEntity()).setDamageDockCollar(true);
-			} else {
-				((Dropship)unit.getEntity()).setDamageDockCollar(false);
-			}
-		}
-		
-	}
+    @Override
+    public void updateConditionFromPart() {
+        Dropship dropship = get(Installable.class).getEntity(Dropship.class);
+        if(null != dropship) {
+            if(hits > 0) {
+                dropship.setDamageDockCollar(true);
+            } else {
+                dropship.setDamageDockCollar(false);
+            }
+        }
+        
+    }
 
-	@Override
-	public void fix() {
-		super.fix();
-		if(null != unit && unit.getEntity() instanceof Dropship) {
-			((Dropship)unit.getEntity()).setDamageDockCollar(false);
-		}
-	}
+    @Override
+    public void fix() {
+        super.fix();
+        Dropship dropship = get(Installable.class).getEntity(Dropship.class);
+        if(null != dropship) {
+            dropship.setDamageDockCollar(false);
+        }
+    }
 
-	@Override
-	public void remove(boolean salvage) {
-		if(null != unit && unit.getEntity() instanceof Dropship) {
-			((Dropship)unit.getEntity()).setDamageDockCollar(true);
-			Part spare = campaign.checkForExistingSparePart(this);
-			if(!salvage) {
-				campaign.removePart(this);
-			} else if(null != spare) {
-				spare.incrementQuantity();
-				campaign.removePart(this);
-			}
-			unit.removePart(this);
-			Part missing = getMissingPart();
-			unit.addPart(missing);
-			campaign.addPart(missing, 0);
-		}
-		setUnit(null);
-		updateConditionFromEntity(false);
-	}
+    @Override
+    public void remove(boolean salvage) {
+        Dropship dropship = get(Installable.class).getEntity(Dropship.class);
+        if(null != dropship) {
+            dropship.setDamageDockCollar(true);
+            Part spare = campaign.checkForExistingSparePart(this);
+            if(!salvage) {
+                campaign.removePart(this);
+            } else if(null != spare) {
+                spare.incrementQuantity();
+                campaign.removePart(this);
+            }
+            get(Installable.class).getUnit().removePart(this);
+            Part missing = getMissingPart();
+            get(Installable.class).getUnit().addPart(missing);
+            campaign.addPart(missing, 0);
+        }
+        get(Installable.class).setUnit(null);
+        updateConditionFromEntity(false);
+    }
 
-	@Override
-	public MissingPart getMissingPart() {
-		return new MissingDropshipDockingCollar(getUnitTonnage(), campaign);
-	}
+    @Override
+    public MissingPart getMissingPart() {
+        return new MissingDropshipDockingCollar(campaign);
+    }
 
-	@Override
-	public String checkFixable() {
-		return null;
-	}
+    @Override
+    public String checkFixable() {
+        return null;
+    }
 
-	@Override
-	public boolean needsFixing() {
-		return hits > 0;
-	}
+    @Override
+    public boolean needsFixing() {
+        return hits > 0;
+    }
 
-	@Override
-	public long getStickerPrice() {
-		return 10000;
-	}
-	
-	@Override
-	public double getTonnage() {
-		return 0;
-	}
+    @Override
+    public long getStickerPrice() {
+        return 10000;
+    }
+    
+    @Override
+    public double getTonnage() {
+        return 0;
+    }
 
-	@Override
-	public int getTechRating() {
-		return EquipmentType.RATING_C;
-	}
+    @Override
+    public int getTechRating() {
+        return EquipmentType.RATING_C;
+    }
 
-	@Override
-	public int getAvailability(int era) {
-		if(era == EquipmentType.ERA_SL) {
-			return EquipmentType.RATING_C;
-		} else if(era == EquipmentType.ERA_SW) {
-			return EquipmentType.RATING_D;
-		} else {
-			return EquipmentType.RATING_C;
-		}
-	}
-	
-	@Override
-	public int getTechLevel() {
-		return TechConstants.T_ALLOWED_ALL;
-	}
+    @Override
+    public int getAvailability(int era) {
+        if(era == EquipmentType.ERA_SL) {
+            return EquipmentType.RATING_C;
+        } else if(era == EquipmentType.ERA_SW) {
+            return EquipmentType.RATING_D;
+        } else {
+            return EquipmentType.RATING_C;
+        }
+    }
+    
+    @Override
+    public int getTechLevel() {
+        return TechConstants.T_ALLOWED_ALL;
+    }
 
-	@Override
-	public boolean isSamePartType(Part part) {
-		return part instanceof DropshipDockingCollar;
-	}
-	
-	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);
-		writeToXmlEnd(pw1, indent);
-	}
+    @Override
+    public boolean isSamePartType(Part part) {
+        return part instanceof DropshipDockingCollar;
+    }
+    
+    @Override
+    public void writeToXml(PrintWriter pw1, int indent) {
+        writeToXmlBegin(pw1, indent);
+        writeToXmlEnd(pw1, indent);
+    }
 
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		//nothing
-	}
-	
-	@Override
-	public boolean isRightTechType(String skillType) {
-		return skillType.equals(SkillType.S_TECH_AERO);
-	}
+    @Override
+    protected void loadFieldsFromXmlNode(Node wn) {
+        //nothing
+    }
+    
+    @Override
+    public boolean isRightTechType(String skillType) {
+        return skillType.equals(SkillType.S_TECH_AERO);
+    }
 
-	@Override
-	public int getIntroDate() {
-		return 2304;
-	}
+    @Override
+    public int getIntroDate() {
+        return 2304;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
-	
-	
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 }

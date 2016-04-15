@@ -23,125 +23,118 @@ package mekhq.campaign.parts;
 
 import java.io.PrintWriter;
 
+import org.w3c.dom.Node;
+
 import megamek.common.Dropship;
-import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import megamek.common.TechConstants;
 import mekhq.campaign.Campaign;
-
-import org.w3c.dom.Node;
+import mekhq.campaign.parts.component.Installable;
 
 /**
  *
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class MissingDropshipDockingCollar extends MissingPart {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -717866644605314883L;
-
-	
-	public MissingDropshipDockingCollar() {
-    	this(0, null);
+    private static final long serialVersionUID = -717866644605314883L;
+    
+    public MissingDropshipDockingCollar() {
+        this(null);
     }
     
-    public MissingDropshipDockingCollar(int tonnage, Campaign c) {
-        super(tonnage, c);
-        this.name = "Dropship Docking Collar";
+    public MissingDropshipDockingCollar(Campaign c) {
+        super(c);
+        this.name = "Dropship Docking Collar"; //$NON-NLS-1$
+        add(new Installable());
     }
     
     @Override 
-	public int getBaseTime() {
-		return 2880;
-	}
-	
-	@Override
-	public int getDifficulty() {
-		return -2;
-	}
+    public int getBaseTime() {
+        return 2880;
+    }
+    
+    @Override
+    public int getDifficulty() {
+        return -2;
+    }
 
-	@Override
-	public void updateConditionFromPart() {
-		if(null != unit && unit.getEntity() instanceof Dropship) {
-			((Dropship)unit.getEntity()).setDamageDockCollar(true);
-		}	
-		
-	}
+    @Override
+    public void updateConditionFromPart() {
+        Dropship dropship = get(Installable.class).getEntity(Dropship.class);
+        if(null != dropship) {
+            dropship.setDamageDockCollar(true);
+        }
+    }
 
-	@Override
-	public Part getNewPart() {
-		return new DropshipDockingCollar(getUnitTonnage(), campaign);
-	}
+    @Override
+    public Part getNewPart() {
+        return new DropshipDockingCollar(campaign);
+    }
 
-	@Override
-	public String checkFixable() {
-		return null;
-	}
+    @Override
+    public String checkFixable() {
+        return null;
+    }
+    
+    @Override
+    public double getTonnage() {
+        return 0;
+    }
 
-	
-	@Override
-	public double getTonnage() {
-		return 0;
-	}
+    @Override
+    public int getTechRating() {
+        return EquipmentType.RATING_C;
+    }
 
-	@Override
-	public int getTechRating() {
-		return EquipmentType.RATING_C;
-	}
+    @Override
+    public int getAvailability(int era) {
+        if(era == EquipmentType.ERA_SL) {
+            return EquipmentType.RATING_C;
+        } else if(era == EquipmentType.ERA_SW) {
+            return EquipmentType.RATING_D;
+        } else {
+            return EquipmentType.RATING_C;
+        }
+    }
+    
+    @Override
+    public int getTechLevel() {
+        return TechConstants.T_IS_TW_ALL;
+    }
+    
+    @Override 
+    public int getTechBase() {
+        return T_BOTH;    
+    }
+    
+    @Override
+    public void writeToXml(PrintWriter pw1, int indent) {
+        writeToXmlBegin(pw1, indent);
+        writeToXmlEnd(pw1, indent);
+    }
 
-	@Override
-	public int getAvailability(int era) {
-		if(era == EquipmentType.ERA_SL) {
-			return EquipmentType.RATING_C;
-		} else if(era == EquipmentType.ERA_SW) {
-			return EquipmentType.RATING_D;
-		} else {
-			return EquipmentType.RATING_C;
-		}
-	}
-	
-	@Override
-	public int getTechLevel() {
-		return TechConstants.T_IS_TW_ALL;
-	}
-	
-	@Override 
-	public int getTechBase() {
-		return T_BOTH;	
-	}
-	
-	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);
-		writeToXmlEnd(pw1, indent);
-	}
+    @Override
+    protected void loadFieldsFromXmlNode(Node wn) {
+        //nothing
+    }
 
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		//nothing
-	}
+    @Override
+    public boolean isAcceptableReplacement(Part part, boolean refit) {
+        return part instanceof DropshipDockingCollar;
+    }
 
-	@Override
-	public boolean isAcceptableReplacement(Part part, boolean refit) {
-		return part instanceof DropshipDockingCollar;
-	}
+    @Override
+    public int getIntroDate() {
+        return 2304;
+    }
 
-	@Override
-	public int getIntroDate() {
-		return 2304;
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
-
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
-	
-	
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 }

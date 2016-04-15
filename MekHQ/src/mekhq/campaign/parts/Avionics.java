@@ -23,192 +23,191 @@ package mekhq.campaign.parts;
 
 import java.io.PrintWriter;
 
+import org.w3c.dom.Node;
+
 import megamek.common.Aero;
 import megamek.common.Compute;
-import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import megamek.common.TechConstants;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
-
-import org.w3c.dom.Node;
 
 /**
  *
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class Avionics extends Part {
+    private static final long serialVersionUID = -717866644605314883L;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -717866644605314883L;
-
-	public Avionics() {
-    	this(0, null);
+    public Avionics() {
+        this(null);
     }
     
-    public Avionics(int tonnage, Campaign c) {
-        super(tonnage, c);
-        this.name = "Avionics";
+    public Avionics(Campaign c) {
+        super(c);
+        this.name = "Avionics"; //$NON-NLS-1$
+        add(new Installable());
     }
     
     public Avionics clone() {
-    	Avionics clone = new Avionics(0, campaign);
+        Avionics clone = new Avionics(campaign);
         clone.copyBaseData(this);
-    	return clone;
+        return clone;
     }
         
-	@Override
-	public void updateConditionFromEntity(boolean checkForDestruction) {
-		int priorHits = hits;
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			hits = ((Aero)unit.getEntity()).getAvionicsHits();
-			if(checkForDestruction 
-					&& hits > priorHits 
-					&& Compute.d6(2) < campaign.getCampaignOptions().getDestroyPartTarget()) {
-				remove(false);
-				return;
-			}
-		}
-	}
-	
-	@Override 
-	public int getBaseTime() {
-		if(isSalvaging()) {
-			return 4800;
-		}
-		return 480;
-	}
-	
-	@Override
-	public int getDifficulty() {
-		if(isSalvaging()) {
-			return 1;
-		}
-		return 0;
-	}
+    @Override
+    public void updateConditionFromEntity(boolean checkForDestruction) {
+        int priorHits = hits;
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+        if(null != aero) {
+            hits = aero.getAvionicsHits();
+            if(checkForDestruction 
+                    && hits > priorHits 
+                    && Compute.d6(2) < campaign.getCampaignOptions().getDestroyPartTarget()) {
+                remove(false);
+                return;
+            }
+        }
+    }
+    
+    @Override 
+    public int getBaseTime() {
+        if(isSalvaging()) {
+            return 4800;
+        }
+        return 480;
+    }
+    
+    @Override
+    public int getDifficulty() {
+        if(isSalvaging()) {
+            return 1;
+        }
+        return 0;
+    }
 
-	@Override
-	public void updateConditionFromPart() {
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			((Aero)unit.getEntity()).setAvionicsHits(hits);
-		}
-		
-	}
+    @Override
+    public void updateConditionFromPart() {
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+        if(null != aero) {
+            aero.setAvionicsHits(hits);
+        }
+        
+    }
 
-	@Override
-	public void fix() {
-		super.fix();
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			((Aero)unit.getEntity()).setAvionicsHits(0);
-		}
-	}
+    @Override
+    public void fix() {
+        super.fix();
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+        if(null != aero) {
+            aero.setAvionicsHits(0);
+        }
+    }
 
-	@Override
-	public void remove(boolean salvage) {
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			((Aero)unit.getEntity()).setAvionicsHits(3);
-			Part spare = campaign.checkForExistingSparePart(this);
-			if(!salvage) {
-				campaign.removePart(this);
-			} else if(null != spare) {
-				spare.incrementQuantity();
-				campaign.removePart(this);
-			}
-			unit.removePart(this);
-			Part missing = getMissingPart();
-			unit.addPart(missing);
-			campaign.addPart(missing, 0);
-		}
-		setUnit(null);
-		updateConditionFromEntity(false);
-	}
+    @Override
+    public void remove(boolean salvage) {
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+        if(null != aero) {
+            aero.setAvionicsHits(3);
+            Part spare = campaign.checkForExistingSparePart(this);
+            if(!salvage) {
+                campaign.removePart(this);
+            } else if(null != spare) {
+                spare.incrementQuantity();
+                campaign.removePart(this);
+            }
+            get(Installable.class).getUnit().removePart(this);
+            Part missing = getMissingPart();
+            get(Installable.class).getUnit().addPart(missing);
+            campaign.addPart(missing, 0);
+        }
+        get(Installable.class).setUnit(null);
+        updateConditionFromEntity(false);
+    }
 
-	@Override
-	public MissingPart getMissingPart() {
-		return new MissingAvionics(getUnitTonnage(), campaign);
-	}
+    @Override
+    public MissingPart getMissingPart() {
+        return new MissingAvionics(campaign);
+    }
 
-	@Override
-	public String checkFixable() {
-		return null;
-	}
+    @Override
+    public String checkFixable() {
+        return null;
+    }
 
-	@Override
-	public boolean needsFixing() {
-		return hits > 0;
-	}
+    @Override
+    public boolean needsFixing() {
+        return hits > 0;
+    }
 
-	@Override
-	public long getStickerPrice() {
-		//TODO: table in TechManual makes no sense - where are control systems for ASFs?
-		return 0;
-	}
+    @Override
+    public long getStickerPrice() {
+        //TODO: table in TechManual makes no sense - where are control systems for ASFs?
+        return 0;
+    }
 
-	@Override
-	public double getTonnage() {
-		return 0;
-	}
+    @Override
+    public double getTonnage() {
+        return 0;
+    }
 
-	@Override
-	public int getTechRating() {
-		//go with conventional fighter avionics
-		return EquipmentType.RATING_B;
-	}
+    @Override
+    public int getTechRating() {
+        //go with conventional fighter avionics
+        return EquipmentType.RATING_B;
+    }
 
-	@Override
-	public int getAvailability(int era) {
-		//go with conventional fighter avionics
-		if(era == EquipmentType.ERA_SL) {
-			return EquipmentType.RATING_C;
-		} else if(era == EquipmentType.ERA_SW) {
-			return EquipmentType.RATING_D;
-		} else {
-			return EquipmentType.RATING_C;
-		}
-	}
-	
-	@Override
-	public int getTechLevel() {
-		return TechConstants.T_ALLOWED_ALL;
-	}
+    @Override
+    public int getAvailability(int era) {
+        //go with conventional fighter avionics
+        if(era == EquipmentType.ERA_SL) {
+            return EquipmentType.RATING_C;
+        } else if(era == EquipmentType.ERA_SW) {
+            return EquipmentType.RATING_D;
+        } else {
+            return EquipmentType.RATING_C;
+        }
+    }
+    
+    @Override
+    public int getTechLevel() {
+        return TechConstants.T_ALLOWED_ALL;
+    }
 
-	@Override
-	public boolean isSamePartType(Part part) {
-		return part instanceof Avionics;
-	}
+    @Override
+    public boolean isSamePartType(Part part) {
+        return part instanceof Avionics;
+    }
 
-	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);
-		writeToXmlEnd(pw1, indent);
-	}
+    @Override
+    public void writeToXml(PrintWriter pw1, int indent) {
+        writeToXmlBegin(pw1, indent);
+        writeToXmlEnd(pw1, indent);
+    }
 
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		//nothing to load
-	}
-	
-	@Override
-	public boolean isRightTechType(String skillType) {
-		return skillType.equals(SkillType.S_TECH_AERO);
-	}
+    @Override
+    protected void loadFieldsFromXmlNode(Node wn) {
+        //nothing to load
+    }
+    
+    @Override
+    public boolean isRightTechType(String skillType) {
+        return skillType.equals(SkillType.S_TECH_AERO);
+    }
 
-	@Override
-	public int getIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
-	
-	
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 }

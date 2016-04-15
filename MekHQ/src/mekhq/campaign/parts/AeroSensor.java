@@ -30,6 +30,7 @@ import megamek.common.EquipmentType;
 import megamek.common.TechConstants;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 import mekhq.campaign.personnel.SkillType;
 
 import org.w3c.dom.Node;
@@ -40,206 +41,204 @@ import org.w3c.dom.NodeList;
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class AeroSensor extends Part {
+    private static final long serialVersionUID = -717866644605314883L;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -717866644605314883L;
+    private boolean largeCraft;
 
-	private boolean largeCraft;
-	
-	public AeroSensor() {
-    	this(0, false, null);
+    public AeroSensor() {
+        this(0, false, null);
     }
-    
+
     public AeroSensor(int tonnage, boolean lc, Campaign c) {
-        super(tonnage, c);
+        super(c);
         this.name = "Aerospace Sensors";
         this.largeCraft = lc;
+        add(new Installable());
+        get(Installable.class).setUnitTonnage(tonnage);
+        get(Installable.class).setTonnageLimited(true);
     }
-    
+
     public AeroSensor clone() {
-    	AeroSensor clone = new AeroSensor(getUnitTonnage(), largeCraft, campaign);
+        AeroSensor clone = new AeroSensor(get(Installable.class).getUnitTonnage(), largeCraft, campaign);
         clone.copyBaseData(this);
-    	return clone;
+        return clone;
     }
-        
-	@Override
-	public void updateConditionFromEntity(boolean checkForDestruction) {
-		int priorHits = hits;
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			hits = ((Aero)unit.getEntity()).getSensorHits();
-			if(checkForDestruction 
-					&& hits > priorHits 
-					&& Compute.d6(2) < campaign.getCampaignOptions().getDestroyPartTarget()) {
-				remove(false);
-				return;
-			}
-		}
-	}
-	
-	@Override 
-	public int getBaseTime() {
-		if(isSalvaging()) {
-			return 1200;
-		}
-		return 120;
-	}
-	
-	@Override
-	public int getDifficulty() {
-		if(isSalvaging()) {
-			return -2;
-		}
-		return -1;
-	}
 
+    @Override
+    public void updateConditionFromEntity(boolean checkForDestruction) {
+        int priorHits = hits;
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+        if(null != aero) {
+            hits = aero.getSensorHits();
+            if(checkForDestruction && (hits > priorHits)
+                && (Compute.d6(2) < campaign.getCampaignOptions().getDestroyPartTarget())) {
+                remove(false);
+                return;
+            }
+        }
+    }
 
-	@Override
-	public void updateConditionFromPart() {
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			((Aero)unit.getEntity()).setSensorHits(hits);
-		}
-		
-	}
+    @Override
+    public int getBaseTime() {
+        if(isSalvaging()) {
+            return 1200;
+        }
+        return 120;
+    }
 
-	@Override
-	public void fix() {
-		super.fix();
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			((Aero)unit.getEntity()).setSensorHits(0);
-		}
-	}
+    @Override
+    public int getDifficulty() {
+        if(isSalvaging()) {
+            return -2;
+        }
+        return -1;
+    }
 
-	@Override
-	public void remove(boolean salvage) {
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			((Aero)unit.getEntity()).setSensorHits(3);
-			Part spare = campaign.checkForExistingSparePart(this);
-			if(!salvage) {
-				campaign.removePart(this);
-			} else if(null != spare) {
-				spare.incrementQuantity();
-				campaign.removePart(this);
-			}
-			unit.removePart(this);
-			Part missing = getMissingPart();
-			unit.addPart(missing);
-			campaign.addPart(missing, 0);
-		}
-		setUnit(null);
-		updateConditionFromEntity(false);
-	}
+    @Override
+    public void updateConditionFromPart() {
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+        if(null != aero) {
+            aero.setSensorHits(hits);
+        }
 
-	@Override
-	public MissingPart getMissingPart() {
-		return new MissingAeroSensor(getUnitTonnage(), largeCraft, campaign);
-	}
+    }
 
-	@Override
-	public String checkFixable() {
-		return null;
-	}
+    @Override
+    public void fix() {
+        super.fix();
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+        if(null != aero) {
+            aero.setSensorHits(0);
+        }
+    }
 
-	@Override
-	public boolean needsFixing() {
-		return hits > 0;
-	}
+    @Override
+    public void remove(boolean salvage) {
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+        if(null != aero) {
+            aero.setSensorHits(3);
+            Part spare = campaign.checkForExistingSparePart(this);
+            if(!salvage) {
+                campaign.removePart(this);
+            } else if(null != spare) {
+                spare.incrementQuantity();
+                campaign.removePart(this);
+            }
+            get(Installable.class).getUnit().removePart(this);
+            Part missing = getMissingPart();
+            get(Installable.class).getUnit().addPart(missing);
+            campaign.addPart(missing, 0);
+        }
+        get(Installable.class).setUnit(null);
+        updateConditionFromEntity(false);
+    }
 
-	@Override
-	public long getStickerPrice() {
-		if(largeCraft) {
-			return 80000;
-		}
-		return 2000 * getUnitTonnage();
-	}
+    @Override
+    public MissingPart getMissingPart() {
+        return new MissingAeroSensor(get(Installable.class).getUnitTonnage(), largeCraft, campaign);
+    }
 
-	@Override
-	public double getTonnage() {
-		return 0;
-	}
+    @Override
+    public String checkFixable() {
+        return null;
+    }
 
-	@Override
-	public int getTechRating() {
-		//go with ASF sensors
-		return EquipmentType.RATING_C;
-	}
+    @Override
+    public boolean needsFixing() {
+        return hits > 0;
+    }
 
-	@Override
-	public int getAvailability(int era) {
-		//go with ASF sensors
-		return EquipmentType.RATING_C;
-	}
-	
-	@Override
-	public int getTechLevel() {
-		return TechConstants.T_ALLOWED_ALL;
-	}
+    @Override
+    public long getStickerPrice() {
+        if(largeCraft) {
+            return 80000;
+        }
+        return 2000 * get(Installable.class).getUnitTonnage();
+    }
 
-	@Override
-	public boolean isSamePartType(Part part) {
-		return part instanceof AeroSensor && largeCraft == ((AeroSensor)part).isForDropShip()
-				&& (largeCraft || getUnitTonnage() == part.getUnitTonnage());
-	}
+    @Override
+    public double getTonnage() {
+        return 0;
+    }
 
-	public boolean isForDropShip() {
-		return largeCraft;
-	}
-	
-	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<dropship>"
-				+largeCraft
-				+"</dropship>");
-		writeToXmlEnd(pw1, indent);
-	}
+    @Override
+    public int getTechRating() {
+        // go with ASF sensors
+        return EquipmentType.RATING_C;
+    }
 
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		NodeList nl = wn.getChildNodes();
-		
-		for (int x=0; x<nl.getLength(); x++) {
-			Node wn2 = nl.item(x);		
-			if (wn2.getNodeName().equalsIgnoreCase("dropship")) {
-				if(wn2.getTextContent().trim().equalsIgnoreCase("true")) {
-					largeCraft = true;
-				} else {
-					largeCraft = false;
-				}
-			}
-		}
-	}
-	
-	@Override
+    @Override
+    public int getAvailability(int era) {
+        // go with ASF sensors
+        return EquipmentType.RATING_C;
+    }
+
+    @Override
+    public int getTechLevel() {
+        return TechConstants.T_ALLOWED_ALL;
+    }
+
+    @Override
+    public boolean isSamePartType(Part part) {
+        return (part instanceof AeroSensor) && (largeCraft == ((AeroSensor) part).isForDropShip())
+            && (largeCraft
+                || (get(Installable.class).getUnitTonnage() == part.get(Installable.class).getUnitTonnage()));
+    }
+
+    public boolean isForDropShip() {
+        return largeCraft;
+    }
+
+    @Override
+    public void writeToXml(PrintWriter pw1, int indent) {
+        writeToXmlBegin(pw1, indent);
+        pw1.println(MekHqXmlUtil.indentStr(indent + 1) + "<dropship>" + largeCraft + "</dropship>");
+        writeToXmlEnd(pw1, indent);
+    }
+
+    @Override
+    protected void loadFieldsFromXmlNode(Node wn) {
+        NodeList nl = wn.getChildNodes();
+
+        for(int x = 0; x < nl.getLength(); x++) {
+            Node wn2 = nl.item(x);
+            if(wn2.getNodeName().equalsIgnoreCase("dropship")) {
+                if(wn2.getTextContent().trim().equalsIgnoreCase("true")) {
+                    largeCraft = true;
+                } else {
+                    largeCraft = false;
+                }
+            }
+        }
+    }
+
+    @Override
     public String getDetails() {
-		String dropper = "";
-		if(largeCraft) {
-			dropper = " (dropship)";
-		}
-		return super.getDetails() + ", " + getUnitTonnage() + " tons" + dropper;
+        String dropper = "";
+        if(largeCraft) {
+            dropper = " (dropship)";
+        }
+        return super.getDetails() + ", " + get(Installable.class).getUnitTonnage() + " tons" + dropper;
     }
-	
-	@Override
-	public boolean isRightTechType(String skillType) {
-		return skillType.equals(SkillType.S_TECH_AERO);
-	}
 
-	@Override
-	public int getIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public boolean isRightTechType(String skillType) {
+        return skillType.equals(SkillType.S_TECH_AERO);
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override
+    public int getIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
 
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
-	
-	
+    @Override
+    public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
+
+    @Override
+    public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
+
 }

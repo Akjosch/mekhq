@@ -28,6 +28,7 @@ import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -50,9 +51,12 @@ public class MissingAeroSensor extends MissingPart {
     }
     
     public MissingAeroSensor(int tonnage, boolean drop, Campaign c) {
-    	super(0, c);
+    	super(c);
     	this.name = "Aero Sensors";
     	this.dropship = drop;
+    	add(new Installable());
+        get(Installable.class).setUnitTonnage(tonnage);
+        get(Installable.class).setTonnageLimited(true);
     }
     
     @Override 
@@ -72,13 +76,13 @@ public class MissingAeroSensor extends MissingPart {
 
 	@Override
 	public Part getNewPart() {
-		return new AeroSensor(getUnitTonnage(), dropship, campaign);
+		return new AeroSensor(get(Installable.class).getUnitTonnage(), dropship, campaign);
 	}
 
 	@Override
 	public boolean isAcceptableReplacement(Part part, boolean refit) {
 		return part instanceof AeroSensor && dropship == ((AeroSensor)part).isForDropShip()
-				&& (dropship || getUnitTonnage() == part.getUnitTonnage());
+				&& (dropship || get(Installable.class).getUnitTonnage() == part.get(Installable.class).getUnitTonnage());
 	}
 
 	@Override
@@ -126,15 +130,11 @@ public class MissingAeroSensor extends MissingPart {
 
 	@Override
 	public void updateConditionFromPart() {
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			((Aero)unit.getEntity()).setSensorHits(3);
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+		if(null != aero) {
+		    aero.setSensorHits(3);
 		}
 		
-	}
-
-	@Override
-	public int getLocation() {
-		return Entity.LOC_NONE;
 	}
 	
 	@Override

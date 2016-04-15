@@ -28,6 +28,7 @@ import megamek.common.Entity;
 import megamek.common.EquipmentType;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.parts.component.Installable;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -37,130 +38,100 @@ import org.w3c.dom.NodeList;
  * @author Jay Lawson <jaylawson39 at yahoo.com>
  */
 public class MissingAeroLifeSupport extends MissingPart {
+    private static final long serialVersionUID = 2806921577150714477L;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2806921577150714477L;
+    private boolean fighter;
+    private long cost;
 
-	private boolean fighter;
-	private long cost;
-	
-	public MissingAeroLifeSupport() {
-    	this(0, 0, false, null);
+    public MissingAeroLifeSupport() {
+        this(0, false, null);
     }
-    
-	 public MissingAeroLifeSupport(int tonnage, long cost, boolean f, Campaign c) {
-		 super(tonnage, c);
-		 this.cost = cost;
-		 this.name = "Fighter Life Support";
-		 this.fighter = f;
-		 if(!fighter) {
-			 this.name = "Spacecraft Life Support";
-		 }
-	 }
-	 
-	 @Override 
-		public int getBaseTime() {
-			return 6720;
-		}
-		
-		@Override
-		public int getDifficulty() {
-			return 0;
-		}
-    
-	@Override
-	public String checkFixable() {
-		return null;
-	}
 
-	@Override
-	public Part getNewPart() {
-		return new AeroLifeSupport(getUnitTonnage(), cost, fighter, campaign);
-	}
+    public MissingAeroLifeSupport(long cost, boolean fighter, Campaign c) {
+        super(c);
+        this.cost = cost;
+        this.name = fighter ? "Fighter Life Support" : "Spacecraft Life Support"; //$NON-NLS-1$ //$NON-NLS-2$
+        this.fighter = fighter;
+        add(new Installable());
+    }
 
-	@Override
-	public boolean isAcceptableReplacement(Part part, boolean refit) {
-		return part instanceof AeroLifeSupport && fighter == ((AeroLifeSupport)part).isForFighter()
-				&& (cost == part.getStickerPrice());
-	}
+    @Override
+    public int getBaseTime() {
+        return 6720;
+    }
 
-	@Override
-	public double getTonnage() {
-		return 0;
-	}
+    @Override
+    public int getDifficulty() {
+        return 0;
+    }
 
-	@Override
-	public int getTechRating() {
-		return EquipmentType.RATING_C;
-	}
+    @Override
+    public String checkFixable() {
+        return null;
+    }
 
-	@Override
-	public int getAvailability(int era) {
-		return EquipmentType.RATING_C;
-	}
-	
-	@Override
-	public void writeToXml(PrintWriter pw1, int indent) {
-		writeToXmlBegin(pw1, indent);
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<fighter>"
-				+fighter
-				+"</fighter>");
-		pw1.println(MekHqXmlUtil.indentStr(indent+1)
-				+"<cost>"
-				+cost
-				+"</cost>");
-		writeToXmlEnd(pw1, indent);
-	}
+    @Override
+    public Part getNewPart() {
+        return new AeroLifeSupport(cost, fighter, campaign);
+    }
 
-	@Override
-	protected void loadFieldsFromXmlNode(Node wn) {
-		NodeList nl = wn.getChildNodes();
-		
-		for (int x=0; x<nl.getLength(); x++) {
-			Node wn2 = nl.item(x);		
-			if (wn2.getNodeName().equalsIgnoreCase("fighter")) {
-				if(wn2.getTextContent().trim().equalsIgnoreCase("true")) {
-					fighter = true;
-				} else {
-					fighter = false;
-				}
-			}
-			else if (wn2.getNodeName().equalsIgnoreCase("cost")) {
-				cost = Long.parseLong(wn2.getTextContent());
-			} 
-		}
-	}
+    @Override public boolean isAcceptableReplacement(Part part, boolean refit) {
+        return part instanceof AeroLifeSupport && fighter == ((AeroLifeSupport) part).isForFighter() && (cost == part.getStickerPrice());
+    }
 
-	@Override
-	public void updateConditionFromPart() {
-		if(null != unit && unit.getEntity() instanceof Aero) {
-			((Aero)unit.getEntity()).setLifeSupport(false);
-		}
-		
-	}
+    @Override public double getTonnage() {
+        return 0;
+    }
 
-	@Override
-	public int getLocation() {
-		return Entity.LOC_NONE;
-	}
+    @Override public int getTechRating() {
+        return EquipmentType.RATING_C;
+    }
 
-	@Override
-	public int getIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override public int getAvailability(int era) {
+        return EquipmentType.RATING_C;
+    }
 
-	@Override
-	public int getExtinctDate() {
-		return EquipmentType.DATE_NONE;
-	}
+    @Override public void writeToXml(PrintWriter pw1, int indent) {
+        writeToXmlBegin(pw1, indent);
+        pw1.println(MekHqXmlUtil.indentStr(indent + 1) + "<fighter>" + fighter + "</fighter>");
+        pw1.println(MekHqXmlUtil.indentStr(indent + 1) + "<cost>" + cost + "</cost>");
+        writeToXmlEnd(pw1, indent);
+    }
 
-	@Override
-	public int getReIntroDate() {
-		return EquipmentType.DATE_NONE;
-	}
-	
-	
+    @Override protected void loadFieldsFromXmlNode(Node wn) {
+        NodeList nl = wn.getChildNodes();
+
+        for(int x = 0; x < nl.getLength(); x++) {
+            Node wn2 = nl.item(x);
+            if(wn2.getNodeName().equalsIgnoreCase("fighter")) {
+                if(wn2.getTextContent().trim().equalsIgnoreCase("true")) {
+                    fighter = true;
+                } else {
+                    fighter = false;
+                }
+            } else if(wn2.getNodeName().equalsIgnoreCase("cost")) {
+                cost = Long.parseLong(wn2.getTextContent());
+            }
+        }
+    }
+
+    @Override public void updateConditionFromPart() {
+        Aero aero = get(Installable.class).getEntity(Aero.class);
+        if(null != aero) {
+            aero.setLifeSupport(false);
+        }
+    }
+
+    @Override public int getIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
+
+    @Override public int getExtinctDate() {
+        return EquipmentType.DATE_NONE;
+    }
+
+    @Override public int getReIntroDate() {
+        return EquipmentType.DATE_NONE;
+    }
+
 }
