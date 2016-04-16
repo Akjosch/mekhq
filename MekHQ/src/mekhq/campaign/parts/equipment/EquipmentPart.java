@@ -57,11 +57,19 @@ import mekhq.campaign.universe.Era;
 public class EquipmentPart extends Part {
 	private static final long serialVersionUID = 2892728320891712304L;
 
-	//crap equipmenttype is not serialized!
     protected transient EquipmentType type;
     protected String typeName;
-	protected int equipmentNum = -1;
+    protected boolean isArmored;
+    
+	protected int equipmentNum = -1; // TODO: Move this to Installable
+	
+	// These are entity-dependent values, queried from EquipmentType upon creation.
+	// They all need to be equal for two equipment parts to be considered equal as well.
 	protected double equipTonnage;
+	protected long equipCost;
+	protected int equipBV;
+	protected int equipCrits;
+	protected int equipTankSlots;
 
     public EquipmentType getType() {
         return type;
@@ -79,6 +87,10 @@ public class EquipmentPart extends Part {
     	this(0, null, -1, null);
     }
 
+    public EquipmentPart(EquipmentType et, Entity entity, boolean isArmored, int location, Campaign c) {
+        
+    }
+    
     public EquipmentPart(double tonnage, EquipmentType et, int equipNum, Campaign c) {
         super(c);
         this.type =et;
@@ -99,14 +111,6 @@ public class EquipmentPart extends Part {
 	        }
         }
         add(new Installable(tonnage, false));
-    }
-
-    @Override
-    public void setUnit(Unit u) {
-    	super.setUnit(u);
-    	if(null != unit) {
-    		equipTonnage = type.getTonnage(unit.getEntity());
-    	}
     }
 
     public void setEquipTonnage(double ton) {
@@ -648,50 +652,6 @@ public class EquipmentPart extends Part {
     public boolean isOmniPoddable() {
     	//TODO: is this on equipment type?
     	return true;
-    }
-
-	@Override
-	public String getLocationName() {
-		if(null != unit) {
-			Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
-			if(null != mounted && mounted.getLocation() != -1) {
-				return unit.getEntity().getLocationName(mounted.getLocation());
-			}
-    	}
-		return null;
-	}
-
-	@Override
-    public boolean isInLocation(String loc) {
-        Unit unit = get(Installable.class).getUnit();
-		if(null == unit || null == unit.getEntity() || null == unit.getEntity().getEquipment(equipmentNum)) {
-			return false;
-		}
-
-		Mounted mounted = unit.getEntity().getEquipment(equipmentNum);
-		if(null == mounted) {
-			return false;
-		}
-		int location = unit.getEntity().getLocationFromAbbr(loc);
-		for (int i = 0; i < unit.getEntity().getNumberOfCriticals(location); i++) {
-	            CriticalSlot slot = unit.getEntity().getCritical(location, i);
-	            // ignore empty & non-hittable slots
-	            if ((slot == null) || !slot.isEverHittable() || slot.getType()!=CriticalSlot.TYPE_EQUIPMENT
-	            		|| null == slot.getMount()) {
-	                continue;
-	            }
-	            if(unit.getEntity().getEquipmentNum(slot.getMount()) == equipmentNum) {
-	            	return true;
-	            }
-		}
-		//if we are still here, lets just double check by the mounted's location and secondary location
-		if(mounted.getLocation() == location) {
-			return true;
-		}
-		if(mounted.getSecondLocation() == location) {
-			return true;
-		}
-		return false;
     }
 	
 	/**

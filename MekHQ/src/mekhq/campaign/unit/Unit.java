@@ -1989,7 +1989,7 @@ public class Unit implements MekHqXmlSerializable, IMothballWork {
     		}
     		if(null == armor[i]) {
     			if(entity instanceof Protomech) {
-    			    ProtomekArmor a = new ProtomekArmor((int) getEntity().getWeight(), getEntity().getOArmor(i, false), i, true, campaign);
+    			    ProtomekArmor a = new ProtomekArmor(getEntity().getOArmor(i, false), i, true, campaign);
                     addPart(a);
                     partsToAdd.add(a);
     			}
@@ -1999,13 +1999,13 @@ public class Unit implements MekHqXmlSerializable, IMothballWork {
                     partsToAdd.add(a);
                 }
     			else {
-        		    Armor a = new Armor((int) getEntity().getWeight(), getEntity().getArmorType(i), getEntity().getOArmor(i, false), i, false, entity.isClanArmor(i), campaign);
+        		    Armor a = new Armor(getEntity().getArmorType(i), getEntity().getOArmor(i, false), i, false, entity.isClanArmor(i), campaign);
         			addPart(a);
         			partsToAdd.add(a);
     			}
     		}
     		if(null == armorRear[i] && entity.hasRearArmor(i)) {
-    			Armor a = new Armor((int) getEntity().getWeight(), getEntity().getArmorType(i), getEntity().getOArmor(i, true), i, true, entity.isClanArmor(i), campaign);
+    			Armor a = new Armor(getEntity().getArmorType(i), getEntity().getOArmor(i, true), i, true, entity.isClanArmor(i), campaign);
     			addPart(a);
     			partsToAdd.add(a);
     		}
@@ -2048,7 +2048,7 @@ public class Unit implements MekHqXmlSerializable, IMothballWork {
     	            if(entity instanceof BattleArmor) {
     	                apart = new BattleArmorAmmoBin((int)entity.getWeight(), m.getType(), eqnum, ((BattleArmor)entity).getSquadSize() * (fullShots - m.getBaseShotsLeft()), oneShot, campaign);
     	            } else {
-    	                apart = new AmmoBin((int)entity.getWeight(), m.getType(), eqnum, fullShots - m.getBaseShotsLeft(), oneShot, campaign);
+    	                apart = new AmmoBin(m.getType(), eqnum, fullShots - m.getBaseShotsLeft(), oneShot, campaign);
     	            }
     	            addPart(apart);
     	            partsToAdd.add(apart);
