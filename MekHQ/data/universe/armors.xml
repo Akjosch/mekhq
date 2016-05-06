@@ -7,4 +7,10 @@
 <mecharmor id="BM:FERRO_IS"><mat>ARMOR_FERRO_IS</mat><crits>14</crits><points>17.92</points><mmId>1</mmId><mmClan>false</mmClan></mecharmor>
 <mecharmor id="BM:FERRO_CLAN"><mat>ARMOR_FERRO_CLAN</mat><crits>7</crits><points>19.2</points><mmId>0</mmId><mmClan>true</mmClan></mecharmor>
 <mecharmor id="BM:HEAVY_FERRO"><mat>ARMOR_HEAVY_FERRO</mat><crits>21</crits><points>19.84</points><mmId>6</mmId><mmClan>false</mmClan></mecharmor>
+<mecharmor id="BM:FERRO_LAMELLOR"><mat>ARMOR_FERRO_LAMELLOR</mat><crits>12</crits><points>14</points><mmId>16</mmId><mmClan>true</mmClan></mecharmor>
+<mecharmor id="BM:HARDENED"><mat>ARMOR_HARDENED</mat><points>8</points><mmId>4</mmId></mecharmor>
+<mecharmor id="BM:REFLECTIVE_IS"><mat>ARMOR_REFLECTIVE_IS</mat><crits>10</crits><mmId>3</mmId><mmClan>false</mmClan></mecharmor>
+<mecharmor id="BM:REFLECTIVE_CLAN"><mat>ARMOR_REFLECTIVE_CLAN</mat><crits>5</crits><mmId>3</mmId><mmClan>true</mmClan></mecharmor>
+<mecharmor id="BM:REACTIVE_IS"><mat>ARMOR_REACTIVE_IS</mat><crits>14</crits><mmId>2</mmId><mmClan>false</mmClan></mecharmor>
+<mecharmor id="BM:REACTIVE_CLAN"><mat>ARMOR_REACTIVE_CLAN</mat><crits>7</crits><mmId>2</mmId><mmClan>true</mmClan></mecharmor>
 </armors>
