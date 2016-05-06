@@ -1,19 +1,159 @@
 package mekhq.campaign.consumable;
 
-import java.util.Locale;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlSeeAlso;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import megamek.common.EquipmentType;
+import mekhq.Utilities;
+import mekhq.adapter.BooleanValueAdapter;
+import mekhq.adapter.MaterialAdapter;
+import mekhq.adapter.TechRatingAdapter;
+import mekhq.campaign.material.Material;
 
 /**
- * Armor
+ * base Armor information
  */
-public class Armor extends Consumable {
-    private ArmorType type;
+@XmlSeeAlso(Armor.Mech.class)
+@XmlRootElement(name="armor")
+@XmlAccessorType(XmlAccessType.FIELD)
+public abstract class Armor {
+    @XmlAttribute(required=true)
+    protected String id;
+    /** Defaults to material's name */
+    protected String name;
+    @XmlElement(name="mat")
+    @XmlJavaTypeAdapter(MaterialAdapter.class)
+    protected Material material;
+    /** Value of the armor, per ton; defaults to material's value if not set */
+    protected Double value;
+    /** Tech rating of the armor (A-F); default so the material's tech rating */
+    @XmlElement(name="tr")
+    @XmlJavaTypeAdapter(TechRatingAdapter.class)
+    protected Integer techRating;
+
+    // MegaMek's EquipmentType and clan/is specific flags
+    protected Integer mmId;
+    protected Boolean mmClan;
+
+    // Fluff
+    protected String ref;
+    @XmlElement(name="desc")
+    protected String description;
+
+    public String getId() {
+        return id;
+    }
     
-    public static void main(String[] args) {
-        for(ArmorType t : ArmorType.values()) {
-            System.out.println(String.format(Locale.ROOT, "%s: cost/ton %.0f C-Bills, points in ton %.0f, kg per point %.1f",
-                t.name, t.costPerTon, t.pointMultiplier * 16.0, t.kgPerPoint));
+    public String getName() {
+        return (null != name) ? name : material.getName();
+    }
+    
+    public Material getMaterial() {
+        return material;
+    }
+    
+    public double getValue() {
+        return (null != value) ? value.doubleValue() : material.getValue();
+    }
+    
+    public int getTechRating() {
+        return (null != techRating) ? techRating.intValue() : material.getTechRating();
+    }
+
+    public int getEquipmentTypeId() {
+        return (null != mmId) ? mmId.intValue() : EquipmentType.T_ARMOR_UNKNOWN;
+    }
+    
+    public boolean isClan() {
+        return (null == mmClan) || mmClan.booleanValue();
+    }
+    
+    public boolean isIS() {
+        return (null == mmClan) || !mmClan.booleanValue();
+    }
+    
+    public String getRed() {
+        return Utilities.nonNull(ref, "");
+    }
+    
+    public String getDescription() {
+        return Utilities.nonNull(description, "");
+    }
+    
+    /** Mech specific armor data */
+    @XmlRootElement(name="mecharmor")
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class Mech extends Armor {
+        /** Amount of "floating" critical slots this armor takes; default 0 */
+        private int crits;
+        /**
+         * Amount of "constant" critical slots this armor takes everywhere but
+         * in the head and center torso locations. Defaults to 0, only used by
+         * stealth armor (which has 2).
+         */
+        @XmlElement(name="fixed")
+        private int fixedCrits;
+        /**
+         * Amount of critical slots per location when using patchwork armor.
+         * Defaults to 0.
+         */
+        @XmlElement(name="patch")
+        private int patchworkCrits;
+        /**
+         * Is this armor capable of being mounted on an OmniMech chasis?
+         * True for all but the Hardened armor.
+         */
+        @XmlJavaTypeAdapter(BooleanValueAdapter.class)
+        private Boolean omni;
+        /**
+         * Points per ton, default 16
+         */
+        private Double points;
+        /**
+         * Point mass in kg for fractional accounting, defaults to
+         * 1000 / (points per ton), rounded to the nearest 1/10th of a kg.
+         */
+        @XmlElement(name="mass")
+        private Double pointMass;
+        
+        public int getFloatingCrits() {
+            return crits;
+        }
+        
+        public int getFixedCrits() {
+            return fixedCrits;
+        }
+        
+        public int getPatchworkCrits() {
+            return patchworkCrits;
+        }
+        
+        public boolean isOmniCapable() {
+            return (null == omni) || omni.booleanValue();
+        }
+        
+        public double getPointsPerTon() {
+            return (null == points) ? 16.0 : points.doubleValue();
+        }
+        
+        public double getKgPerPoint() {
+            return (null == pointMass)
+                ? Math.round(10000.0 / getPointsPerTon()) / 10.0 : pointMass.doubleValue();
+        }
+        
+        // JAXB marshalling support
+        
+        @SuppressWarnings("unused")
+        private void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
+            if(null == points) {
+                points = Double.valueOf(16.0);
+            }
         }
     }
     

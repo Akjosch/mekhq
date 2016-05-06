@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<armors>
+<mecharmor id="BM:STANDARD_IS"><mat>ARMOR_STANDARD_IS</mat><mmId>0</mmId><mmClan>false</mmClan></mecharmor>
+<mecharmor id="BM:STANDARD_CLAN"><mat>ARMOR_STANDARD_CLAN</mat><mmId>0</mmId><mmClan>true</mmClan></mecharmor>
+<mecharmor id="BM:STEALTH"><mat>ARMOR_STEALTH</mat><fixed>2</fixed><mmId>8</mmId><mmClan>false</mmClan></mecharmor>
+<mecharmor id="BM:LIGHT_FERRO"><mat>ARMOR_LIGHT_FERRO</mat><crits>7</crits><points>16.96</points><mmId>5</mmId><mmClan>false</mmClan></mecharmor>
+<mecharmor id="BM:FERRO_IS"><mat>ARMOR_FERRO_IS</mat><crits>14</crits><points>17.92</points><mmId>1</mmId><mmClan>false</mmClan></mecharmor>
+<mecharmor id="BM:FERRO_CLAN"><mat>ARMOR_FERRO_CLAN</mat><crits>7</crits><points>19.2</points><mmId>0</mmId><mmClan>true</mmClan></mecharmor>
+<mecharmor id="BM:HEAVY_FERRO"><mat>ARMOR_HEAVY_FERRO</mat><crits>21</crits><points>19.84</points><mmId>6</mmId><mmClan>false</mmClan></mecharmor>
+</armors>
