@@ -79,7 +79,7 @@ public abstract class Armor {
         return (null == mmClan) || !mmClan.booleanValue();
     }
     
-    public String getRed() {
+    public String getRef() {
         return Utilities.nonNull(ref, "");
     }
     

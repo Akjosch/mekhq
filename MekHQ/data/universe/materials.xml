@@ -13,6 +13,7 @@
 <material id="ARMOR_REFLECTIVE_CLAN"><name>Laser-Reflective Armor (Clan)</name><value>30000</value><usage>ARMOR</usage><tr>F</tr></material>
 <material id="ARMOR_REACTIVE_IS"><name>Reactive Armor (IS)</name><value>30000</value><usage>ARMOR</usage><tr>E</tr></material>
 <material id="ARMOR_REACTIVE_CLAN"><name>Reactive Armor (Clan)</name><value>30000</value><usage>ARMOR</usage><tr>F</tr></material>
+<material id="ARMOR_STEALTH_VEHICLE"><name>Vehicular Stealth Armor</name><value>50000</value><usage>ARMOR</usage><tr>E</tr></material>
 <material id="ARMOR_SUPPORT_VEHICLE_BAR2_TRA"><name>Support Vehicle Armor (BAR 2, TR A)</name><value>1250.00</value><usage>ARMOR</usage><tr>A</tr></material>
 <material id="ARMOR_SUPPORT_VEHICLE_BAR2_TRB"><name>Support Vehicle Armor (BAR 2, TR B)</name><value>2000.00</value><usage>ARMOR</usage><tr>B</tr></material>
 <material id="ARMOR_SUPPORT_VEHICLE_BAR2_TRC"><name>Support Vehicle Armor (BAR 2, TR C)</name><value>3125.00</value><usage>ARMOR</usage><tr>C</tr></material>
