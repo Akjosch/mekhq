@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<materials>
+<material id="ARMOR_STANDARD_IS"><name>Standard Armor (IS)</name><value>10000</value><usage>ARMOR</usage><tr>D</tr></material>
+<material id="ARMOR_STANDARD_CLAN"><name>Standard Armor (Clan)</name><value>10000</value><usage>ARMOR</usage><tr>D</tr></material>
+<material id="ARMOR_STEALTH"><name>Stealth Armor</name><value>50000</value><usage>ARMOR</usage><tr>E</tr></material>
+<material id="ARMOR_LIGHT_FERRO"><name>Light Ferro-Fibrous Armor</name><value>15000</value><usage>ARMOR</usage><tr>E</tr></material>
+<material id="ARMOR_FERRO_IS"><name>Ferro-Fibrous Armor (IS)</name><value>20000</value><usage>ARMOR</usage><tr>E</tr></material>
+<material id="ARMOR_FERRO_CLAN"><name>Ferro-Fibrous Armor (Clan)</name><value>20000</value><usage>ARMOR</usage><tr>F</tr></material>
+<material id="ARMOR_HEAVY_FERRO"><name>Heavy Ferro-Fibrous Armor</name><value>25000</value><usage>ARMOR</usage><tr>E</tr></material>
+</materials>
