@@ -28,7 +28,7 @@ public abstract class Armor {
     protected String id;
     /** Defaults to material's name */
     protected String name;
-    @XmlElement(name="mat")
+    @XmlElement(name="mat", required=true)
     @XmlJavaTypeAdapter(MaterialAdapter.class)
     protected Material material;
     /** Value of the armor, per ton; defaults to material's value if not set */
@@ -164,6 +164,13 @@ public abstract class Armor {
         
         @SuppressWarnings("unused")
         private void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
+            if(null == material) {
+                throw new RuntimeException(String.format("Armor '%s' requires a valid material.", id));
+            }
+            if(!material.hasUsage(MaterialUsage.ARMOR)) {
+                throw new RuntimeException(String.format("Material '%s' can't be used for armors.",
+                    material.getId()));
+            }
             if(null == points) {
                 points = Double.valueOf(16.0);
             }
