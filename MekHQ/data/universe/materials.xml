@@ -14,6 +14,12 @@
 <material id="ARMOR_REACTIVE_IS"><name>Reactive Armor (IS)</name><value>30000</value><usage>ARMOR</usage><tr>E</tr></material>
 <material id="ARMOR_REACTIVE_CLAN"><name>Reactive Armor (Clan)</name><value>30000</value><usage>ARMOR</usage><tr>F</tr></material>
 <material id="ARMOR_STEALTH_VEHICLE"><name>Vehicular Stealth Armor</name><value>50000</value><usage>ARMOR</usage><tr>E</tr></material>
+<material id="ARMOR_FERRO_FIBROUS_PROTO"><name>Ferro-Fibrous Armor (Prototype)</name><value>20000</value><usage>ARMOR</usage><tr>E</tr></material>
+<material id="ANTI_PENETRATIVE_ABLATION"><name>Anti-Penetrative Ablation Armor</name><value>50000</value><usage>ARMOR</usage><tr>E</tr></material>
+<material id="BALLISTIC_REINFORCED"><name>Ballistic-Reinforced Armor</name><value>20000</value><usage>ARMOR</usage><tr>E</tr></material>
+<material id="HEAT_DISSIPATING"><name>Heat-Dissipating Armor</name><value>15000</value><usage>ARMOR</usage><tr>E</tr></material>
+<material id="IMPACT_RESISTANT"><name>Impact-Resistant Armor</name><value>25000</value><usage>ARMOR</usage><tr>E</tr></material>
+<material id="ARMOR_PRIMITIVE_MECH"><name>Primitive BattleMech Armor</name><value>10000</value><usage>ARMOR</usage><tr>C</tr></material>
 <material id="ARMOR_SUPPORT_VEHICLE_BAR2_TRA"><name>Support Vehicle Armor (BAR 2, TR A)</name><value>1250.00</value><usage>ARMOR</usage><tr>A</tr></material>
 <material id="ARMOR_SUPPORT_VEHICLE_BAR2_TRB"><name>Support Vehicle Armor (BAR 2, TR B)</name><value>2000.00</value><usage>ARMOR</usage><tr>B</tr></material>
 <material id="ARMOR_SUPPORT_VEHICLE_BAR2_TRC"><name>Support Vehicle Armor (BAR 2, TR C)</name><value>3125.00</value><usage>ARMOR</usage><tr>C</tr></material>

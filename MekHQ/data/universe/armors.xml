@@ -13,6 +13,12 @@
 <mecharmor id="BM:REFLECTIVE_CLAN"><mat>ARMOR_REFLECTIVE_CLAN</mat><crits>5</crits><mmId>3</mmId><mmClan>true</mmClan><ref>TO 280</ref></mecharmor>
 <mecharmor id="BM:REACTIVE_IS"><mat>ARMOR_REACTIVE_IS</mat><crits>14</crits><mmId>2</mmId><mmClan>false</mmClan><ref>TO 280</ref></mecharmor>
 <mecharmor id="BM:REACTIVE_CLAN"><mat>ARMOR_REACTIVE_CLAN</mat><crits>7</crits><mmId>2</mmId><mmClan>true</mmClan><ref>TO 280</ref></mecharmor>
+<mecharmor id="BM:FERRO_PROTO"><mat>ARMOR_FERRO_FIBROUS_PROTO</mat><crits>16</crits><points>17.92</points><mmId>9</mmId><ref>IO 72</ref></mecharmor>
+<mecharmor id="BM:APA"><mat>ANTI_PENETRATIVE_ABLATION</mat><crits>6</crits><mmId>23</mmId><mmClan>false</mmClan><ref>IO 86</ref></mecharmor>
+<mecharmor id="BM:BALLISTIC_REINFORCED"><mat>BALLISTIC_REINFORCED</mat><crits>10</crits><mmId>26</mmId><mmClan>false</mmClan><ref>IO 87</ref></mecharmor>
+<mecharmor id="BM:HEAT_DISSIPATING"><mat>HEAT_DISSIPATING</mat><crits>6</crits><mmId>24</mmId><mmClan>false</mmClan><ref>IO 87</ref></mecharmor>
+<mecharmor id="BM:IMPACT_RESISTANT"><mat>IMPACT_RESISTANT</mat><crits>10</crits><mmId>25</mmId><mmClan>false</mmClan><ref>IO 87</ref></mecharmor>
+<mecharmor id="BM:PRIMITIVE"><mat>ARMOR_PRIMITIVE_MECH</mat><points>10.72</points><mmId>17</mmId><ref>IO 124</ref></mecharmor>
 <svarmor id="SV:BAR2_A"><mat>ARMOR_SUPPORT_VEHICLE_BAR2_TRA</mat><mass>40</mass><ref>TM 134</ref></svarmor>
 <svarmor id="SV:BAR2_B"><mat>ARMOR_SUPPORT_VEHICLE_BAR2_TRB</mat><mass>25</mass><ref>TM 134</ref></svarmor>
 <svarmor id="SV:BAR2_C"><mat>ARMOR_SUPPORT_VEHICLE_BAR2_TRC</mat><mass>16</mass><ref>TM 134</ref></svarmor>
@@ -58,4 +64,6 @@
 <svarmor id="SV:REACTIVE_IS"><mat>ARMOR_REACTIVE_IS</mat><mass>62.5</mass><armored>true</armored><slots>2</slots><mmId>2</mmId><mmClan>false</mmClan><ref>TO 280</ref></svarmor>
 <svarmor id="SV:REACTIVE_CLAN"><mat>ARMOR_REACTIVE_CLAN</mat><mass>62.5</mass><armored>true</armored><slots>1</slots><mmId>2</mmId><mmClan>true</mmClan><ref>TO 280</ref></svarmor>
 <svarmor id="SV:STEALTH"><mat>ARMOR_STEALTH_VEHICLE</mat><mass>62.5</mass><armored>true</armored><slots>2</slots><mmId>22</mmId><mmClan>false</mmClan><ref>TO 280</ref></svarmor>
+<svarmor id="SV:APA"><mat>ANTI_PENETRATIVE_ABLATION</mat><mass>83.3</mass><slots>1</slots><mmId>23</mmId><mmClan>false</mmClan><ref>IO 86</ref></svarmor>
+<svarmor id="SV:BALLISTIC_REINFORCED"><mat>BALLISTIC_REINFORCED</mat><mass>83.3</mass><slots>1</slots><mmId>26</mmId><mmClan>false</mmClan><ref>IO 87</ref></svarmor>
 </armors>
