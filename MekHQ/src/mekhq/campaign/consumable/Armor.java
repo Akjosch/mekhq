@@ -15,11 +15,12 @@ import mekhq.adapter.BooleanValueAdapter;
 import mekhq.adapter.MaterialAdapter;
 import mekhq.adapter.TechRatingAdapter;
 import mekhq.campaign.material.Material;
+import mekhq.campaign.material.MaterialUsage;
 
 /**
  * base Armor information
  */
-@XmlSeeAlso(Armor.Mech.class)
+@XmlSeeAlso({Armor.Mech.class, Armor.SupportVehicle.class})
 @XmlRootElement(name="armor")
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class Armor {
@@ -84,6 +85,18 @@ public abstract class Armor {
     
     public String getDescription() {
         return Utilities.nonNull(description, "");
+    }
+    
+    // JAXB marshalling support
+    
+    @SuppressWarnings("unused")
+    private void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
+        if(null == material) {
+            throw new RuntimeException(String.format("Armor '%s' is missing material definition.", id));
+        }
+        if(!material.hasUsage(MaterialUsage.ARMOR)) {
+            throw new RuntimeException(String.format("Material '%s' is not used for armors.", material.getId()));
+        }
     }
     
     /** Mech specific armor data */
@@ -156,6 +169,60 @@ public abstract class Armor {
             }
         }
     }
+    
+    /** Support vehicle specific armor data */
+    @XmlRootElement(name="svarmor")
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class SupportVehicle extends Armor {
+        /** Amount of equipment slots this armor takes; default 0 */
+        private int slots;
+        
+        /**
+         * Point mass in kg
+         */
+        @XmlElement(name="mass")
+        private Double pointMass;
+
+        /**
+         * Point cost, defaults to value / 1000 * pointMass, rounded
+         * to the nearest full C-bill
+         */
+        @XmlElement(name="cost")
+        private Double pointCost;
+        
+        /** Does it require armored chasis? Default false */
+        @XmlJavaTypeAdapter(BooleanValueAdapter.class)
+        private Boolean armored;
+        
+        // JAXB marshalling support
+        
+        @SuppressWarnings("unused")
+        private void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
+            if(null == pointMass) {
+                throw new RuntimeException(String.format("Support vehicle armor '%s' is missing the armor point mass.", id));
+            }
+            if(null == pointCost) {
+                pointCost = Double.valueOf(Math.round(getValue() / 1000.0 * pointMass));
+            }
+        }
+        
+        public int getSlots() {
+            return slots;
+        }
+        
+        public double getPointMass() {
+            return pointMass.doubleValue();
+        }
+        
+        public double getPointCost() {
+            return pointCost.doubleValue();
+        }
+        
+        public boolean requiresArmoredChasis() {
+            return (null != armored) && armored.booleanValue();
+        }
+    }
+
     
     /**
      * Wrapper around {@link EquipmentType} armors.

@@ -90,6 +90,10 @@ public class Material {
         return Utilities.nonNull(result, EnumSet.noneOf(MaterialUsage.class));
     }
     
+    public boolean hasUsage(MaterialUsage u) {
+        return getUsage().contains(u);
+    }
+
     public String getDescription() {
         return Utilities.nonNull(description, "");
     }
