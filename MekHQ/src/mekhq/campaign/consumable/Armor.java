@@ -20,7 +20,7 @@ import mekhq.campaign.material.MaterialUsage;
 /**
  * base Armor information
  */
-@XmlSeeAlso({Armor.Mech.class, Armor.SupportVehicle.class})
+@XmlSeeAlso({Armor.Mech.class, Armor.CombatVehicle.class, Armor.SupportVehicle.class})
 @XmlRootElement(name="armor")
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class Armor {
@@ -177,6 +177,61 @@ public abstract class Armor {
         }
     }
     
+    /** Combat vehicle specific armor data */
+    @XmlRootElement(name="cvarmor")
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class CombatVehicle extends Armor {
+        /** Amount of equipment slots this armor takes; default 0 */
+        private int slots;
+        
+        /**
+         * Is this armor capable of being mounted on an OmniMech chasis?
+         * True for all but the Hardened armor.
+         */
+        @XmlJavaTypeAdapter(BooleanValueAdapter.class)
+        private Boolean omni;
+        /**
+         * Points per ton, default 16
+         */
+        private Double points;
+        /**
+         * Point mass in kg for fractional accounting, defaults to
+         * 1000 / (points per ton), rounded to the nearest 1/10th of a kg.
+         */
+        @XmlElement(name="mass")
+        private Double pointMass;
+
+        public int getSlots() {
+            return slots;
+        }
+        
+        public boolean isOmniCapable() {
+            return (null == omni) || omni.booleanValue();
+        }
+        
+        public double getPointsPerTon() {
+            return (null == points) ? 16.0 : points.doubleValue();
+        }
+        
+        public double getKgPerPoint() {
+            return (null == pointMass)
+                ? Math.round(10000.0 / getPointsPerTon()) / 10.0 : pointMass.doubleValue();
+        }
+
+        // JAXB marshalling support
+        
+        @SuppressWarnings("unused")
+        private void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
+            if(null == points) {
+                if(null != pointMass) {
+                    points = Double.valueOf(Math.floor(100000.0 / pointMass.doubleValue()) / 100.0);
+                } else {
+                    points = Double.valueOf(16.0);
+                }
+            }
+        }
+    }
+
     /** Support vehicle specific armor data */
     @XmlRootElement(name="svarmor")
     @XmlAccessorType(XmlAccessType.FIELD)
@@ -240,13 +295,6 @@ public abstract class Armor {
         STANDARD(EquipmentType.T_ARMOR_STANDARD, " (IS)", 1.0),
         STANDARD_CLAN(EquipmentType.T_ARMOR_STANDARD, " (Clan)", 1.0),
         
-        // Mech armor (TM 56)
-        STEALTH(EquipmentType.T_ARMOR_STEALTH), 
-        LIGHT_FERRO(EquipmentType.T_ARMOR_LIGHT_FERRO, 59.0),
-        FERRO_FIBROUS(EquipmentType.T_ARMOR_FERRO_FIBROUS, " (IS)", 1.12, 55.8),
-        FERRO_FIBROUS_CLAN(EquipmentType.T_ARMOR_FERRO_FIBROUS, " (Clan)", 1.2, 52.1),
-        HEAVY_FERRO(EquipmentType.T_ARMOR_HEAVY_FERRO, 50.4),
-        
         // IndustrialMech armor (TM 72)
         HEAVY_INDUSTRIAL(EquipmentType.T_ARMOR_HEAVY_INDUSTRIAL),
         INDUSTRIAL(EquipmentType.T_ARMOR_INDUSTRIAL, 93.3),
@@ -308,48 +356,8 @@ public abstract class Armor {
         HEAT_DISSIPATING(EquipmentType.T_ARMOR_HEAT_DISSIPATING, 100.0),
         IMPACT_RESISTANT(EquipmentType.T_ARMOR_IMPACT_RESISTANT, 71.4),
         
-        PRIMITIVE(EquipmentType.T_ARMOR_PRIMITIVE),
+        PRIMITIVE(EquipmentType.T_ARMOR_PRIMITIVE);
         
-        // Special case, values depend on TR and BAR, so there's a bunch of them.
-        SUPPORT_VEHICLE_BAR2_TRA("Support Vehicle (BAR 2, TR A)", 50000.0/40.0, 62.5/40.0, 40.0),
-        SUPPORT_VEHICLE_BAR2_TRB("Support Vehicle (BAR 2, TR B)", 50000.0/25.0, 62.5/25.0, 25.0),
-        SUPPORT_VEHICLE_BAR2_TRC("Support Vehicle (BAR 2, TR C)", 50000.0/16.0, 62.5/16.0, 16.0),
-        SUPPORT_VEHICLE_BAR2_TRD("Support Vehicle (BAR 2, TR D)", 50000.0/13.0, 62.5/13.0, 13.0),
-        SUPPORT_VEHICLE_BAR2_TRE("Support Vehicle (BAR 2, TR E)", 50000.0/12.0, 62.5/12.0, 12.0),
-        SUPPORT_VEHICLE_BAR2_TRF("Support Vehicle (BAR 2, TR F)", 50000.0/11.0, 62.5/11.0, 11.0),
-        SUPPORT_VEHICLE_BAR3_TRA("Support Vehicle (BAR 3, TR A)", 100000.0/60.0, 62.5/60.0, 60.0),
-        SUPPORT_VEHICLE_BAR3_TRB("Support Vehicle (BAR 3, TR B)", 100000.0/38.0, 62.5/38.0, 38.0),
-        SUPPORT_VEHICLE_BAR3_TRC("Support Vehicle (BAR 3, TR C)", 100000.0/24.0, 62.5/24.0, 24.0),
-        SUPPORT_VEHICLE_BAR3_TRD("Support Vehicle (BAR 3, TR D)", 100000.0/19.0, 62.5/19.0, 19.0),
-        SUPPORT_VEHICLE_BAR3_TRE("Support Vehicle (BAR 3, TR E)", 100000.0/17.0, 62.5/17.0, 17.0),
-        SUPPORT_VEHICLE_BAR3_TRF("Support Vehicle (BAR 3, TR F)", 100000.0/16.0, 62.5/16.0, 16.0),
-        SUPPORT_VEHICLE_BAR4_TRB("Support Vehicle (BAR 4, TR B)", 150000.0/50.0, 62.5/50.0, 50.0),
-        SUPPORT_VEHICLE_BAR4_TRC("Support Vehicle (BAR 4, TR C)", 150000.0/32.0, 62.5/32.0, 32.0),
-        SUPPORT_VEHICLE_BAR4_TRD("Support Vehicle (BAR 4, TR D)", 150000.0/26.0, 62.5/26.0, 26.0),
-        SUPPORT_VEHICLE_BAR4_TRE("Support Vehicle (BAR 4, TR E)", 150000.0/23.0, 62.5/23.0, 23.0),
-        SUPPORT_VEHICLE_BAR4_TRF("Support Vehicle (BAR 4, TR F)", 150000.0/21.0, 62.5/21.0, 21.0),
-        SUPPORT_VEHICLE_BAR5_TRB("Support Vehicle (BAR 5, TR B)", 200000.0/63.0, 62.5/63.0, 63.0),
-        SUPPORT_VEHICLE_BAR5_TRC("Support Vehicle (BAR 5, TR C)", 200000.0/40.0, 62.5/40.0, 40.0),
-        SUPPORT_VEHICLE_BAR5_TRD("Support Vehicle (BAR 5, TR D)", 200000.0/32.0, 62.5/32.0, 32.0),
-        SUPPORT_VEHICLE_BAR5_TRE("Support Vehicle (BAR 5, TR E)", 200000.0/28.0, 62.5/28.0, 28.0),
-        SUPPORT_VEHICLE_BAR5_TRF("Support Vehicle (BAR 5, TR F)", 200000.0/26.0, 62.5/26.0, 26.0),
-        SUPPORT_VEHICLE_BAR6_TRC("Support Vehicle (BAR 6, TR C)", 250000.0/48.0, 62.5/48.0, 48.0),
-        SUPPORT_VEHICLE_BAR6_TRD("Support Vehicle (BAR 6, TR D)", 250000.0/38.0, 62.5/38.0, 38.0),
-        SUPPORT_VEHICLE_BAR6_TRE("Support Vehicle (BAR 6, TR E)", 250000.0/34.0, 62.5/34.0, 34.0),
-        SUPPORT_VEHICLE_BAR6_TRF("Support Vehicle (BAR 6, TR F)", 250000.0/32.0, 62.5/32.0, 32.0),
-        SUPPORT_VEHICLE_BAR7_TRC("Support Vehicle (BAR 7, TR C)", 300000.0/56.0, 62.5/56.0, 56.0),
-        SUPPORT_VEHICLE_BAR7_TRD("Support Vehicle (BAR 7, TR D)", 300000.0/45.0, 62.5/45.0, 45.0),
-        SUPPORT_VEHICLE_BAR7_TRE("Support Vehicle (BAR 7, TR E)", 300000.0/40.0, 62.5/40.0, 40.0),
-        SUPPORT_VEHICLE_BAR7_TRF("Support Vehicle (BAR 7, TR F)", 300000.0/37.0, 62.5/37.0, 37.0),
-        SUPPORT_VEHICLE_BAR8_TRD("Support Vehicle (BAR 8, TR D)", 400000.0/51.0, 62.5/51.0, 51.0),
-        SUPPORT_VEHICLE_BAR8_TRE("Support Vehicle (BAR 8, TR E)", 400000.0/45.0, 62.5/45.0, 45.0),
-        SUPPORT_VEHICLE_BAR8_TRF("Support Vehicle (BAR 8, TR F)", 400000.0/42.0, 62.5/42.0, 42.0),
-        SUPPORT_VEHICLE_BAR9_TRD("Support Vehicle (BAR 9, TR D)", 500000.0/57.0, 62.5/57.0, 57.0),
-        SUPPORT_VEHICLE_BAR9_TRE("Support Vehicle (BAR 9, TR E)", 500000.0/51.0, 62.5/51.0, 51.0),
-        SUPPORT_VEHICLE_BAR9_TRF("Support Vehicle (BAR 9, TR F)", 500000.0/47.0, 62.5/47.0, 47.0),
-        SUPPORT_VEHICLE_BAR10_TRD("Support Vehicle (BAR 10, TR D)", 625000.0/63.0, 62.5/63.0, 63.0),
-        SUPPORT_VEHICLE_BAR10_TRE("Support Vehicle (BAR 10, TR E)", 625000.0/56.0, 62.5/56.0, 56.0),
-        SUPPORT_VEHICLE_BAR10_TRF("Support Vehicle (BAR 10, TR F)", 625000.0/52.0, 62.5/52.0, 52.0);
 
         /** EquipmentType ID */
         public final int id;
@@ -362,10 +370,6 @@ public abstract class Armor {
         public static ArmorType byId(int id, boolean clan) {
             switch(id) {
                 case EquipmentType.T_ARMOR_STANDARD: return clan ? STANDARD_CLAN : STANDARD;
-                case EquipmentType.T_ARMOR_STEALTH: return STEALTH;
-                case EquipmentType.T_ARMOR_LIGHT_FERRO: return LIGHT_FERRO;
-                case EquipmentType.T_ARMOR_FERRO_FIBROUS: return clan ? FERRO_FIBROUS_CLAN : FERRO_FIBROUS;
-                case EquipmentType.T_ARMOR_HEAVY_FERRO: return HEAVY_FERRO;
                 case EquipmentType.T_ARMOR_HEAVY_INDUSTRIAL: return HEAVY_INDUSTRIAL;
                 case EquipmentType.T_ARMOR_INDUSTRIAL: return INDUSTRIAL;
                 case EquipmentType.T_ARMOR_COMMERCIAL: return COMMERCIAL;
