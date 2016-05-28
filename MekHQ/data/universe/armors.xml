@@ -19,6 +19,9 @@
 <mecharmor id="BM:HEAT_DISSIPATING"><mat>ARMOR_HEAT_DISSIPATING</mat><crits>6</crits><mmId>24</mmId><mmClan>false</mmClan><ref>IO 87</ref></mecharmor>
 <mecharmor id="BM:IMPACT_RESISTANT"><mat>ARMOR_IMPACT_RESISTANT</mat><crits>10</crits><mmId>25</mmId><mmClan>false</mmClan><ref>IO 87</ref></mecharmor>
 <mecharmor id="BM:PRIMITIVE"><mat>ARMOR_PRIMITIVE_MECH</mat><points>10.72</points><mmId>17</mmId><ref>IO 124</ref></mecharmor>
+<imarmor id="IM:HEAVY_INDUSTRIAL"><mat>ARMOR_STANDARD_IS</mat><mmId>15</mmId><ref>TM 72</ref><name>Heavy Industrial Armor</name></imarmor>
+<imarmor id="IM:INDUSTRIAL"><mat>ARMOR_INDUSTRIAL</mat><points>10.72</points><mmId>14</mmId><ref>TM 72</ref></imarmor>
+<imarmor id="IM:COMMERCIAL"><mat>ARMOR_COMMERCIAL</mat><points>24</points><mmId>10</mmId><ref>TM 72</ref></imarmor>
 <cvarmor id="CV:STANDARD_IS"><mat>ARMOR_STANDARD_IS</mat><mmId>0</mmId><mmClan>false</mmClan><ref>TM 56</ref></cvarmor>
 <cvarmor id="CV:STANDARD_CLAN"><mat>ARMOR_STANDARD_CLAN</mat><mmId>0</mmId><mmClan>true</mmClan><ref>TM 56</ref></cvarmor>
 <cvarmor id="CV:LIGHT_FERRO"><mat>ARMOR_LIGHT_FERRO</mat><slots>1</slots><points>16.96</points><mmId>5</mmId><mmClan>false</mmClan><ref>TM 56</ref></cvarmor>

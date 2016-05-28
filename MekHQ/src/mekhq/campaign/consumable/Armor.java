@@ -20,7 +20,7 @@ import mekhq.campaign.material.MaterialUsage;
 /**
  * base Armor information
  */
-@XmlSeeAlso({Armor.Mech.class, Armor.CombatVehicle.class, Armor.SupportVehicle.class})
+@XmlSeeAlso({Armor.Mech.class, Armor.IndustrialMech.class, Armor.CombatVehicle.class, Armor.SupportVehicle.class})
 @XmlRootElement(name="armor")
 @XmlAccessorType(XmlAccessType.FIELD)
 public abstract class Armor {
@@ -99,7 +99,7 @@ public abstract class Armor {
         }
     }
     
-    /** Mech specific armor data */
+    /** BattleMech specific armor data */
     @XmlRootElement(name="mecharmor")
     @XmlAccessorType(XmlAccessType.FIELD)
     public static class Mech extends Armor {
@@ -177,6 +177,47 @@ public abstract class Armor {
         }
     }
     
+    /** IndustrialMech specific armor data */
+    @XmlRootElement(name="imarmor")
+    @XmlAccessorType(XmlAccessType.FIELD)
+    public static class IndustrialMech extends Armor {
+        /**
+         * Points per ton, default 16
+         */
+        private Double points;
+        /**
+         * Point mass in kg for fractional accounting, defaults to
+         * 1000 / (points per ton), rounded to the nearest 1/10th of a kg.
+         */
+        @XmlElement(name="mass")
+        private Double pointMass;
+        
+        public double getPointsPerTon() {
+            return (null == points) ? 16.0 : points.doubleValue();
+        }
+        
+        public double getKgPerPoint() {
+            return (null == pointMass)
+                ? Math.round(10000.0 / getPointsPerTon()) / 10.0 : pointMass.doubleValue();
+        }
+        
+        // JAXB marshalling support
+        
+        @SuppressWarnings("unused")
+        private void afterUnmarshal(Unmarshaller unmarshaller, Object parent) {
+            if(null == material) {
+                throw new RuntimeException(String.format("Armor '%s' requires a valid material.", id));
+            }
+            if(!material.hasUsage(MaterialUsage.ARMOR)) {
+                throw new RuntimeException(String.format("Material '%s' can't be used for armors.",
+                    material.getId()));
+            }
+            if(null == points) {
+                points = Double.valueOf(16.0);
+            }
+        }
+    }
+
     /** Combat vehicle specific armor data */
     @XmlRootElement(name="cvarmor")
     @XmlAccessorType(XmlAccessType.FIELD)

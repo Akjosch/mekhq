@@ -20,6 +20,9 @@
 <material id="ARMOR_HEAT_DISSIPATING"><name>Heat-Dissipating Armor</name><value>15000</value><usage>ARMOR</usage><tr>E</tr></material>
 <material id="ARMOR_IMPACT_RESISTANT"><name>Impact-Resistant Armor</name><value>25000</value><usage>ARMOR</usage><tr>E</tr></material>
 <material id="ARMOR_PRIMITIVE_MECH"><name>Primitive BattleMech Armor</name><value>10000</value><usage>ARMOR</usage><tr>C</tr></material>
+<!-- Heavy Industrial uses the Standard (IS) material -->
+<material id="ARMOR_INDUSTRIAL"><name>Industrial Armor</name><value>5000</value><usage>ARMOR</usage><tr>C</tr></material>
+<material id="ARMOR_COMMERCIAL"><name>Commercial Armor</name><value>3000</value><usage>ARMOR</usage><tr>B</tr></material>
 <material id="ARMOR_SUPPORT_VEHICLE_BAR2_TRA"><name>Support Vehicle Armor (BAR 2, TR A)</name><value>1250.00</value><usage>ARMOR</usage><tr>A</tr></material>
 <material id="ARMOR_SUPPORT_VEHICLE_BAR2_TRB"><name>Support Vehicle Armor (BAR 2, TR B)</name><value>2000.00</value><usage>ARMOR</usage><tr>B</tr></material>
 <material id="ARMOR_SUPPORT_VEHICLE_BAR2_TRC"><name>Support Vehicle Armor (BAR 2, TR C)</name><value>3125.00</value><usage>ARMOR</usage><tr>C</tr></material>
