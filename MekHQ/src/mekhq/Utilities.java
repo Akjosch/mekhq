@@ -483,9 +483,9 @@ public class Utilities {
 					        int range = 6 - hits;
 	                        hits = hits + Compute.randomInt(range);
 	                    }
-	                    p.setHits(hits);
+					    p.injure(hits);
 					} else {
-						p.setHits(6);
+					    p.injure(6);
 					}
 				}
 			}

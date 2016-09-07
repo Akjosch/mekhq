@@ -692,7 +692,7 @@ public class PersonnelTableMouseAdapter extends MouseInputAdapter implements
                 break;
             case CMD_HEAL:
                 for (Person person : people) {
-                    person.setHits(0);
+                    person.injure(0);
                     person.setDoctorId(null, gui.getCampaign().getCampaignOptions()
                             .getNaturalHealingWaitingPeriod());
                 }

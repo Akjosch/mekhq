@@ -891,7 +891,7 @@ public class ResolveScenarioTracker {
                 continue;
             }
             if(status.getHits() > person.getHits()) {
-                person.setHits(status.getHits());
+                person.injure(status.getHits());
             }
             if(status.wasDeployed()) {
             	person.setXp(person.getXp() + status.getXP());
@@ -948,7 +948,7 @@ public class ResolveScenarioTracker {
             }
             person.setXp(person.getXp() + status.getXP());
             if(status.getHits() > person.getHits()) {
-                person.setHits(status.getHits());
+                person.injure(status.getHits());
             }
             person.addLogEntry(campaign.getDate(), "Participated in " + scenario.getName() + " during mission " + m.getName());
             for(Kill k : status.getKills()) {
