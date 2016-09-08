@@ -23,12 +23,20 @@
 package mekhq.campaign.personnel;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.UUID;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.IntFunction;
+import java.util.function.IntUnaryOperator;
+import java.util.function.UnaryOperator;
 
 import megamek.common.Compute;
 import mekhq.MekHQ;
 import mekhq.MekHqXmlUtil;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.mod.am.BodyLocation;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -38,13 +46,19 @@ public class Injury {
     private String fluff;
     private int days;
     private int originalDays;
-    private int hits;
+    /** 0 = past injury, for scars, 1 = default, max depends on type */
+    private int severity;
     private int location;
     private int type;
     private boolean permanent;
     private boolean workedOn;
     private boolean extended;
     protected UUID id;
+    
+    public InjuryType injType;
+    public InjuryType getInjuryType() {
+        return injType;
+    }
     
     // Static defines for type of injury
     // Do not reorder these for backwards compatibility!
@@ -65,12 +79,17 @@ public class Injury {
      public static final int INJ_BROKEN_BACK = 14;
      public static final int INJ_NUM = 15;
      
+     /** Types of detoriations of an injury */
+     public static enum DetoriationType {
+         NOTHING, CHANGE, NEW_INJURY
+     }
+     
      // Base constructor, in reality should never be used
-     public Injury() {
+     private Injury() {
         fluff = "";
         days = 0;
         originalDays = 0;
-        hits = 0;
+        severity = 1;
         location = 0;
         type = 0;
         permanent = false;
@@ -95,7 +114,7 @@ public class Injury {
         setFluff(text);
         setLocation(loc);
         setType(type);
-        setHits(num);
+        setSeverity(num);
         setPermanent(perm);
         setWorkedOn(workedOn);
         setExtended(extended);
@@ -151,12 +170,19 @@ public class Injury {
         location = loc;
     }
     
-    public int getHits() {
-        return hits;
+    public int getSeverity() {
+        return severity;
     }
     
-    public void setHits(int num) {
-        hits = num;
+    public void setSeverity(int num) {
+        final int minSeverity = injType.isPermanent() || getPermanent() ? 1 : 0;
+        final int maxSeverity = injType.getMaxSeverity();
+        if(num < minSeverity) {
+            num = minSeverity;
+        } else if(num > maxSeverity) {
+            num = maxSeverity;
+        }
+        severity = num;
     }
     
     public boolean getPermanent() {
@@ -464,83 +490,8 @@ public class Injury {
     }
     
     // Generate appropriate fluff text for this injury based on type and location. Uses proper gender pronouns.
-    public static String generateInjuryFluffText(int type, int location, int genderType) {
-        String name;
-        switch (location) {
-        case Person.BODY_HEAD:
-            name = "head";
-            break;
-        case Person.BODY_LEFT_LEG:
-            name = "left leg";
-            if (Compute.randomInt(10) < 2) {
-                name = "left foot";
-            }
-            break;
-        case Person.BODY_LEFT_ARM:
-            name = "left arm";
-            if (Compute.randomInt(10) < 2) {
-                name = "left hand";
-            }
-            break;
-        case Person.BODY_CHEST:
-            name = "chest";
-            break;
-        case Person.BODY_ABDOMEN:
-            name = "abdomen";
-            break;
-        case Person.BODY_RIGHT_ARM:
-            name = "right arm";
-            if (Compute.randomInt(10) < 2) {
-                name = "right hand";
-            }
-            break;
-        case Person.BODY_RIGHT_LEG:
-            name = "right leg";
-            if (Compute.randomInt(10) < 2) {
-                name = "right foot";
-            }
-            break;
-        default:
-            name = "Unknown";
-            break;
-        }
-        
-        switch (type) {
-        case INJ_CUT:
-            return "Some cuts on "+Person.getGenderPronoun(genderType, Person.PRONOUN_HISHER)+" "+name;
-        case INJ_BRUISE:
-            return "A bruise on "+Person.getGenderPronoun(genderType, Person.PRONOUN_HISHER)+" "+name;
-        case INJ_LACERATION:
-            return "A laceration on "+Person.getGenderPronoun(genderType, Person.PRONOUN_HISHER)+" "+name;
-        case INJ_SPRAIN:
-            return "A sprained "+name;
-        case INJ_CONCUSSION:
-            return "A concussion";
-        case INJ_BROKEN_RIB:
-            return "A broken rib";
-        case INJ_BRUISED_KIDNEY:
-            return "A bruised kidney";
-        case INJ_BROKEN_LIMB:
-            return "A broken "+name;
-        case INJ_BROKEN_COLLAR_BONE:
-            return "A broken collar bone";
-        case INJ_INTERNAL_BLEEDING:
-            return "Internal bleeding";
-        case INJ_LOST_LIMB:
-            return "Lost "+Person.getGenderPronoun(genderType, Person.PRONOUN_HISHER)+" "+name;
-        case INJ_CEREBRAL_CONTUSION:
-            return "A cerebral contusion";
-        case INJ_PUNCTURED_LUNG:
-            return "A punctured lung";
-        case INJ_CTE:
-            return "Chronic traumatic encephalopathy";
-        case INJ_BROKEN_BACK:
-            return "A broken back";
-        default:
-            System.err.println("ERROR: Default CASE reached in (Advanced Medical Section) Person.generateFluffText()");
-            break;
-        }
-        return "";
+    public static String generateInjuryFluffText(InjuryType type, BodyLocation location, int genderType) {
+        return type.getFluffText(location, genderType);
     }
     
     // Called when creating a new injury to determine the type of injury it is

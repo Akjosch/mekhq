@@ -20,21 +20,28 @@ package mekhq.campaign.mod.am;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.IntUnaryOperator;
+import java.util.stream.Collectors;
 
 import megamek.common.Aero;
 import megamek.common.Compute;
 import megamek.common.Entity;
 import megamek.common.Mech;
 import mekhq.campaign.Campaign;
+import mekhq.campaign.event.InjuryEvent;
 import mekhq.campaign.personnel.Injury;
+import mekhq.campaign.personnel.InjuryType;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.unit.Unit;
 
 public final class InjuryUtil {
+
     public static Collection<Injury> genInjuries(Campaign campaign, Person person, int hits) {
-        resolveSpecialDamage(hits);
+        Collection<Injury> new_injuries = resolveSpecialDamage(campaign, person, hits);
         Entity en = null;
         Unit u = campaign.getUnit(person.getUnitId());
         boolean mwasf = false;
@@ -61,7 +68,6 @@ public final class InjuryUtil {
                 applyBodyHit(location);
             }
         }
-        ArrayList<Injury> new_injuries = new ArrayList<Injury>();
         for(BodyLocation loc : BodyLocation.values()) {
             if(!loc.isLimb) {
                 resolvePostDamage(loc, injuries);
@@ -76,25 +82,54 @@ public final class InjuryUtil {
         if (new_injuries.size() > 0) {
             addLogEntry(campaign.getDate(), "Returned from combat with the following new injuries:" + ni_report);
         }
-        injuries.addAll(new_injuries);
-        setHits(0);
+        //setHits(0);
+        return new_injuries;
     }
 
-    private static void resolveSpecialDamage(Campaign campaign, Person person, int hits) {
+    /** Resolve injury modifications in case of entering combat with active ones */
+    public static void resolveCombat(InjuryEvent event) {
+        final int hits = event.getHits();
+        final Person person = event.getPerson();
+
+        Map<Injury, Consumer<IntUnaryOperator>> injuryHandlers =
+            person.getInjuries().stream().collect(Collectors.toMap(Function.identity(),
+                (inj) -> (
+                    (randomizer) -> inj.getInjuryType().worsenCondition(person, inj, hits, Compute::randomInt))));
+        
+        for(Injury injury : event.getPerson().getInjuries()) {
+            InjuryType type = injury.injType;
+            if(type.relapseCheck(Compute::randomInt, event.getHits())) {
+                injury.setTime(injury.getOriginalTime());
+            }
+            switch(type.detoriationCheck(Compute::randomInt, event.getHits())) {
+                case CHANGE:
+                    int newStatus = type.detoriate(injury, event.getHits(), event.getNewStatus());
+                    event.setNewStatus(newStatus);
+                    break;
+                case NEW_INJURY:
+                    Injury newInjury = type.newWorseInjury(injury, event.getHits(), event.getNewStatus());
+                    if(null != newInjury) {
+                        event.getInjuries().add(newInjury);
+                    }
+                    break;
+                default:
+                    // Do nothing
+                    break;
+            }
+        }
+    }
+    
+    private static Collection<Injury> resolveSpecialDamage(Campaign campaign, Person person, int hits) {
         ArrayList<Injury> new_injuries = new ArrayList<Injury>();
         for (Injury injury : person.getInjuries()) {
-            if (injury.getType() == Injury.INJ_CTE || injury.getType() == Injury.INJ_CONCUSSION || injury.getType() == Injury.INJ_CEREBRAL_CONTUSION
-                || injury.getType() == Injury.INJ_INTERNAL_BLEEDING || injury.getType() == Injury.INJ_BROKEN_LIMB
-                || injury.getType() == Injury.INJ_BROKEN_COLLAR_BONE || injury.getType() == Injury.INJ_PUNCTURED_LUNG) {
-                injury.setTime(Injury.generateHealingTime(campaign, injury.getType(), injury.getHits(), person));
-            }
+            int injType = injury.getType();
 
-            if (injury.getType() == Injury.INJ_BROKEN_BACK && Compute.randomInt(100) < 20) {
+            if((injType == Injury.INJ_BROKEN_BACK) && Compute.randomInt(100) < 20) {
                 changeStatus(S_RETIRED);
                 injury.setPermanent(true);
             }
 
-            if (injury.getType() == Injury.INJ_BROKEN_RIB) {
+            if(injType == Injury.INJ_BROKEN_RIB) {
                 int rib = Compute.randomInt(100);
                 if (rib < 1) {
                     changeStatus(S_KIA);
@@ -103,21 +138,22 @@ public final class InjuryUtil {
                 }
             }
 
-            if (injury.getType() == Injury.INJ_BRUISED_KIDNEY) {
+            if(injType == Injury.INJ_BRUISED_KIDNEY) {
                 if (Compute.randomInt(100) < 10) {
                     hit_location[injury.getLocation()] = 3;
                 }
             }
 
             // Now reset all messages and healing times.
-            if (((Compute.d6() + hits) > 5) && (injury.getType() == Injury.INJ_CTE || injury.getType() == Injury.INJ_CONCUSSION
-                                                || injury.getType() == Injury.INJ_CEREBRAL_CONTUSION || injury.getType() == Injury.INJ_INTERNAL_BLEEDING)) {
+            if(((Compute.d6() + hits) > 5) &&
+                ((injType == Injury.INJ_CTE) || (injType == Injury.INJ_CONCUSSION)
+                    || (injType == Injury.INJ_CEREBRAL_CONTUSION) || (injType == Injury.INJ_INTERNAL_BLEEDING))) {
                 injury.setHits(injury.getHits() + 1);
                 injury.setFluff(Injury.generateInjuryFluffText(injury.getType(), injury.getLocation(), PRONOUN_HISHER));
             }
         }
 
-        injuries.addAll(new_injuries);
+        return new_injuries;
     }
 
 
@@ -236,4 +272,5 @@ public final class InjuryUtil {
         }
         return new_injuries;
     }
+    
 }

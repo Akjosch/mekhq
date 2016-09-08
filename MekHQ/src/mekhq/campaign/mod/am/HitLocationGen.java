@@ -23,7 +23,7 @@ import java.util.function.Function;
 import mekhq.Utilities;
 
 /**
- * Home to static methods returning a random hit location given a random value from 0 to 199
+ * Home to static methods returning a random hit location given a random value from 1 to 200
  * and a function to check if a given {@link BodyLocation} is missing.
  */
 public class HitLocationGen {

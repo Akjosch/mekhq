@@ -35,11 +35,13 @@ import mekhq.campaign.personnel.Person;
  */
 public class InjuryEvent extends PersonEvent {
     private int hits;
+    private int newStatus;
     private Collection<Injury> injuries;
 
     public InjuryEvent(Person person, int hits, Collection<Injury> injuries) {
         super(person);
         this.hits = Math.max(hits, 0);
+        this.newStatus = person.getStatus();
         this.injuries = (null != injuries) ? new ArrayList<>(injuries) : new ArrayList<>();
     }
 
@@ -49,6 +51,14 @@ public class InjuryEvent extends PersonEvent {
     
     public void setHits(int hits) {
         this.hits = Math.max(hits, 0);
+    }
+    
+    public int getNewStatus() {
+        return newStatus;
+    }
+    
+    public void setNewStatus(int newStatus) {
+        this.newStatus = newStatus;
     }
     
     public Collection<Injury> getInjuries() {
