@@ -3242,10 +3242,6 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
         return modifier;
     }
 
-    public void applyBodyHit(int location) {
-        hit_location[location]++;
-    }
-
     public boolean hasInjury(BodyLocation loc, InjuryType type) {
         if (getInjuryByLocationAndType(loc, type) != null) {
             return true;

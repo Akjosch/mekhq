@@ -61,7 +61,7 @@ public class Injury {
         this(time, text, loc, type, num, perm, workedOn, false);
     }
     
-    // Constructor for when this injury has extended time, full options includng worked on by a doctor
+    // Constructor for when this injury has extended time, full options including worked on by a doctor
     public Injury(int time, String text, BodyLocation loc, InjuryType type, int num, boolean perm, boolean workedOn, boolean extended) {
         setTime(time);
         originalDays = time;

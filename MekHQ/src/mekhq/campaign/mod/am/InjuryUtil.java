@@ -20,8 +20,10 @@ package mekhq.campaign.mod.am;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -50,44 +52,47 @@ public final class InjuryUtil {
         };
     }
     
-    public static Collection<Injury> genInjuries(Campaign campaign, Person person, int hits) {
-        Entity en = null;
-        Unit u = campaign.getUnit(person.getUnitId());
-        if(null != u) {
-            en = u.getEntity();
+    private static void addHitToAccumulator(Map<BodyLocation, Integer> acc, BodyLocation loc) {
+        if(!acc.containsKey(loc)) {
+            acc.put(loc, Integer.valueOf(1));
+        } else {
+            acc.put(loc, acc.get(loc) + 1);
         }
-        boolean mwasf = (null != en) && ((en instanceof Mech) || (en instanceof Aero));
-        int critMod = mwasf ? 0 : 2;
-        BiFunction<IntUnaryOperator, Function<BodyLocation, Boolean>, BodyLocation> generator
+    }
+    
+    public static Collection<Injury> genInjuries(Campaign campaign, Person person, int hits) {
+        final Unit u = campaign.getUnit(person.getUnitId());
+        final Entity en = (null != u) ? u.getEntity() : null;
+        final boolean mwasf = (null != en) && ((en instanceof Mech) || (en instanceof Aero));
+        final int critMod = mwasf ? 0 : 2;
+        final BiFunction<IntUnaryOperator, Function<BodyLocation, Boolean>, BodyLocation> generator
             = mwasf ? HitLocationGen::mechAndAsf : HitLocationGen::generic;
+        final Map<BodyLocation, Integer> hitAccumulator = new HashMap<>();
+        
         for (int i = 0; i < hits; i++) {
             BodyLocation location
                 = generator.apply(Compute::randomInt, (loc) -> !isLocationMissing(person, loc));
 
             // apply hit here
-            applyBodyHit(location);
+            addHitToAccumulator(hitAccumulator, location);
             int roll = Compute.d6(2);
-            if ((roll + hits + critMod) > 12) {
-                // apply another hit to the same location if critical
-                applyBodyHit(location);
+            if(roll + hits + critMod > 12) {
+                addHitToAccumulator(hitAccumulator, location);
             }
         }
-        for(BodyLocation loc : BodyLocation.values()) {
-            if(!loc.isLimb) {
-                resolvePostDamage(loc, injuries);
-            }
-            new_injuries.addAll(applyDamage(loc));
-            hit_location[i] = 0;
+        List<Injury> newInjuries = new ArrayList<>();
+        for(Entry<BodyLocation, Integer> accEntry : hitAccumulator.entrySet()) {
+            newInjuries.addAll(applyDamage(person, accEntry.getKey(), accEntry.getValue().intValue()));
         }
         String ni_report = "";
-        for (Injury ni : new_injuries) {
+        for (Injury ni : newInjuries) {
             ni_report += "\n\t\t" + ni.getFluff();
         }
-        if (new_injuries.size() > 0) {
-            addLogEntry(campaign.getDate(), "Returned from combat with the following new injuries:" + ni_report);
+        if (newInjuries.size() > 0) {
+            person.addLogEntry(campaign.getDate(), "Returned from combat with the following new injuries:" + ni_report);
         }
         //setHits(0);
-        return new_injuries;
+        return newInjuries;
     }
 
     /** Resolve injury modifications in case of entering combat with active ones */
@@ -125,11 +130,11 @@ public final class InjuryUtil {
     }
 
 
-    private static ArrayList<Injury> applyDamage(Person p, BodyLocation loc) {
+    private static List<Injury> applyDamage(Person p, BodyLocation loc, int hits) {
         ArrayList<Injury> new_injuries = new ArrayList<Injury>();
-        boolean bad_status = (p.getStatus() == S_KIA || p.getStatus() == S_MIA);
+        boolean bad_status = (p.getStatus() == Person.S_KIA || p.getStatus() == Person.S_MIA);
         int roll = Compute.randomInt(2);
-        InjuryType type = Injury.getInjuryTypeByLocation(loc, roll, hit_location[location]);
+        InjuryType type = Injury.getInjuryTypeByLocation(loc, roll, hits);
         if (p.hasInjury(loc, type)) {
             Injury injury = p.getInjuryByLocationAndType(loc, type);
             injury.setTime(genHealingTime(p, injury));
