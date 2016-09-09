@@ -53,21 +53,16 @@ public final class InjuryUtil {
     public static Collection<Injury> genInjuries(Campaign campaign, Person person, int hits) {
         Entity en = null;
         Unit u = campaign.getUnit(person.getUnitId());
-        boolean mwasf = false;
-        if (u != null) {
+        if(null != u) {
             en = u.getEntity();
         }
-        if (en != null && (en instanceof Mech || en instanceof Aero)) {
-            mwasf = true;
-        }
+        boolean mwasf = (null != en) && ((en instanceof Mech) || (en instanceof Aero));
         int critMod = mwasf ? 0 : 2;
+        BiFunction<IntUnaryOperator, Function<BodyLocation, Boolean>, BodyLocation> generator
+            = mwasf ? HitLocationGen::mechAndAsf : HitLocationGen::generic;
         for (int i = 0; i < hits; i++) {
-            BiFunction<Integer, Function<BodyLocation, Boolean>, BodyLocation> generator
-                = (mwasf ? HitLocationGen::mechAndAsf : HitLocationGen::generic);
-            BodyLocation location = BodyLocation.GENERIC;
-            while(location == BodyLocation.GENERIC) {
-                location = generator.apply(Compute.randomInt(200), (loc) -> isLocationMissing(person, loc));
-            }
+            BodyLocation location
+                = generator.apply(Compute::randomInt, (loc) -> !isLocationMissing(person, loc));
 
             // apply hit here
             applyBodyHit(location);

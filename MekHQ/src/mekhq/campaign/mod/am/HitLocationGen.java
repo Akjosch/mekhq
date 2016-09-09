@@ -22,13 +22,14 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.function.IntUnaryOperator;
 
 import mekhq.Utilities;
 import mekhq.campaign.personnel.BodyLocation;
 
 /**
- * Home to static methods returning a random hit location given a random value from 1 to 200
- * and a function to check if a given {@link BodyLocation} is missing.
+ * Home to static methods returning a random hit location given a random integer value generator
+ * and a function to check if a given {@link BodyLocation} is valid.
  */
 public class HitLocationGen {
     // Roll tables
@@ -74,21 +75,20 @@ public class HitLocationGen {
     }
 
     private static BodyLocation queryRandomTable(NavigableMap<Integer, BodyLocation> table,
-        int roll, Function<BodyLocation, Boolean> missingCheck) {
-        missingCheck = Utilities.nonNull(missingCheck, (bl) -> false);
-        Entry<Integer, BodyLocation> entry = table.ceilingEntry(roll + 1);
-        if((null == entry) || missingCheck.apply(entry.getValue())) {
-            return BodyLocation.GENERIC;
-        } else {
-            return entry.getValue();
-        }
+        IntUnaryOperator rnd, Function<BodyLocation, Boolean> validCheck) {
+        validCheck = Utilities.nonNull(validCheck, (loc) -> true);
+        Entry<Integer, BodyLocation> entry = null;
+        do {
+            entry = table.ceilingEntry(rnd.applyAsInt(table.lastKey().intValue()) + 1);
+        } while((null == entry) || !validCheck.apply(entry.getValue()));
+        return entry.getValue();
     }
     
-    public static BodyLocation generic(int roll, Function<BodyLocation, Boolean> missingCheck) {
-        return queryRandomTable(GENERIC_RANDOM_HIT_TABLE, roll, missingCheck);
+    public static BodyLocation generic(IntUnaryOperator rnd, Function<BodyLocation, Boolean> validCheck) {
+        return queryRandomTable(GENERIC_RANDOM_HIT_TABLE, rnd, validCheck);
     }
     
-    public static BodyLocation mechAndAsf(int roll, Function<BodyLocation, Boolean> missingCheck) {
-        return queryRandomTable(MECH_RANDOM_HIT_TABLE, roll, missingCheck);
+    public static BodyLocation mechAndAsf(IntUnaryOperator rnd, Function<BodyLocation, Boolean> validCheck) {
+        return queryRandomTable(MECH_RANDOM_HIT_TABLE, rnd, validCheck);
     }
 }
