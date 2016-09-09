@@ -66,6 +66,16 @@ public class InjuryType {
         register(-1, key, injType);
     }
     
+    /** Default injury type: reduction in hit points */
+    public static InjuryType BAD_HEALTH = new InjuryType();
+    static {
+        BAD_HEALTH.recoveryTime = 7;
+        BAD_HEALTH.fluffText = "Damaged health";
+        BAD_HEALTH.maxSeverity = 5;
+        BAD_HEALTH.allowedLocations = EnumSet.of(BodyLocation.GENERIC);
+        register("bad_health", BAD_HEALTH);
+    }
+    
     /** Base recovery time in days */
     protected int recoveryTime = 0;
     protected boolean permanent = false;
@@ -107,6 +117,10 @@ public class InjuryType {
     
     public int getMaxSeverity() {
         return maxSeverity;
+    }
+    
+    public String getName(BodyLocation loc, int severity) {
+        return Utilities.capitalize(fluffText);
     }
     
     public String getFluffText(BodyLocation loc, int severity, int gender) {

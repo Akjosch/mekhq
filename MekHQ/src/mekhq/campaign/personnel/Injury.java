@@ -23,23 +23,15 @@
 package mekhq.campaign.personnel;
 
 import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.IntFunction;
-import java.util.function.IntUnaryOperator;
-import java.util.function.UnaryOperator;
-
-import megamek.common.Compute;
-import mekhq.MekHQ;
-import mekhq.MekHqXmlUtil;
-import mekhq.campaign.Campaign;
-import mekhq.campaign.mod.am.BodyLocation;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import mekhq.MekHQ;
+import mekhq.MekHqXmlUtil;
+import mekhq.Utilities;
+import mekhq.campaign.mod.am.BodyLocation;
 
 // Injury class based on Jayof9s' <jayof9s@gmail.com> Advanced Medical documents
 public class Injury {
@@ -54,42 +46,10 @@ public class Injury {
     private boolean workedOn;
     private boolean extended;
     protected UUID id;
-    
-    // Static defines for type of injury
-    // Do not reorder these for backwards compatibility!
-     public static final int INJ_CUT = 0;
-     public static final int INJ_BRUISE = 1;
-     public static final int INJ_LACERATION = 2;
-     public static final int INJ_SPRAIN = 3;
-     public static final int INJ_CONCUSSION = 4;
-     public static final int INJ_BROKEN_RIB = 5;
-     public static final int INJ_BRUISED_KIDNEY = 6;
-     public static final int INJ_BROKEN_LIMB = 7;
-     public static final int INJ_BROKEN_COLLAR_BONE = 8;
-     public static final int INJ_INTERNAL_BLEEDING = 9;
-     public static final int INJ_LOST_LIMB = 10;
-     public static final int INJ_CEREBRAL_CONTUSION = 11;
-     public static final int INJ_PUNCTURED_LUNG = 12;
-     public static final int INJ_CTE = 13;
-     public static final int INJ_BROKEN_BACK = 14;
-     public static final int INJ_NUM = 15;
-     
-     /** Types of detoriations of an injury */
-     public static enum DetoriationType {
-         NOTHING, CHANGE, NEW_INJURY
-     }
      
      // Base constructor, in reality should never be used
      private Injury() {
-        fluff = "";
-        days = 0;
-        originalDays = 0;
-        severity = 1;
-        location = BodyLocation.GENERIC;
-        type = null;
-        permanent = false;
-        workedOn = false;
-        extended = false;
+         this(0, "", BodyLocation.GENERIC, InjuryType.BAD_HEALTH, 1, false, false);
     }
     
      // Normal constructor for a new injury that has not been treated by a doctor & does not have extended time
@@ -105,9 +65,9 @@ public class Injury {
     // Constructor for when this injury has extended time, full options includng worked on by a doctor
     public Injury(int time, String text, BodyLocation loc, InjuryType type, int num, boolean perm, boolean workedOn, boolean extended) {
         setTime(time);
-        setOriginalTime(time);
+        originalDays = time;
         setFluff(text);
-        setLocation(loc);
+        location = loc;
         setType(type);
         setSeverity(num);
         setPermanent(perm);
@@ -124,10 +84,6 @@ public class Injury {
     public void setUUID(UUID uuid) {
         id = uuid;
     }
-    
-    public String getUUIDAsString() {
-        return id.toString();
-    }
     // End UUID Control Methods
     
     // Time Control Methods
@@ -141,10 +97,6 @@ public class Injury {
     
     public int getOriginalTime() {
         return originalDays;
-    }
-    
-    public void setOriginalTime(int time) {
-        originalDays = time;
     }
     // End Time Control Methods
     
@@ -161,17 +113,13 @@ public class Injury {
         return location;
     }
     
-    public void setLocation(BodyLocation loc) {
-        location = loc;
-    }
-    
     public int getSeverity() {
         return severity;
     }
     
     public void setSeverity(int num) {
-        final int minSeverity = injType.isPermanent() || getPermanent() ? 1 : 0;
-        final int maxSeverity = injType.getMaxSeverity();
+        final int minSeverity = isPermanent() ? 1 : 0;
+        final int maxSeverity = type.getMaxSeverity();
         if(num < minSeverity) {
             num = minSeverity;
         } else if(num > maxSeverity) {
@@ -180,8 +128,8 @@ public class Injury {
         severity = num;
     }
     
-    public boolean getPermanent() {
-        return permanent;
+    public boolean isPermanent() {
+        return permanent || type.isPermanent();
     }
     
     public void setPermanent(boolean perm) {
@@ -215,81 +163,7 @@ public class Injury {
     
     // Returns the full long name of this injury including location and type as applicable
     public String getName() {
-        String buffer = "";
-        
-        switch (location) {
-        case Person.BODY_HEAD:
-            buffer = "Head";
-            break;
-         case Person.BODY_LEFT_LEG:
-            buffer = "Left Leg";
-            break;
-         case Person.BODY_LEFT_ARM:
-            buffer = "Left Arm";
-            break;
-         case Person.BODY_CHEST:
-            buffer = "Chest";
-            break;
-         case Person.BODY_ABDOMEN:
-            buffer = "Abdomen";
-            break;
-         case Person.BODY_RIGHT_ARM:
-            buffer = "Right Arm";
-            break;
-         case Person.BODY_RIGHT_LEG:
-            buffer = "Right Leg";
-            break;
-        }
-        
-        switch (type) {
-        case INJ_CUT:
-            buffer = "Cut "+buffer;
-            break;
-         case INJ_BRUISE:
-            buffer = "Bruised "+buffer;
-            break;
-         case INJ_LACERATION:
-            buffer = "Lacerated "+buffer;
-            break;
-         case INJ_SPRAIN:
-            buffer = "Sprained "+buffer;
-            break;
-         case INJ_CONCUSSION:
-            buffer = "Concussion";
-            break;
-         case INJ_BROKEN_RIB:
-            buffer = "Broken Rib";
-            break;
-         case INJ_BRUISED_KIDNEY:
-            buffer = "Bruised Kidney";
-            break;
-         case INJ_BROKEN_LIMB:
-            buffer = "Broken "+buffer;
-            break;
-         case INJ_BROKEN_COLLAR_BONE:
-            buffer = "Broken Collarbone";
-            break;
-         case INJ_INTERNAL_BLEEDING:
-            buffer = "Internal Bleeding";
-            break;
-         case INJ_LOST_LIMB:
-            buffer = "Missing "+buffer;
-            break;
-         case INJ_CEREBRAL_CONTUSION:
-            buffer = "Cerebral Contusion";
-            break;
-         case INJ_PUNCTURED_LUNG:
-            buffer = "Punctured Lung";
-            break;
-         case INJ_CTE:
-            buffer = "Chronic Traumatic Encephalopathy";
-            break;
-         case INJ_BROKEN_BACK:
-            buffer = "Broken Back";
-            break;
-        }
-        
-        return buffer;
+        return type.getName(location, severity);
     }
     
     // Save to campaign file as XML
@@ -310,7 +184,7 @@ public class Injury {
                 +"</originalDays>");
         pw1.println(MekHqXmlUtil.indentStr(indent+1)
                 +"<hits>"
-                +hits
+                +severity
                 +"</hits>");
         pw1.println(MekHqXmlUtil.indentStr(indent+1)
                 +"<location>"
@@ -358,26 +232,29 @@ public class Injury {
                 } else if (wn2.getNodeName().equalsIgnoreCase("originalDays")) {
                     retVal.originalDays = Integer.parseInt(wn2.getTextContent().trim());
                 } else if (wn2.getNodeName().equalsIgnoreCase("hits")) {
-                    retVal.hits = Integer.parseInt(wn2.getTextContent().trim());
+                    retVal.severity = Integer.parseInt(wn2.getTextContent().trim());
                 } else if (wn2.getNodeName().equalsIgnoreCase("location")) {
-                    retVal.location = Integer.parseInt(wn2.getTextContent().trim());
+                    retVal.location = BodyLocation.of(wn2.getTextContent().trim());
                 } else if (wn2.getNodeName().equalsIgnoreCase("type")) {
-                    retVal.type = Integer.parseInt(wn2.getTextContent().trim());
+                    retVal.type = InjuryType.byKey(wn2.getTextContent().trim());
                 } else if (wn2.getNodeName().equalsIgnoreCase("permanent")) {
-                    if (wn2.getTextContent().equalsIgnoreCase("true"))
+                    if (wn2.getTextContent().equalsIgnoreCase("true")) {
                         retVal.permanent = true;
-                    else
+                    } else {
                         retVal.permanent = false;
+                    }
                 } else if (wn2.getNodeName().equalsIgnoreCase("extended")) {
-                    if (wn2.getTextContent().equalsIgnoreCase("true"))
+                    if (wn2.getTextContent().equalsIgnoreCase("true")) {
                         retVal.extended = true;
-                    else
+                    } else {
                         retVal.extended = false;
+                    }
                 } else if (wn2.getNodeName().equalsIgnoreCase("workedOn")) {
-                    if (wn2.getTextContent().equalsIgnoreCase("true"))
+                    if (wn2.getTextContent().equalsIgnoreCase("true")) {
                         retVal.workedOn = true;
-                    else
+                    } else {
                         retVal.workedOn = false;
+                    }
                 } else if (wn2.getNodeName().equalsIgnoreCase("InjuryUUID")) {
                     retVal.id = UUID.fromString(wn2.getTextContent());
                 }
@@ -395,163 +272,15 @@ public class Injury {
     
     // Return the location name for the injury by passing location to the static overload
     public String getLocationName() {
-        return getLocationName(location);
-    }
-    
-    // Return the location name for a specific body location
-    public static String getLocationName(int loc) {
-        if (loc == Person.BODY_HEAD) {
-            return "Head";
-        }
-         if (loc == Person.BODY_LEFT_LEG) {
-             return "Left Leg/Foot";
-         }
-         if (loc == Person.BODY_LEFT_ARM) {
-             return "Left Arm/Hand";
-         }
-         if (loc == Person.BODY_CHEST) {
-             return "Chest";
-         }
-         if (loc == Person.BODY_ABDOMEN) {
-             return "Abdomen";
-         }
-         if (loc == Person.BODY_RIGHT_ARM) {
-             return "Right Arm/Hand";
-         }
-         if (loc == Person.BODY_RIGHT_LEG) {
-             return "Right Leg/Foot";
-         }
-        return "";
+        return Utilities.capitalize(location.readableName);
     }
     
     // Return the name for this type of injury by passing the type to the static overload
-    public String getTypeName() {
-        return getTypeName(type);
+    public String getTypeKey() {
+        return type.getKey();
     }
-    
-    // Return the name of a specific type of injury
-    public static String getTypeName(int type) {
-        String buffer = "";
-        
-        switch (type) {
-        case INJ_CUT:
-            buffer = "Cut";
-            break;
-         case INJ_BRUISE:
-            buffer = "Bruised";
-            break;
-         case INJ_LACERATION:
-            buffer = "Lacerated";
-            break;
-         case INJ_SPRAIN:
-            buffer = "Sprained";
-            break;
-         case INJ_CONCUSSION:
-            buffer = "Concussion";
-            break;
-         case INJ_BROKEN_RIB:
-            buffer = "Broken Rib";
-            break;
-         case INJ_BRUISED_KIDNEY:
-            buffer = "Bruised Kidney";
-            break;
-         case INJ_BROKEN_LIMB:
-            buffer = "Broken";
-            break;
-         case INJ_BROKEN_COLLAR_BONE:
-            buffer = "Broken Collarbone";
-            break;
-         case INJ_INTERNAL_BLEEDING:
-            buffer = "Internal Bleeding";
-            break;
-         case INJ_LOST_LIMB:
-            buffer = "Missing";
-            break;
-         case INJ_CEREBRAL_CONTUSION:
-            buffer = "Cerebral Contusion";
-            break;
-         case INJ_PUNCTURED_LUNG:
-            buffer = "Punctured Lung";
-            break;
-         case INJ_CTE:
-            buffer = "Chronic Traumatic Encephalopathy";
-            break;
-         case INJ_BROKEN_BACK:
-            buffer = "Broken Back";
-            break;
-        }
-        
-        return buffer;
-    }
-    
-    // Generate appropriate fluff text for this injury based on type and location. Uses proper gender pronouns.
-    public static String generateInjuryFluffText(InjuryType type, BodyLocation location, int genderType) {
-        return type.getFluffText(location, genderType);
-    }
-    
-    // Called when creating a new injury to determine the type of injury it is
-    public static int getInjuryTypeByLocation(int loc, int roll, int hit_location) {
-        switch (loc) {
-        case Person.BODY_LEFT_ARM:
-        case Person.BODY_RIGHT_ARM:
-        case Person.BODY_LEFT_LEG:
-        case Person.BODY_RIGHT_LEG:
-            if (hit_location == 1) {
-                if (roll == 2) {
-                    return INJ_CUT;
-                } else {
-                    return INJ_BRUISE;
-                }
-            } else if (hit_location == 2) {
-                return INJ_SPRAIN;
-            } else if (hit_location == 3) {
-                return INJ_BROKEN_LIMB;
-            } else if (hit_location > 3) {
-                return INJ_LOST_LIMB;
-            }
-            break;
-        case Person.BODY_HEAD:
-            if (hit_location == 1) {
-                return INJ_LACERATION;
-            } else if (hit_location == 2 || hit_location == 3) {
-                return INJ_CONCUSSION;
-            } else if (hit_location == 4) {
-                return INJ_CEREBRAL_CONTUSION;
-            } else if (hit_location > 4) {
-                return INJ_CTE;
-            }
-            break;
-        case Person.BODY_CHEST:
-            if (hit_location == 1) {
-                if (roll == 2) {
-                    return INJ_CUT;
-                } else {
-                    return INJ_BRUISE;
-                }
-            } else if (hit_location == 2) {
-                return INJ_BROKEN_RIB;
-            } else if (hit_location == 3) {
-                return INJ_BROKEN_COLLAR_BONE;
-            } else if (hit_location == 4) {
-                return INJ_PUNCTURED_LUNG;
-            } else if (hit_location > 4) {
-                return INJ_BROKEN_BACK;
-            }
-            break;
-        case Person.BODY_ABDOMEN:
-            if (hit_location == 1) {
-                if (roll == 2) {
-                    return INJ_CUT;
-                } else {
-                    return INJ_BRUISE;
-                }
-            } else if (hit_location == 2) {
-                return INJ_BRUISED_KIDNEY;
-            } else if (hit_location > 2) {
-                return INJ_INTERNAL_BLEEDING;
-            }
-            break;
-        }
-        return 0;
+
+    public int getTypeId() {
+        return type.getId();
     }
 }

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
+import mekhq.Utilities;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.LogEntry;
 import mekhq.campaign.personnel.Injury;
@@ -175,6 +176,11 @@ public class InjuryTypes {
         }
         
         @Override
+        public String getName(BodyLocation loc, int severity) {
+            return "Missing " + Utilities.capitalize(loc.readableName);
+        }
+
+        @Override
         public String getFluffText(BodyLocation loc, int severity, int gender) {
             return "Lost " + Person.getGenderPronoun(gender, Person.PRONOUN_HISHER) + " "
                 + loc.readableName;
@@ -193,6 +199,11 @@ public class InjuryTypes {
             return 20 * severity;
         }
     
+        @Override
+        public String getName(BodyLocation loc, int severity) {
+            return Utilities.capitalize(getFluffText(loc, severity, 0));
+        }
+        
         @Override
         public String getFluffText(BodyLocation loc, int severity, int gender) {
             switch(severity) {
@@ -264,6 +275,11 @@ public class InjuryTypes {
             return loc.isLimb;
         }
         
+        @Override
+        public String getName(BodyLocation loc, int severity) {
+            return "Broken " + Utilities.capitalize(loc.readableName);
+        }
+
         @Override
         public String getFluffText(BodyLocation loc, int severity, int gender) {
             return "A broken " + loc.readableName;
@@ -376,6 +392,11 @@ public class InjuryTypes {
         }
         
         @Override
+        public String getName(BodyLocation loc, int severity) {
+            return "Sprained " + Utilities.capitalize(loc.readableName);
+        }
+
+        @Override
         public String getFluffText(BodyLocation loc, int severity, int gender) {
             return "A sprained " + loc.readableName;
         }
@@ -386,6 +407,11 @@ public class InjuryTypes {
             allowedLocations = EnumSet.of(BodyLocation.HEAD);
         }
     
+        @Override
+        public String getName(BodyLocation loc, int severity) {
+            return "Lacerated " + Utilities.capitalize(loc.readableName);
+        }
+
         @Override
         public String getFluffText(BodyLocation loc, int severity, int gender) {
             return "A laceration on " + Person.getGenderPronoun(gender, Person.PRONOUN_HISHER) + " head";
@@ -403,6 +429,11 @@ public class InjuryTypes {
         }
         
         @Override
+        public String getName(BodyLocation loc, int severity) {
+            return "Bruised " + Utilities.capitalize(loc.readableName);
+        }
+
+        @Override
         public String getFluffText(BodyLocation loc, int severity, int gender) {
             return "A bruise on " + Person.getGenderPronoun(gender, Person.PRONOUN_HISHER) + " "
                 + loc.readableName;
@@ -419,6 +450,11 @@ public class InjuryTypes {
             return loc.isLimb || super.isValidInLocation(loc);
         }
 
+        @Override
+        public String getName(BodyLocation loc, int severity) {
+            return "Cut " + Utilities.capitalize(loc.readableName);
+        }
+        
         @Override
         public String getFluffText(BodyLocation loc, int severity, int gender) {
             return "Some cuts on " + Person.getGenderPronoun(gender, Person.PRONOUN_HISHER) + " "
