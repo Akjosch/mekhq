@@ -1,324 +1,92 @@
 package mekhq.campaign.personnel;
 
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.IntUnaryOperator;
 
+import mekhq.Utilities;
 import mekhq.campaign.Campaign;
-import mekhq.campaign.LogEntry;
 import mekhq.campaign.mod.am.BodyLocation;
 
-/**
- * Default injury types. Custom ones can extend this class and register their own.
- */
 public class InjuryType {
-    // Predefined types
-    public static final InjuryType CUT = new InjuryType(0, 0) {
-        @Override
-        public String getFluffText(BodyLocation loc, int severity, int gender) {
-            return "Some cuts on " + Person.getGenderPronoun(gender, Person.PRONOUN_HISHER) + " "
-                + loc.readableName;
-        }
-    };
-    public static final InjuryType BRUISE = new InjuryType(1, 0) {
-        @Override
-        public String getFluffText(BodyLocation loc, int severity, int gender) {
-            return "A bruise on " + Person.getGenderPronoun(gender, Person.PRONOUN_HISHER) + " "
-                + loc.readableName;
-        }
-    };
-    public static final InjuryType LACERATION = new InjuryType(2, 0) {
-        @Override
-        public String getFluffText(BodyLocation loc, int severity, int gender) {
-            return "A laceration on " + Person.getGenderPronoun(gender, Person.PRONOUN_HISHER) + " head";
-        }
-    };
-    public static final InjuryType SPRAIN = new InjuryType(3, 12) {
-        @Override
-        public String getFluffText(BodyLocation loc, int severity, int gender) {
-            return "A sprained " + loc.readableName;
-        }
-    };
-    public static final InjuryType CONCUSSION = new InjuryType(4, 14) {
-        @Override
-        public int getRecoveryTime(int severity) {
-            return severity >= 2 ? 42 : 14;
-        }
-        
-        @Override
-        public List<InjuryAction> genStressEffect(Campaign c, Person p, Injury i, int hits) {
-            String secondEffectFluff = (i.getSeverity() == 1)
-                ? "concussion worsening" : "development of a cerebral contusion";
-            if(hits < 5) {
-                int worseningChance = Math.max((int) Math.round((1 + hits) * 100.0 / 6.0), 100);
-                secondEffectFluff = worseningChance + "% chance of " + secondEffectFluff;
-            }
-            return Arrays.asList(
-                newResetRecoveryTimeAction(i),
-                new InjuryAction(
-                    secondEffectFluff,
-                    (rnd, gen) -> {
-                        if(rnd.applyAsInt(6) + hits >= 5) {
-                            if(i.getSeverity() == 1) {
-                                i.setSeverity(2);
-                            } else {
-                                Injury cerebralContusion = gen.gen(BodyLocation.HEAD, CEREBRAL_CONTUSION, 1);
-                                p.addInjury(cerebralContusion);
-                                p.removeInjury(i);
-                                p.addLogEntry(new LogEntry(c.getDate(), "Developed a cerebral contusion"));
-                            }
-                        }
-                    })
-                );
-        }
-    };
-    public static final InjuryType BROKEN_RIB = new InjuryType(5, 20) {
-        @Override
-        public List<InjuryAction> genStressEffect(Campaign c, Person p, Injury i, int hits) {
-            return Arrays.asList(new InjuryAction(
-                "1% chance of death; 9% chance of puncturing a lung",
-                (rnd, gen) -> {
-                    int rib = rnd.applyAsInt(100);
-                    if(rib < 1) {
-                        p.changeStatus(Person.S_KIA);
-                        p.addLogEntry(new LogEntry(c.getDate(), "Had a broken rib puncturing "
-                            + Person.getGenderPronoun(p.getGender(), Person.PRONOUN_HISHER) + " heart, dying"));
-                    } else if(rib < 10) {
-                        Injury puncturedLung = gen.gen(BodyLocation.CHEST, PUNCTURED_LUNG, 1);
-                        p.addInjury(puncturedLung);
-                        p.addLogEntry(new LogEntry(c.getDate(), "Had a broken rib puncturing "
-                            + Person.getGenderPronoun(p.getGender(), Person.PRONOUN_HISHER) + " lung"));
-                    }
-                }));
-        }
-    };
-    public static final InjuryType BRUISED_KIDNEY = new InjuryType(6, 10) {
-        @Override
-        public List<InjuryAction> genStressEffect(Campaign c, Person p, Injury i, int hits) {
-            return Arrays.asList(new InjuryAction(
-                "10% chance of internal bleeding",
-                (rnd, gen) -> {
-                    if(rnd.applyAsInt(100) < 10) {
-                        Injury bleeding = gen.gen(BodyLocation.ABDOMEN, INTERNAL_BLEEDING, 1);
-                        p.addInjury(bleeding);
-                        p.addLogEntry(new LogEntry(c.getDate(), "Had a broken rib puncturing "
-                            + Person.getGenderPronoun(p.getGender(), Person.PRONOUN_HISHER) + " lung"));
-                    }
-                }));
-        }
-    };
-    public static final InjuryType BROKEN_LIMB = new InjuryType(7, 30) {
-        @Override
-        public String getFluffText(BodyLocation loc, int severity, int gender) {
-            return "A broken " + loc.readableName;
-        }
-        
-        @Override
-        public List<InjuryAction> genStressEffect(Campaign c, Person p, Injury i, int hits) {
-            return Arrays.asList(newResetRecoveryTimeAction(i));
-        }
-    };
-    public static final InjuryType BROKEN_COLLAR_BONE = new InjuryType(8, 22) {
-        @Override
-        public List<InjuryAction> genStressEffect(Campaign c, Person p, Injury i, int hits) {
-            return Arrays.asList(newResetRecoveryTimeAction(i));
-        }
-    };
-    public static final InjuryType INTERNAL_BLEEDING = new InjuryType(9, 20) {
-        @Override
-        public int getRecoveryTime(int severity) {
-            return 20 * severity;
-        }
-        
-        @Override
-        public String getFluffText(BodyLocation loc, int severity, int gender) {
-            switch(severity) {
-                case 2: return "Severe internal bleeding";
-                case 3: return "Critical internal bleeding";
-                default: return "Internal bleeding";
+    // Registry methods
+    private static final Map<String, InjuryType> REGISTRY = new HashMap<>();
+    private static final Map<InjuryType, String> REV_REGISTRY = new HashMap<>();
+    private static final Map<Integer, InjuryType> ID_REGISTRY = new HashMap<>();
+    private static final Map<InjuryType, Integer> REV_ID_REGISTRY = new HashMap<>();
+    
+    public static InjuryType byKey(String key) {
+        InjuryType result = REGISTRY.get(key);
+        if(null == result) {
+            try {
+                result = ID_REGISTRY.get(Integer.valueOf(key));
+            } catch(NumberFormatException nfex) {
+                // Do nothing
             }
         }
-
-        @Override
-        public List<InjuryAction> genStressEffect(Campaign c, Person p, Injury i, int hits) {
-            String secondEffectFluff = (i.getSeverity() < 3)
-                ? "internal bleeding worsening" : "death";
-            if(hits < 5) {
-                int worseningChance = Math.max((int) Math.round((1 + hits) * 100.0 / 6.0), 100);
-                secondEffectFluff = worseningChance + "% chance of " + secondEffectFluff;
-            }
-            if(hits >= 5 && i.getSeverity() >= 3) {
-                // Don't even bother doing anything else; we're dead
-                return Arrays.asList(
-                    new InjuryAction(
-                        "certain death",
-                        (rnd, gen) -> {
-                            p.setStatus(Person.S_KIA);
-                            p.addLogEntry(new LogEntry(c.getDate(), "Died of critical internal bleeding"));
-                        })
-                    );
-            } else {
-                // We have a chance!
-                return Arrays.asList(
-                    newResetRecoveryTimeAction(i),
-                    new InjuryAction(
-                        secondEffectFluff,
-                        (rnd, gen) -> {
-                            if(rnd.applyAsInt(6) + hits >= 5) {
-                                if(i.getSeverity() < 3) {
-                                    i.setSeverity(i.getSeverity() + 1);
-                                } else {
-                                    p.setStatus(Person.S_KIA);
-                                    p.addLogEntry(new LogEntry(c.getDate(), "Died of critical internal bleeding"));
-                                }
-                            }
-                        })
-                    );
-            }
-        }
-    };
-    public static final InjuryType LOST_LIMB = new InjuryType(10, 28) {
-        @Override
-        public String getFluffText(BodyLocation loc, int severity, int gender) {
-            return "Lost " + Person.getGenderPronoun(gender, Person.PRONOUN_HISHER) + " "
-                + loc.readableName;
-        }
-    };
-    public static final InjuryType CEREBRAL_CONTUSION = new InjuryType(11, 90) {
-        @Override
-        public List<InjuryAction> genStressEffect(Campaign c, Person p, Injury i, int hits) {
-            String secondEffectFluff = "development of a chronic traumatic encephalopathy";
-            if(hits < 5) {
-                int worseningChance = Math.max((int) Math.round((1 + hits) * 100.0 / 6.0), 100);
-                secondEffectFluff = worseningChance + "% chance of " + secondEffectFluff;
-            }
-            return Arrays.asList(
-                newResetRecoveryTimeAction(i),
-                new InjuryAction(
-                    secondEffectFluff,
-                    (rnd, gen) -> {
-                        if(rnd.applyAsInt(6) + hits >= 5) {
-                            Injury cte = gen.gen(BodyLocation.HEAD, CTE, 1);
-                            p.addInjury(cte);
-                            p.removeInjury(i);
-                            p.addLogEntry(new LogEntry(c.getDate(), "Developed a chronic traumatic encephalopathy"));
-                        }
-                    })
-                );
-        }
-    };
-    public static final InjuryType PUNCTURED_LUNG = new InjuryType(12, 20) {
-        @Override
-        public List<InjuryAction> genStressEffect(Campaign c, Person p, Injury i, int hits) {
-            return Arrays.asList(newResetRecoveryTimeAction(i));
-        }
-    };
-    public static final InjuryType CTE = new InjuryType(13, 180) {
-        @Override
-        public List<InjuryAction> genStressEffect(Campaign c, Person p, Injury i, int hits) {
-            int deathchance = Math.max((int) Math.round((1 + hits) * 100.0 / 6.0), 100);
-            if(hits > 4) {
-                return Arrays.asList(
-                    new InjuryAction(
-                        "certain death",
-                        (rnd, gen) -> {
-                            p.setStatus(Person.S_KIA);
-                            p.addLogEntry(new LogEntry(c.getDate(), "Died due to brain trauma"));
-                        }));
-            } else {
-                // We have a chance!
-                return Arrays.asList(
-                    newResetRecoveryTimeAction(i),
-                    new InjuryAction(
-                        deathchance + "% chance of death",
-                        (rnd, gen) -> {
-                            if(rnd.applyAsInt(6) + hits >= 5) {
-                                p.setStatus(Person.S_KIA);
-                                p.addLogEntry(new LogEntry(c.getDate(), "Died due to brain trauma"));
-                        }
-                    }));
-            }
-        }
-    };
-    public static final InjuryType BROKEN_BACK = new InjuryType(14, 150) {
-        @Override
-        public List<InjuryAction> genStressEffect(Campaign c, Person p, Injury i, int hits) {
-            return Arrays.asList(new InjuryAction(
-                "20% chance of severing the spine, permanently paralizing the character",
-                (rnd, gen) -> {
-                    if(rnd.applyAsInt(100) < 20) {
-                        Injury severedSpine = gen.gen(BodyLocation.CHEST, SEVERED_SPINE, 1);
-                        p.addInjury(severedSpine);
-                        p.addLogEntry(new LogEntry(c.getDate(), "Severed " + Person.getGenderPronoun(p.getGender(), Person.PRONOUN_HISHER)
-                            + " spine, leaving " + Person.getGenderPronoun(p.getGender(), Person.PRONOUN_HIMHER)
-                            + " paralyzed"));
-                    }
-                }));
-        }
-    };
-    // New injury types go here (or extend the class)
-    public static final InjuryType SEVERED_SPINE = new InjuryType(15, 180) {
-        @Override
-        public String getFluffText(BodyLocation loc, int severity, int gender) {
-            return "A severed spine in " + ((loc == BodyLocation.CHEST) ? "upper" : "lower") + " body";
-        }
-    };
-
-    // Data structures initialization
-    static {
-        // Location checks
-        CUT.locationAllow = (loc) -> loc.isLimb || (loc == BodyLocation.CHEST) || (loc == BodyLocation.ABDOMEN);
-        BRUISE.locationAllow = (loc) -> loc.isLimb || (loc == BodyLocation.CHEST) || (loc == BodyLocation.ABDOMEN);
-        LACERATION.locationAllow = (loc) -> (loc == BodyLocation.HEAD);
-        SPRAIN.locationAllow = (loc) -> loc.isLimb;
-        CONCUSSION.locationAllow = (loc) -> (loc == BodyLocation.HEAD);
-        BROKEN_RIB.locationAllow = (loc) -> (loc == BodyLocation.CHEST);
-        BRUISED_KIDNEY.locationAllow = (loc) -> (loc == BodyLocation.ABDOMEN);
-        BROKEN_LIMB.locationAllow = (loc) -> loc.isLimb;
-        BROKEN_COLLAR_BONE.locationAllow = (loc) -> (loc == BodyLocation.CHEST);
-        INTERNAL_BLEEDING.locationAllow = (loc) -> (loc == BodyLocation.ABDOMEN) || (loc == BodyLocation.INTERNAL);
-        LOST_LIMB.locationAllow = (loc) -> loc.isLimb;
-        CEREBRAL_CONTUSION.locationAllow = (loc) -> (loc == BodyLocation.HEAD);
-        PUNCTURED_LUNG.locationAllow = (loc) -> (loc == BodyLocation.CHEST);
-        CTE.locationAllow = (loc) -> (loc == BodyLocation.HEAD);
-        BROKEN_BACK.locationAllow = (loc) -> (loc == BodyLocation.CHEST);
-        SEVERED_SPINE.locationAllow = (loc) -> (loc == BodyLocation.CHEST) || (loc == BodyLocation.ABDOMEN);
-        
-        // Mark injury flags and values
-        LOST_LIMB.permanent = true;
-        CTE.permanent = true;
-        SEVERED_SPINE.permanent = true;
-        CONCUSSION.maxSeverity = 2;
-        INTERNAL_BLEEDING.maxSeverity = 3;
-        
-        // Texts. TODO: Localization
-        CONCUSSION.fluffText = "A concussion";
-        BROKEN_RIB.fluffText = "A broken rib";
-        BRUISED_KIDNEY.fluffText = "A bruised kidney";
-        BROKEN_COLLAR_BONE.fluffText = "A broken collar bone";
-        CEREBRAL_CONTUSION.fluffText = "A cerebral contusion";
-        PUNCTURED_LUNG.fluffText = "A punctured lung";
-        CTE.fluffText = "Chronic traumatic encephalopathy";
-        BROKEN_BACK.fluffText = "A broken back";
+        return result;
     }
-
-    public final int id;
+    
+    public static InjuryType byId(int id) {
+        return ID_REGISTRY.get(Integer.valueOf(id));
+    }
+    
+    public static void register(int id, String key, InjuryType injType) {
+        Objects.requireNonNull(injType);
+        if(id >= 0) {
+            if(ID_REGISTRY.containsKey(Integer.valueOf(id))) {
+                throw new IllegalArgumentException("Injury type ID " + id + " is already registered.");
+            }
+        }
+        if(REGISTRY.containsKey(Objects.requireNonNull(key))) {
+            throw new IllegalArgumentException("Injury type key \"" + key + "\" is already registered.");
+        }
+        if(key.isEmpty()) {
+            throw new IllegalArgumentException("Injury type key can't be an empty string.");
+        }
+        if(REV_REGISTRY.containsKey(injType)) {
+            throw new IllegalArgumentException("Injury type " + injType + " is already registered");
+        }
+        // All checks done
+        if(id >= 0) {
+            ID_REGISTRY.put(Integer.valueOf(id), injType);
+            REV_ID_REGISTRY.put(injType, Integer.valueOf(id));
+        }
+        REGISTRY.put(key, injType);
+        REV_REGISTRY.put(injType, key);
+    }
+    
+    public static void register(String key, InjuryType injType) {
+        register(-1, key, injType);
+    }
+    
     /** Base recovery time in days */
-    private final int recoveryTime;
-    private boolean permanent = false;
-    private int maxSeverity = 1;
-    private String fluffText = "";
+    protected int recoveryTime = 0;
+    protected boolean permanent = false;
+    protected int maxSeverity = 1;
+    protected String fluffText = "";
     
-    private ToBooleanFunction<BodyLocation> locationAllow = (loc) -> true;
+    protected Set<BodyLocation> allowedLocations = EnumSet.allOf(BodyLocation.class);
     
-    private InjuryType(int id, int recoveryTime) {
-        this.id = id;
-        this.recoveryTime = recoveryTime;
+    protected InjuryType() {
     }
     
-    public boolean isAllowedInLocation(BodyLocation loc) {
-        return locationAllow.applyAsBoolean(loc);
+    public final int getId() {
+        return Utilities.nonNull(InjuryType.REV_ID_REGISTRY.get(this), Integer.valueOf(-1)).intValue();
+    }
+    
+    public final String getKey() {
+        return InjuryType.REV_REGISTRY.get(this);
+    }
+    
+    public boolean isValidInLocation(BodyLocation loc) {
+        return allowedLocations.contains(loc);
     }
     
     public int getBaseRecoveryTime() {
@@ -358,6 +126,7 @@ public class InjuryType {
     }
 
     // Standard actions generators
+    
     protected InjuryAction newResetRecoveryTimeAction(Injury i) {
         return new InjuryAction(
             i.getFluff() + ": recovery timer reset",
@@ -366,6 +135,8 @@ public class InjuryType {
             });
     }
 
+    // Helper classes and interfaces
+    
     /** Why you no have this in java.util.function?!? */
     @FunctionalInterface
     public static interface ToBooleanFunction<T> {
