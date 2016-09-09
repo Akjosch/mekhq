@@ -18,74 +18,77 @@
  */
 package mekhq.campaign.mod.am;
 
+import java.util.Map.Entry;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 import java.util.function.Function;
 
 import mekhq.Utilities;
+import mekhq.campaign.personnel.BodyLocation;
 
 /**
  * Home to static methods returning a random hit location given a random value from 1 to 200
  * and a function to check if a given {@link BodyLocation} is missing.
  */
 public class HitLocationGen {
-    public static BodyLocation generic(int roll, Function<BodyLocation, Boolean> missingCheck) {
+    // Roll tables
+    private static NavigableMap<Integer, BodyLocation> GENERIC_RANDOM_HIT_TABLE = new TreeMap<>();
+    static {
+        GENERIC_RANDOM_HIT_TABLE.put(10, BodyLocation.HEAD);
+        GENERIC_RANDOM_HIT_TABLE.put(30, BodyLocation.CHEST);
+        GENERIC_RANDOM_HIT_TABLE.put(40, BodyLocation.ABDOMEN);
+        GENERIC_RANDOM_HIT_TABLE.put(43, BodyLocation.LEFT_HAND);
+        GENERIC_RANDOM_HIT_TABLE.put(55, BodyLocation.LEFT_ARM);
+        GENERIC_RANDOM_HIT_TABLE.put(58, BodyLocation.RIGHT_HAND);
+        GENERIC_RANDOM_HIT_TABLE.put(70, BodyLocation.RIGHT_ARM);
+        GENERIC_RANDOM_HIT_TABLE.put(76, BodyLocation.LEFT_FOOT);
+        GENERIC_RANDOM_HIT_TABLE.put(100, BodyLocation.LEFT_LEG);
+        GENERIC_RANDOM_HIT_TABLE.put(106, BodyLocation.RIGHT_FOOT);
+        GENERIC_RANDOM_HIT_TABLE.put(130, BodyLocation.RIGHT_LEG);
+        GENERIC_RANDOM_HIT_TABLE.put(133, BodyLocation.RIGHT_HAND);
+        GENERIC_RANDOM_HIT_TABLE.put(145, BodyLocation.RIGHT_ARM);
+        GENERIC_RANDOM_HIT_TABLE.put(148, BodyLocation.LEFT_HAND);
+        GENERIC_RANDOM_HIT_TABLE.put(160, BodyLocation.LEFT_ARM);
+        GENERIC_RANDOM_HIT_TABLE.put(170, BodyLocation.ABDOMEN);
+        GENERIC_RANDOM_HIT_TABLE.put(190, BodyLocation.CHEST);
+        GENERIC_RANDOM_HIT_TABLE.put(200, BodyLocation.HEAD);
+    }
+    private static NavigableMap<Integer, BodyLocation> MECH_RANDOM_HIT_TABLE = new TreeMap<>();
+    static {
+        GENERIC_RANDOM_HIT_TABLE.put(25, BodyLocation.HEAD);
+        GENERIC_RANDOM_HIT_TABLE.put(41, BodyLocation.CHEST);
+        GENERIC_RANDOM_HIT_TABLE.put(48, BodyLocation.ABDOMEN);
+        GENERIC_RANDOM_HIT_TABLE.put(61, BodyLocation.LEFT_ARM);
+        GENERIC_RANDOM_HIT_TABLE.put(74, BodyLocation.RIGHT_ARM);
+        GENERIC_RANDOM_HIT_TABLE.put(79, BodyLocation.LEFT_FOOT);
+        GENERIC_RANDOM_HIT_TABLE.put(100, BodyLocation.LEFT_LEG);
+        GENERIC_RANDOM_HIT_TABLE.put(105, BodyLocation.RIGHT_FOOT);
+        GENERIC_RANDOM_HIT_TABLE.put(126, BodyLocation.RIGHT_LEG);
+        GENERIC_RANDOM_HIT_TABLE.put(131, BodyLocation.RIGHT_HAND);
+        GENERIC_RANDOM_HIT_TABLE.put(139, BodyLocation.RIGHT_ARM);
+        GENERIC_RANDOM_HIT_TABLE.put(144, BodyLocation.LEFT_HAND);
+        GENERIC_RANDOM_HIT_TABLE.put(152, BodyLocation.LEFT_ARM);
+        GENERIC_RANDOM_HIT_TABLE.put(159, BodyLocation.ABDOMEN);
+        GENERIC_RANDOM_HIT_TABLE.put(176, BodyLocation.CHEST);
+        GENERIC_RANDOM_HIT_TABLE.put(200, BodyLocation.HEAD);
+    }
+
+    private static BodyLocation queryRandomTable(NavigableMap<Integer, BodyLocation> table,
+        int roll, Function<BodyLocation, Boolean> missingCheck) {
         missingCheck = Utilities.nonNull(missingCheck, (bl) -> false);
-        BodyLocation result = BodyLocation.GENERIC;
-        if (roll < 10) {
-            result = BodyLocation.HEAD;
-        } else if (roll < 30) {
-            result = BodyLocation.CHEST;
-        } else if (roll < 40) {
-            result = BodyLocation.ABDOMEN;
-        } else if (roll < 55 && !missingCheck.apply(BodyLocation.LEFT_ARM)) {
-            result = BodyLocation.LEFT_ARM;
-        } else if (roll < 70 && !missingCheck.apply(BodyLocation.RIGHT_ARM)) {
-            result = BodyLocation.RIGHT_ARM;
-        } else if (roll < 100 && !missingCheck.apply(BodyLocation.LEFT_LEG)) {
-            result = BodyLocation.LEFT_LEG;
-        } else if (roll < 130 && !missingCheck.apply(BodyLocation.RIGHT_LEG)) {
-            result = BodyLocation.RIGHT_LEG;
-        } else if (roll < 145 && !missingCheck.apply(BodyLocation.RIGHT_ARM)) {
-            result = BodyLocation.RIGHT_ARM;
-        } else if (roll < 160 && !missingCheck.apply(BodyLocation.LEFT_ARM)) {
-            result = BodyLocation.LEFT_ARM;
-        } else if (roll < 170) {
-            result = BodyLocation.ABDOMEN;
-        } else if (roll < 190) {
-            result = BodyLocation.CHEST;
+        Entry<Integer, BodyLocation> entry = table.ceilingEntry(roll + 1);
+        if((null == entry) || missingCheck.apply(entry.getValue())) {
+            return BodyLocation.GENERIC;
         } else {
-            result = BodyLocation.HEAD;
+            return entry.getValue();
         }
-        return result;
+    }
+    
+    public static BodyLocation generic(int roll, Function<BodyLocation, Boolean> missingCheck) {
+        return queryRandomTable(GENERIC_RANDOM_HIT_TABLE, roll, missingCheck);
     }
     
     public static BodyLocation mechAndAsf(int roll, Function<BodyLocation, Boolean> missingCheck) {
-        missingCheck = Utilities.nonNull(missingCheck, (bl) -> false);
-        BodyLocation result = BodyLocation.GENERIC;
-        if (roll < 25) {
-            result = BodyLocation.HEAD;
-        } else if (roll < 41) {
-            result = BodyLocation.CHEST;
-        } else if (roll < 48) {
-            result = BodyLocation.ABDOMEN;
-        } else if (roll < 61 && !missingCheck.apply(BodyLocation.LEFT_ARM)) {
-            result = BodyLocation.LEFT_ARM;
-        } else if (roll < 74 && !missingCheck.apply(BodyLocation.RIGHT_ARM)) {
-            result = BodyLocation.RIGHT_ARM;
-        } else if (roll < 100 && !missingCheck.apply(BodyLocation.LEFT_LEG)) {
-            result = BodyLocation.LEFT_LEG;
-        } else if (roll < 126 && !missingCheck.apply(BodyLocation.RIGHT_LEG)) {
-            result = BodyLocation.RIGHT_LEG;
-        } else if (roll < 139 && !missingCheck.apply(BodyLocation.RIGHT_ARM)) {
-            result = BodyLocation.RIGHT_ARM;
-        } else if (roll < 152 && !missingCheck.apply(BodyLocation.LEFT_ARM)) {
-            result = BodyLocation.LEFT_ARM;
-        } else if (roll < 159) {
-            result = BodyLocation.ABDOMEN;
-        } else if (roll < 176) {
-            result = BodyLocation.CHEST;
-        } else {
-            result = BodyLocation.HEAD;
-        }
-        return result;
+        return queryRandomTable(MECH_RANDOM_HIT_TABLE, roll, missingCheck);
     }
 }

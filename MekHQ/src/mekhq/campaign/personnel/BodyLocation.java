@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with MekHQ.  If not, see <http://www.gnu.org/licenses/>.
  */
-package mekhq.campaign.mod.am;
+package mekhq.campaign.personnel;
 
 import java.util.Arrays;
 import java.util.EnumSet;

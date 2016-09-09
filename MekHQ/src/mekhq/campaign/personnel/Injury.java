@@ -31,7 +31,6 @@ import org.w3c.dom.NodeList;
 import mekhq.MekHQ;
 import mekhq.MekHqXmlUtil;
 import mekhq.Utilities;
-import mekhq.campaign.mod.am.BodyLocation;
 
 // Injury class based on Jayof9s' <jayof9s@gmail.com> Advanced Medical documents
 public class Injury {

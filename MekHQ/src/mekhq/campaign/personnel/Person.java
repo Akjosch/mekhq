@@ -73,7 +73,6 @@ import mekhq.campaign.CampaignOptions;
 import mekhq.campaign.ExtraData;
 import mekhq.campaign.LogEntry;
 import mekhq.campaign.event.InjuryEvent;
-import mekhq.campaign.mod.am.BodyLocation;
 import mekhq.campaign.parts.Part;
 import mekhq.campaign.unit.Unit;
 import mekhq.campaign.work.IAcquisitionWork;

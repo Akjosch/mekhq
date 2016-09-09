@@ -34,6 +34,7 @@ import megamek.common.Entity;
 import megamek.common.Mech;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.event.InjuryEvent;
+import mekhq.campaign.personnel.BodyLocation;
 import mekhq.campaign.personnel.Injury;
 import mekhq.campaign.personnel.InjuryType;
 import mekhq.campaign.personnel.Person;
@@ -50,7 +51,6 @@ public final class InjuryUtil {
     }
     
     public static Collection<Injury> genInjuries(Campaign campaign, Person person, int hits) {
-        Collection<Injury> new_injuries = resolveSpecialDamage(campaign, person, hits);
         Entity en = null;
         Unit u = campaign.getUnit(person.getUnitId());
         boolean mwasf = false;
@@ -66,7 +66,7 @@ public final class InjuryUtil {
                 = (mwasf ? HitLocationGen::mechAndAsf : HitLocationGen::generic);
             BodyLocation location = BodyLocation.GENERIC;
             while(location == BodyLocation.GENERIC) {
-                location = generator.apply(Compute.randomInt(200), InjuryUtil::isLocationMissing);
+                location = generator.apply(Compute.randomInt(200), (loc) -> isLocationMissing(person, loc));
             }
 
             // apply hit here
@@ -111,67 +111,24 @@ public final class InjuryUtil {
         });
     }
     
-    private static Collection<Injury> resolveSpecialDamage(Campaign campaign, Person person, int hits) {
-        ArrayList<Injury> new_injuries = new ArrayList<Injury>();
-        for (Injury injury : person.getInjuries()) {
-            int injType = injury.getType();
-
-            if((injType == Injury.INJ_BROKEN_BACK) && Compute.randomInt(100) < 20) {
-                changeStatus(S_RETIRED);
-                injury.setPermanent(true);
-            }
-
-            if(injType == Injury.INJ_BROKEN_RIB) {
-                int rib = Compute.randomInt(100);
-                if (rib < 1) {
-                    changeStatus(S_KIA);
-                } else if (rib < 10) {
-                    new_injuries.add(new Injury(genHealingTime(campaign, Injury.INJ_PUNCTURED_LUNG, hits, person), Injury.generateInjuryFluffText(Injury.INJ_PUNCTURED_LUNG, injury.getLocation(), gender), injury.getLocation(), Injury.INJ_PUNCTURED_LUNG, hit_location[injury.getLocation()], false));
-                }
-            }
-
-            if(injType == Injury.INJ_BRUISED_KIDNEY) {
-                if (Compute.randomInt(100) < 10) {
-                    hit_location[injury.getLocation()] = 3;
-                }
-            }
-
-            // Now reset all messages and healing times.
-            if(((Compute.d6() + hits) > 5) &&
-                ((injType == Injury.INJ_CTE) || (injType == Injury.INJ_CONCUSSION)
-                    || (injType == Injury.INJ_CEREBRAL_CONTUSION) || (injType == Injury.INJ_INTERNAL_BLEEDING))) {
-                injury.setHits(injury.getHits() + 1);
-                injury.setFluff(Injury.generateInjuryFluffText(injury.getType(), injury.getLocation(), PRONOUN_HISHER));
+    /**
+     * @return <tt>true</tt> if the location (or any of its parent locations) has an injury
+     * which implies that the location (most likely a limb) is severed.
+     */
+    public static boolean isLocationMissing(Person p, BodyLocation loc) {
+        // AM doesn't actually care about missing heads right now ...
+        if((null == loc) || !loc.isLimb) {
+            return false;
+        }
+        for(Injury i : p.getInjuriesByLocation(loc)) {
+            if(i.getType().impliesMissingLocation()) {
+                return true;
             }
         }
-
-        return new_injuries;
+        // Check parent locations as well (a hand can be missing if the corresponding arm is)
+        return isLocationMissing(p, loc.parent);
     }
 
-
-    private static boolean isLocationMissing(Person p, BodyLocation loc) {
-        boolean retVal = false;
-        for (Injury i : p.getInjuriesByLocation(loc)) {
-            if (i.getType() == Injury.INJ_LOST_LIMB) {
-                retVal = true;
-                break;
-            }
-        }
-        return retVal;
-    }
-
-    private static void resolvePostDamage(BodyLocation location, Collection<Injury> injuries) {
-    for (Injury injury : injuries) {
-        if (location == BodyLocation.of(injury.getLocation())
-            && (injury.getType() == Injury.INJ_INTERNAL_BLEEDING
-                || location == BodyLocation.HEAD
-                || injury.getType() == Injury.INJ_BROKEN_BACK)
-            && hit_location[location] > 5) {
-            hit_location[location] = 0;
-            changeStatus(S_KIA);
-        }
-    }
-}
 
     private static ArrayList<Injury> applyDamage(Person p, BodyLocation loc) {
         ArrayList<Injury> new_injuries = new ArrayList<Injury>();

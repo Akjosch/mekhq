@@ -12,7 +12,6 @@ import java.util.function.IntUnaryOperator;
 
 import mekhq.Utilities;
 import mekhq.campaign.Campaign;
-import mekhq.campaign.mod.am.BodyLocation;
 
 public class InjuryType {
     // Registry methods
@@ -97,6 +96,11 @@ public class InjuryType {
     
     public boolean isValidInLocation(BodyLocation loc) {
         return allowedLocations.contains(loc);
+    }
+    
+    /** Does having this injury mean the location is missing? (Amputation, genetic defect, ...) */
+    public boolean impliesMissingLocation() {
+        return false;
     }
     
     public int getBaseRecoveryTime() {

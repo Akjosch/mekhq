@@ -7,6 +7,7 @@ import java.util.List;
 import mekhq.Utilities;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.LogEntry;
+import mekhq.campaign.personnel.BodyLocation;
 import mekhq.campaign.personnel.Injury;
 import mekhq.campaign.personnel.InjuryType;
 import mekhq.campaign.personnel.Person;
@@ -173,6 +174,11 @@ public class InjuryTypes {
         @Override
         public boolean isValidInLocation(BodyLocation loc) {
             return loc.isLimb;
+        }
+        
+        @Override
+        public boolean impliesMissingLocation() {
+            return true;
         }
         
         @Override
@@ -461,5 +467,4 @@ public class InjuryTypes {
                 + loc.readableName;
         }
     }
-
 }
