@@ -39,6 +39,7 @@ import mekhq.campaign.event.InjuryEvent;
 import mekhq.campaign.personnel.BodyLocation;
 import mekhq.campaign.personnel.Injury;
 import mekhq.campaign.personnel.InjuryType;
+import mekhq.campaign.personnel.InjuryType.InjuryProducer;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.unit.Unit;
 
@@ -131,82 +132,89 @@ public final class InjuryUtil {
 
 
     private static List<Injury> applyDamage(Person p, BodyLocation loc, int hits) {
-        ArrayList<Injury> new_injuries = new ArrayList<Injury>();
+        List<Injury> newInjuries = new ArrayList<Injury>();
         boolean bad_status = (p.getStatus() == Person.S_KIA || p.getStatus() == Person.S_MIA);
+        final InjuryProducer gen = newInjuryGenerator(p);
+        
+        switch(loc) {
+            case LEFT_ARM: case LEFT_HAND: case LEFT_LEG: case LEFT_FOOT:
+            case RIGHT_ARM: case RIGHT_HAND: case RIGHT_LEG: case RIGHT_FOOT:
+                switch(hits) {
+                    case 1:
+                        newInjuries.add(gen.gen(loc,
+                            Compute.randomInt(2) == 0 ? InjuryTypes.CUT : InjuryTypes.BRUISE, 1));
+                        break;
+                    case 2:
+                        newInjuries.add(gen.gen(loc, InjuryTypes.SPRAIN, 1));
+                        break;
+                    case 3:
+                        newInjuries.add(gen.gen(loc, InjuryTypes.BROKEN_LIMB, 1));
+                        break;
+                    case 4:
+                        newInjuries.add(gen.gen(loc, InjuryTypes.LOST_LIMB, 1));
+                        break;
+                }
+                break;
+            case HEAD:
+                switch(hits) {
+                    case 1:
+                        newInjuries.add(gen.gen(loc, InjuryTypes.LACERATION, 1));
+                        break;
+                    case 2: case 3:
+                        newInjuries.add(gen.gen(loc, InjuryTypes.CONCUSSION, hits - 1));
+                        break;
+                    case 4:
+                        newInjuries.add(gen.gen(loc, InjuryTypes.CEREBRAL_CONTUSION, 1));
+                        break;
+                    default:
+                        newInjuries.add(gen.gen(loc, InjuryTypes.CTE, 1));
+                        break;
+                }
+                break;
+            case CHEST:
+                switch(hits) {
+                    case 1:
+                        newInjuries.add(gen.gen(loc,
+                            Compute.randomInt(2) == 0 ? InjuryTypes.CUT : InjuryTypes.BRUISE, 1));
+                        break;
+                    case 2:
+                        newInjuries.add(gen.gen(loc, InjuryTypes.BROKEN_RIB, 1));
+                        break;
+                    case 3:
+                        newInjuries.add(gen.gen(loc, InjuryTypes.BROKEN_COLLAR_BONE, 1));
+                        break;
+                    case 4:
+                        newInjuries.add(gen.gen(loc, InjuryTypes.PUNCTURED_LUNG, 1));
+                        break;
+                    default:
+                        newInjuries.add(gen.gen(loc, InjuryTypes.BROKEN_BACK, 1));
+                        if(Compute.randomInt(100) < 15) {
+                            newInjuries.add(gen.gen(loc, InjuryTypes.SEVERED_SPINE, 1));
+                        }
+                        break;
+                }
+                break;
+            case ABDOMEN:
+                switch(hits) {
+                    case 1:
+                        newInjuries.add(gen.gen(loc,
+                            Compute.randomInt(2) == 0 ? InjuryTypes.CUT : InjuryTypes.BRUISE, 1));
+                        break;
+                    case 2:
+                        newInjuries.add(gen.gen(loc, InjuryTypes.BRUISED_KIDNEY, 1));
+                        break;
+                    default:
+                        newInjuries.add(gen.gen(loc, InjuryTypes.INTERNAL_BLEEDING, hits - 2));
+                        break;
+                }
+                break;
+        }
         int roll = Compute.randomInt(2);
         InjuryType type = Injury.getInjuryTypeByLocation(loc, roll, hits);
         if (p.hasInjury(loc, type)) {
             Injury injury = p.getInjuryByLocationAndType(loc, type);
             injury.setTime(genHealingTime(p, injury));
             return new_injuries;
-        }
-        switch (location) {
-            case BODY_LEFT_ARM:
-            case BODY_RIGHT_ARM:
-            case BODY_LEFT_LEG:
-            case BODY_RIGHT_LEG:
-                if (hit_location[location] == 1) {
-                    if (roll == 2) {
-                        new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_CUT, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_CUT, location, gender), location, Injury.INJ_CUT, hit_location[location], false, bad_status));
-                    } else {
-                        new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_BRUISE, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_BRUISE, location, gender), location, Injury.INJ_BRUISE, hit_location[location], false, bad_status));
-                    }
-                } else if (hit_location[location] == 2) {
-                    new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_SPRAIN, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_SPRAIN, location, gender), location, Injury.INJ_SPRAIN, hit_location[location], false, bad_status));
-                } else if (hit_location[location] == 3) {
-                    new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_BROKEN_LIMB, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_BROKEN_LIMB, location, gender), location, Injury.INJ_BROKEN_LIMB, hit_location[location], false, bad_status));
-                } else if (hit_location[location] > 3) {
-                    new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_LOST_LIMB, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_LOST_LIMB, location, gender), location, Injury.INJ_LOST_LIMB, hit_location[location], true));
-                }
-                break;
-            case BODY_HEAD:
-                if (hit_location[location] == 1) {
-                    new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_LACERATION, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_LACERATION, location, gender), location, Injury.INJ_LACERATION, hit_location[location], false, bad_status));
-                } else if (hit_location[location] == 2 || hit_location[location] == 3) {
-                    new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_CONCUSSION, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_CONCUSSION, location, gender), location, Injury.INJ_CONCUSSION, hit_location[location], false, bad_status));
-                } else if (hit_location[location] == 4) {
-                    new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_CEREBRAL_CONTUSION, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_CEREBRAL_CONTUSION, location, gender), location, Injury.INJ_CEREBRAL_CONTUSION, hit_location[location], false, bad_status));
-                } else if (hit_location[location] > 4) {
-                    new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_CTE, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_CTE, location, gender), location, Injury.INJ_CTE, hit_location[location], true));
-                }
-                break;
-            case BODY_CHEST:
-                if (hit_location[location] == 1) {
-                    if (roll == 2) {
-                        new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_CUT, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_CUT, location, gender), location, Injury.INJ_CUT, hit_location[location], false, bad_status));
-                    } else {
-                        new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_BRUISE, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_BRUISE, location, gender), location, Injury.INJ_BRUISE, hit_location[location], false, bad_status));
-                    }
-                } else if (hit_location[location] == 2) {
-                    new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_BROKEN_RIB, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_BROKEN_RIB, location, gender), location, Injury.INJ_BROKEN_RIB, hit_location[location], false, bad_status));
-                } else if (hit_location[location] == 3) {
-                    new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_BROKEN_COLLAR_BONE, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_BROKEN_COLLAR_BONE, location, gender), location, Injury.INJ_BROKEN_COLLAR_BONE, hit_location[location], false, bad_status));
-                } else if (hit_location[location] == 4) {
-                    new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_PUNCTURED_LUNG, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_PUNCTURED_LUNG, location, gender), location, Injury.INJ_PUNCTURED_LUNG, hit_location[location], false, bad_status));
-                } else if (hit_location[location] > 4) {
-                    if (Compute.randomInt(100) < 15) {
-                        changeStatus(Person.S_RETIRED);
-                        new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_BROKEN_BACK, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_BROKEN_BACK, location, gender), location, Injury.INJ_BROKEN_BACK, hit_location[location], true));
-                    } else {
-                        new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_BROKEN_BACK, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_BROKEN_BACK, location, gender), location, Injury.INJ_BROKEN_BACK, hit_location[location], false, bad_status));
-                    }
-                }
-                break;
-            case BODY_ABDOMEN:
-                if (hit_location[location] == 1) {
-                    if (roll == 2) {
-                        new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_CUT, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_CUT, location, gender), location, Injury.INJ_CUT, hit_location[location], false, bad_status));
-                    } else {
-                        new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_BRUISE, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_BRUISE, location, gender), location, Injury.INJ_BRUISE, hit_location[location], false, bad_status));
-                    }
-                } else if (hit_location[location] == 2) {
-                    new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_BRUISED_KIDNEY, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_BRUISED_KIDNEY, location, gender), location, Injury.INJ_BRUISED_KIDNEY, hit_location[location], false, bad_status));
-                } else if (hit_location[location] > 2) {
-                    new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_INTERNAL_BLEEDING, hit_location[location], this), Injury.generateInjuryFluffText(Injury.INJ_INTERNAL_BLEEDING, location, gender), location, Injury.INJ_INTERNAL_BLEEDING, hit_location[location], false, bad_status));
-                }
-                break;
-            default:
-                System.err.println("ERROR: Default CASE reached in (Advanced Medical Section) Person.applyDamage()");
         }
         if (location == BODY_HEAD) {
             Injury inj = getInjuryByLocation(BODY_HEAD);
