@@ -20,6 +20,7 @@ package mekhq.campaign.mod.am;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
@@ -39,7 +40,15 @@ import mekhq.campaign.personnel.Person;
 import mekhq.campaign.unit.Unit;
 
 public final class InjuryUtil {
-
+    private static InjuryType.InjuryProducer newInjuryGenerator(Person person) {
+        return (loc, type, severity) ->
+        {
+            int recoveryTime = genHealingTime(person, type, severity);
+            String fluff = type.getFluffText(loc, severity, person.getGender());
+            return new Injury(recoveryTime, fluff, loc, type, severity, false);
+        };
+    }
+    
     public static Collection<Injury> genInjuries(Campaign campaign, Person person, int hits) {
         Collection<Injury> new_injuries = resolveSpecialDamage(campaign, person, hits);
         Entity en = null;
@@ -87,36 +96,19 @@ public final class InjuryUtil {
     }
 
     /** Resolve injury modifications in case of entering combat with active ones */
-    public static void resolveCombat(InjuryEvent event) {
-        final int hits = event.getHits();
-        final Person person = event.getPerson();
-
-        Map<Injury, Consumer<IntUnaryOperator>> injuryHandlers =
-            person.getInjuries().stream().collect(Collectors.toMap(Function.identity(),
-                (inj) -> (
-                    (randomizer) -> inj.getInjuryType().worsenCondition(person, inj, hits, Compute::randomInt))));
+    public static void resolveCombat(Campaign c, Person person, int hits) {
+        // Gather all the injury actions resulting from the combat situation
+        final List<InjuryType.InjuryAction> actions = new ArrayList<>();
+        person.getInjuries().forEach((i) ->
+        {
+            actions.addAll(i.getType().genStressEffect(c, person, i, hits));
+        });
         
-        for(Injury injury : event.getPerson().getInjuries()) {
-            InjuryType type = injury.injType;
-            if(type.relapseCheck(Compute::randomInt, event.getHits())) {
-                injury.setTime(injury.getOriginalTime());
-            }
-            switch(type.detoriationCheck(Compute::randomInt, event.getHits())) {
-                case CHANGE:
-                    int newStatus = type.detoriate(injury, event.getHits(), event.getNewStatus());
-                    event.setNewStatus(newStatus);
-                    break;
-                case NEW_INJURY:
-                    Injury newInjury = type.newWorseInjury(injury, event.getHits(), event.getNewStatus());
-                    if(null != newInjury) {
-                        event.getInjuries().add(newInjury);
-                    }
-                    break;
-                default:
-                    // Do nothing
-                    break;
-            }
-        }
+        // We could do some fancy display-to-the-user thing here, but for now just resolve all actions
+        actions.forEach((ia) ->
+        {
+            ia.action.accept(Compute::randomInt, newInjuryGenerator(person));
+        });
     }
     
     private static Collection<Injury> resolveSpecialDamage(Campaign campaign, Person person, int hits) {
@@ -134,7 +126,7 @@ public final class InjuryUtil {
                 if (rib < 1) {
                     changeStatus(S_KIA);
                 } else if (rib < 10) {
-                    new_injuries.add(new Injury(Injury.generateHealingTime(campaign, Injury.INJ_PUNCTURED_LUNG, hits, person), Injury.generateInjuryFluffText(Injury.INJ_PUNCTURED_LUNG, injury.getLocation(), gender), injury.getLocation(), Injury.INJ_PUNCTURED_LUNG, hit_location[injury.getLocation()], false));
+                    new_injuries.add(new Injury(genHealingTime(campaign, Injury.INJ_PUNCTURED_LUNG, hits, person), Injury.generateInjuryFluffText(Injury.INJ_PUNCTURED_LUNG, injury.getLocation(), gender), injury.getLocation(), Injury.INJ_PUNCTURED_LUNG, hit_location[injury.getLocation()], false));
                 }
             }
 
@@ -157,9 +149,9 @@ public final class InjuryUtil {
     }
 
 
-    private static boolean isLocationMissing(BodyLocation loc) {
+    private static boolean isLocationMissing(Person p, BodyLocation loc) {
         boolean retVal = false;
-        for (Injury i : getInjuriesByLocation(loc)) {
+        for (Injury i : p.getInjuriesByLocation(loc)) {
             if (i.getType() == Injury.INJ_LOST_LIMB) {
                 retVal = true;
                 break;
@@ -181,14 +173,14 @@ public final class InjuryUtil {
     }
 }
 
-    private static ArrayList<Injury> applyDamage(BodyLocation location) {
+    private static ArrayList<Injury> applyDamage(Person p, BodyLocation loc) {
         ArrayList<Injury> new_injuries = new ArrayList<Injury>();
-        boolean bad_status = (getStatus() == S_KIA || getStatus() == S_MIA);
+        boolean bad_status = (p.getStatus() == S_KIA || p.getStatus() == S_MIA);
         int roll = Compute.randomInt(2);
-        int type = Injury.getInjuryTypeByLocation(location, roll, hit_location[location]);
-        if (hasInjury(location, type)) {
-            Injury injury = getInjuryByLocationAndType(location, type);
-            injury.setTime(Injury.generateHealingTime(campaign, injury.getType(), injury.getHits(), this));
+        InjuryType type = Injury.getInjuryTypeByLocation(loc, roll, hit_location[location]);
+        if (p.hasInjury(loc, type)) {
+            Injury injury = p.getInjuryByLocationAndType(loc, type);
+            injury.setTime(genHealingTime(p, injury));
             return new_injuries;
         }
         switch (location) {
@@ -273,4 +265,24 @@ public final class InjuryUtil {
         return new_injuries;
     }
     
+    /** Called when creating a new injury to generate a slightly randomized healing time */
+    public static int genHealingTime(Person p, Injury i) {
+        return genHealingTime(p, i.getType(), i.getSeverity());
+    }
+    
+    public static int genHealingTime(Person p, InjuryType itype, int severity) {
+        int mod = 100;
+        int rand = Compute.randomInt(100);
+        if(rand < 5) {
+            mod += (Compute.d6() < 4) ? rand : -rand;
+        }
+        
+        int time = itype.getRecoveryTime(severity);
+        if(itype == InjuryType.LACERATION) {
+            time += Compute.d6();
+        }
+
+        time = Math.round(time * mod * p.getAbilityTimeModifier() / 10000);
+        return time;
+    }
 }

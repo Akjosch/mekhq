@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -72,6 +73,7 @@ import mekhq.campaign.CampaignOptions;
 import mekhq.campaign.ExtraData;
 import mekhq.campaign.LogEntry;
 import mekhq.campaign.event.InjuryEvent;
+import mekhq.campaign.mod.am.BodyLocation;
 import mekhq.campaign.parts.Part;
 import mekhq.campaign.unit.Unit;
 import mekhq.campaign.work.IAcquisitionWork;
@@ -3245,7 +3247,7 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
         hit_location[location]++;
     }
 
-    public boolean hasInjury(int loc, int type) {
+    public boolean hasInjury(BodyLocation loc, InjuryType type) {
         if (getInjuryByLocationAndType(loc, type) != null) {
             return true;
         } else {
@@ -3390,48 +3392,28 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
     	return true;
     }
 
-    public ArrayList<Injury> getInjuriesByLocation(int loc) {
-        ArrayList<Injury> i = new ArrayList<Injury>();
-        for (Injury injury : getInjuries()) {
-            if (injury.getLocation() == loc) {
-                i.add(injury);
-            }
-        }
-        return i;
+    /** @return the injuries in a given body location */
+    public List<Injury> getInjuriesByLocation(BodyLocation loc) {
+        return getInjuries().stream()
+            .filter((i) -> (i.getLocation() == loc)).collect(Collectors.toList());
     }
 
-
-    // Returns only the first injury in a location
-    public Injury getInjuryByLocation(int loc) {
-        Injury i = null;
-        for (Injury injury : getInjuries()) {
-            if (injury.getLocation() == loc) {
-                i = injury;
-                break;
-            }
-        }
-        return i;
+    /** @return the first injury in a body location, or <tt>null</tt> if there isn't any */
+    public Injury getInjuryByLocation(BodyLocation loc) {
+        return getInjuries().stream()
+            .filter((i) -> (i.getLocation() == loc)).findFirst().orElse(null);
     }
 
-    public Injury getInjuryByType(int t) {
-        Injury i = null;
-        for (Injury injury : getInjuries()) {
-            if (injury.getType() == t) {
-                i = injury;
-                break;
-            }
-        }
-        return i;
+    /** @return the first injury of a given type, or <tt>null</tt> if there isn't any */
+    public Injury getInjuryByType(InjuryType t) {
+        return getInjuries().stream()
+            .filter((i) -> (i.getType() == t)).findFirst().orElse(null);
     }
 
-    public Injury getInjuryByLocationAndType(int loc, int t) {
-        Injury i = null;
-        for (Injury injury : injuries) {
-            if (injury.getType() == t && injury.getLocation() == loc) {
-                i = injury;
-            }
-        }
-        return i;
+    /** @return the first injury of a given type in a location, or <tt>null</tt> if there isn't any */
+    public Injury getInjuryByLocationAndType(BodyLocation loc, InjuryType t) {
+        return getInjuries().stream()
+            .filter((i) -> (i.getLocation() == loc) && (i.getType() == t)).findFirst().orElse(null);
     }
 
     public void addInjury(Injury i) {

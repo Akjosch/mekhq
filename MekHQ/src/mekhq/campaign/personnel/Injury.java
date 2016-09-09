@@ -48,17 +48,12 @@ public class Injury {
     private int originalDays;
     /** 0 = past injury, for scars, 1 = default, max depends on type */
     private int severity;
-    private int location;
-    private int type;
+    private BodyLocation location;
+    private InjuryType type;
     private boolean permanent;
     private boolean workedOn;
     private boolean extended;
     protected UUID id;
-    
-    public InjuryType injType;
-    public InjuryType getInjuryType() {
-        return injType;
-    }
     
     // Static defines for type of injury
     // Do not reorder these for backwards compatibility!
@@ -90,25 +85,25 @@ public class Injury {
         days = 0;
         originalDays = 0;
         severity = 1;
-        location = 0;
-        type = 0;
+        location = BodyLocation.GENERIC;
+        type = null;
         permanent = false;
         workedOn = false;
         extended = false;
     }
     
      // Normal constructor for a new injury that has not been treated by a doctor & does not have extended time
-    public Injury(int time, String text, int loc, int type, int num, boolean perm) {
+    public Injury(int time, String text, BodyLocation loc, InjuryType type, int num, boolean perm) {
         this(time, text, loc, type, num, perm, false);
     }
 
     // Constructor if this injury has been treated by a doctor, but without extended time
-    public Injury(int time, String text, int loc, int type, int num, boolean perm, boolean workedOn) {
+    public Injury(int time, String text, BodyLocation loc, InjuryType type, int num, boolean perm, boolean workedOn) {
         this(time, text, loc, type, num, perm, workedOn, false);
     }
     
     // Constructor for when this injury has extended time, full options includng worked on by a doctor
-    public Injury(int time, String text, int loc, int type, int num, boolean perm, boolean workedOn, boolean extended) {
+    public Injury(int time, String text, BodyLocation loc, InjuryType type, int num, boolean perm, boolean workedOn, boolean extended) {
         setTime(time);
         setOriginalTime(time);
         setFluff(text);
@@ -162,11 +157,11 @@ public class Injury {
         fluff = text;
     }
     
-    public int getLocation() {
+    public BodyLocation getLocation() {
         return location;
     }
     
-    public void setLocation(int loc) {
+    public void setLocation(BodyLocation loc) {
         location = loc;
     }
     
@@ -209,11 +204,11 @@ public class Injury {
         workedOn = wo;
     }
     
-    public int getType() {
+    public InjuryType getType() {
         return type;
     }
     
-    public void setType(int type) {
+    public void setType(InjuryType type) {
         this.type = type;
     }
     // End Details Methods
@@ -558,77 +553,5 @@ public class Injury {
             break;
         }
         return 0;
-    }
-    
-    // Called when creating a new injury to generate a slightly randomized healing time
-    public static int generateHealingTime(Campaign c, int type, int hits, Person p) {
-        int rand = Compute.randomInt(100);
-        int mod = 100;
-        int time;
-        if (rand < 5) {
-            if (Compute.d6() < 4) {
-                mod += rand;
-            } else {
-                mod -= rand;
-            }
-        }
-        switch (type) {
-        case INJ_CUT:
-        case INJ_BRUISE:
-        case INJ_LACERATION:
-            time = Compute.d6();
-            break;
-        case INJ_SPRAIN:
-            time = 12;
-            break;
-        case INJ_CONCUSSION:
-            if (hits > 2) {
-                time = (14*3);
-            } else {
-                time = 14;
-            }
-            break;
-        case INJ_BROKEN_RIB:
-            time = 20;
-            break;
-        case INJ_BRUISED_KIDNEY:
-            time = 10;
-            break;
-        case INJ_BROKEN_LIMB:
-            time = 30;
-            break;
-        case INJ_BROKEN_COLLAR_BONE:
-            time = 22;
-            break;
-        case INJ_INTERNAL_BLEEDING:
-            time = 20;
-            if (hits == 4) {
-                time = time * 2;
-            } if (hits == 5) {
-                time = time * 3;
-            }
-            break;
-        case INJ_LOST_LIMB:
-            time = 28;
-            break;
-        case INJ_CEREBRAL_CONTUSION:
-            time = 90;
-            break;
-        case INJ_PUNCTURED_LUNG:
-            time = 20;
-            break;
-        case INJ_CTE:
-            time = 180;
-            break;
-        case INJ_BROKEN_BACK:
-            time = 150;
-            break;
-        default:
-            System.err.println("ERROR: Default CASE reached in (Advanced Medical Section) Person.generateHealingTime()");
-            return Compute.d6()+5;
-        }
-        time = Math.round(time * mod / 100);
-        time = Math.round(time * p.getAbilityTimeModifier() / 100);
-        return time;
     }
 }
