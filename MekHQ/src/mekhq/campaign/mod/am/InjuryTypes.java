@@ -32,6 +32,7 @@ import mekhq.campaign.personnel.InjuryType;
 import mekhq.campaign.personnel.Modifier;
 import mekhq.campaign.personnel.Person;
 
+/** Advanced Medical sub-system injury types */
 public class InjuryTypes {
     // Predefined types
     public static final InjuryType CUT = new InjuryTypes.Cut();

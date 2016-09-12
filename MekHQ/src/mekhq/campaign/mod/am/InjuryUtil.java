@@ -42,8 +42,8 @@ import mekhq.campaign.unit.Unit;
 
 public final class InjuryUtil {
     /** Run a daily healing check */
-    public static void resolveDailyHealing(Person p) {
-        ArrayList<Injury> removals = new ArrayList<Injury>();
+    public static void resolveDailyHealing(Campaign c, Person p) {
+        final ArrayList<Injury> removals = new ArrayList<Injury>();
         p.getInjuries().forEach((i) -> {
             i.setTime(Math.max(i.getTime() - 1, 0));
             if(i.getTime() < 1 && !i.isPermanent()) {
@@ -60,11 +60,39 @@ public final class InjuryUtil {
         removals.forEach((i) -> p.removeInjury(i));
     }
 
-    private static InjuryType.InjuryProducer newInjuryGenerator(Person person) {
+    /** Resolve injury modifications in case of entering combat with active ones */
+    public static void resolveAfterCombat(Campaign c, Person p, int hits) {
+        // Gather all the injury actions resulting from the combat situation
+        final List<InjuryType.InjuryAction> actions = new ArrayList<>();
+        p.getInjuries().forEach((i) ->
+        {
+            actions.addAll(i.getType().genStressEffect(c, p, i, hits));
+        });
+        
+        // We could do some fancy display-to-the-user thing here, but for now just resolve all actions
+        actions.forEach((ia) ->
+        {
+            ia.action.accept(Compute::randomInt, newInjuryGenerator(c, p));
+        });
+    }
+    
+    /** Resolve effects of damage suffered during combat */
+    public static void resolveCombatDamage(Campaign c, Person person, int hits) {
+        Collection<Injury> newInjuries = genInjuries(c, person, hits);
+        newInjuries.forEach((inj) -> person.addInjury(inj));
+        if (newInjuries.size() > 0) {
+            StringBuilder sb = new StringBuilder("Returned from combat with the following new injuries:");
+            newInjuries.forEach((inj) -> sb.append("\n\t\t").append(inj.getFluff()));
+            person.addLogEntry(c.getDate(), sb.toString());
+        }
+    }
+    
+
+    private static InjuryType.InjuryProducer newInjuryGenerator(Campaign c, Person p) {
         return (loc, type, severity) ->
         {
-            int recoveryTime = genHealingTime(person, type, severity);
-            String fluff = type.getFluffText(loc, severity, person.getGender());
+            int recoveryTime = genHealingTime(c, p, type, severity);
+            String fluff = type.getFluffText(loc, severity, p.getGender());
             return new Injury(recoveryTime, fluff, loc, type, severity, false);
         };
     }
@@ -77,8 +105,11 @@ public final class InjuryUtil {
         }
     }
     
-    public static Collection<Injury> genInjuries(Campaign campaign, Person person, int hits) {
-        final Unit u = campaign.getUnit(person.getUnitId());
+    // Generator methods. Those don't change the state of the person.
+    
+    /** Generate combat injuries spread through the whole body */
+    public static Collection<Injury> genInjuries(Campaign c, Person p, int hits) {
+        final Unit u = c.getUnit(p.getUnitId());
         final Entity en = (null != u) ? u.getEntity() : null;
         final boolean mwasf = (null != en) && ((en instanceof Mech) || (en instanceof Aero));
         final int critMod = mwasf ? 0 : 2;
@@ -88,7 +119,7 @@ public final class InjuryUtil {
         
         for (int i = 0; i < hits; i++) {
             BodyLocation location
-                = generator.apply(Compute::randomInt, (loc) -> !isLocationMissing(person, loc));
+                = generator.apply(Compute::randomInt, (loc) -> !p.isLocationMissing(loc));
 
             // apply hit here
             addHitToAccumulator(hitAccumulator, location);
@@ -100,59 +131,15 @@ public final class InjuryUtil {
         }
         List<Injury> newInjuries = new ArrayList<>();
         for(Entry<BodyLocation, Integer> accEntry : hitAccumulator.entrySet()) {
-            newInjuries.addAll(genSpecificInjury(person, accEntry.getKey(), accEntry.getValue().intValue()));
+            newInjuries.addAll(genInjuries(c, p, accEntry.getKey(), accEntry.getValue().intValue()));
         }
         return newInjuries;
     }
 
-    /** Resolve injury modifications in case of entering combat with active ones */
-    public static void resolveAfterCombat(Campaign c, Person person, int hits) {
-        // Gather all the injury actions resulting from the combat situation
-        final List<InjuryType.InjuryAction> actions = new ArrayList<>();
-        person.getInjuries().forEach((i) ->
-        {
-            actions.addAll(i.getType().genStressEffect(c, person, i, hits));
-        });
-        
-        // We could do some fancy display-to-the-user thing here, but for now just resolve all actions
-        actions.forEach((ia) ->
-        {
-            ia.action.accept(Compute::randomInt, newInjuryGenerator(person));
-        });
-    }
-    
-    public static void resolveCombatDamage(Campaign c, Person person, int hits) {
-        Collection<Injury> newInjuries = genInjuries(c, person, hits);
-        newInjuries.forEach((inj) -> person.addInjury(inj));
-        if (newInjuries.size() > 0) {
-            StringBuilder sb = new StringBuilder("Returned from combat with the following new injuries:");
-            newInjuries.forEach((inj) -> sb.append("\n\t\t").append(inj.getFluff()));
-            person.addLogEntry(c.getDate(), sb.toString());
-        }
-    }
-    
-    /**
-     * @return <tt>true</tt> if the location (or any of its parent locations) has an injury
-     * which implies that the location (most likely a limb) is severed.
-     */
-    public static boolean isLocationMissing(Person p, BodyLocation loc) {
-        // AM doesn't actually care about missing heads right now ...
-        if((null == loc) || !loc.isLimb) {
-            return false;
-        }
-        for(Injury i : p.getInjuriesByLocation(loc)) {
-            if(i.getType().impliesMissingLocation(loc)) {
-                return true;
-            }
-        }
-        // Check parent locations as well (a hand can be missing if the corresponding arm is)
-        return isLocationMissing(p, loc.parent);
-    }
-
-
-    private static List<Injury> genSpecificInjury(Person p, BodyLocation loc, int hits) {
+    /** Generate combat injuries for a specific body location */
+    public static Collection<Injury> genInjuries(Campaign c, Person p, BodyLocation loc, int hits) {
         List<Injury> newInjuries = new ArrayList<Injury>();
-        final InjuryProducer gen = newInjuryGenerator(p);
+        final InjuryProducer gen = newInjuryGenerator(c, p);
         
         switch(loc) {
             case LEFT_ARM: case LEFT_HAND: case LEFT_LEG: case LEFT_FOOT:
@@ -233,11 +220,12 @@ public final class InjuryUtil {
     }
     
     /** Called when creating a new injury to generate a slightly randomized healing time */
-    public static int genHealingTime(Person p, Injury i) {
-        return genHealingTime(p, i.getType(), i.getSeverity());
+    public static int genHealingTime(Campaign c, Person p, Injury i) {
+        return genHealingTime(c, p, i.getType(), i.getSeverity());
     }
     
-    public static int genHealingTime(Person p, InjuryType itype, int severity) {
+    /** Called when creating a new injury to generate a slightly randomized healing time */
+    public static int genHealingTime(Campaign c, Person p, InjuryType itype, int severity) {
         int mod = 100;
         int rand = Compute.randomInt(100);
         if(rand < 5) {

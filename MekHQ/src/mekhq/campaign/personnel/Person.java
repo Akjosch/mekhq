@@ -2397,7 +2397,8 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
      * This method runs through the event handlers registered with {@link InjuryEvent} before
      * (if not in "simulation mode") applying the end results to the person.
      * <p>
-     * @return the applied InjuryEvent, or <tt>null</tt> if it was cancelled */
+     * @return the applied InjuryEvent, or <tt>null</tt> if it was cancelled
+     */
     public InjuryEvent injure(int hits, Collection<Injury> injuries, boolean simulateOnly) {
         InjuryEvent event = new InjuryEvent(this, hits, injuries);
         if(MekHQ.EVENT_BUS.trigger(event)) {
@@ -2425,6 +2426,23 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
         return injure(0, injuries, false);
     }
     
+    /**
+     * @return <tt>true</tt> if the location (or any of its parent locations) has an injury
+     * which implies that the location (most likely a limb) is severed.
+     */
+    public boolean isLocationMissing(BodyLocation loc) {
+        if(null == loc) {
+            return false;
+        }
+        for(Injury i : getInjuriesByLocation(loc)) {
+            if(i.getType().impliesMissingLocation(loc)) {
+                return true;
+            }
+        }
+        // Check parent locations as well (a hand can be missing if the corresponding arm is)
+        return isLocationMissing(loc.parent);
+    }
+
     @Override
     public void heal() {
         hits = Math.max(hits - 1, 0);
