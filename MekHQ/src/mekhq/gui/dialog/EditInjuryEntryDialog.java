@@ -24,42 +24,48 @@ package mekhq.gui.dialog;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.util.List;
 import java.util.ResourceBundle;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.WindowConstants;
 
 import megamek.common.util.EncodeControl;
 import mekhq.campaign.personnel.BodyLocation;
 import mekhq.campaign.personnel.Injury;
 import mekhq.campaign.personnel.InjuryType;
-import mekhq.campaign.personnel.Person;
 
 /**
  *
  * @author  Ralgith
  */
-public class EditInjuryEntryDialog extends javax.swing.JDialog {
+public class EditInjuryEntryDialog extends JDialog {
 	private static final long serialVersionUID = -8038099101234445018L;
     @SuppressWarnings("unused")
 	private Frame frame; // FIXME: Unusued => Unneeded?
     private Injury injury;
     
-    private javax.swing.JButton btnClose;
-    private javax.swing.JButton btnOK;
-    private javax.swing.JTextArea txtDays;
-    private javax.swing.JComboBox<String> ddLocation;
-    private javax.swing.JComboBox<String> ddType;
-    private javax.swing.JTextArea txtFluff;
-    private javax.swing.JTextArea txtHits;
-    private javax.swing.JComboBox<String> ddPermanent;
-    private javax.swing.JComboBox<String> ddWorkedOn;
-    private javax.swing.JComboBox<String> ddExtended;
-    private javax.swing.JPanel panBtn;
-    private javax.swing.JPanel panMain;
+    private JButton btnClose;
+    private JButton btnOK;
+    private JTextArea txtDays;
+    private JComboBox<BodyLocationChoice> ddLocation;
+    private JComboBox<InjuryTypeChoice> ddType;
+    private JTextArea txtFluff;
+    private JTextArea txtHits;
+    private JComboBox<String> ddPermanent;
+    private JComboBox<String> ddWorkedOn;
+    private JComboBox<String> ddExtended;
+    private JPanel panBtn;
+    private JPanel panMain;
     
     /** Creates new form EditInjuryEntryDialog */
     public EditInjuryEntryDialog(java.awt.Frame parent, boolean modal, Injury e) {
@@ -71,36 +77,33 @@ public class EditInjuryEntryDialog extends javax.swing.JDialog {
     }
 
     private void initComponents() {
-    	java.awt.GridBagConstraints gridBagConstraints;
+    	GridBagConstraints gridBagConstraints;
 
-    	String[] locNames = new String[BodyLocation.values().length];
+    	BodyLocationChoice[] locations = new BodyLocationChoice[BodyLocation.values().length];
     	int i = 0;
     	for(BodyLocation loc : BodyLocation.values()) {
-    		locNames[i] = loc.readableName;
+    		locations[i] = new BodyLocationChoice(loc);
     		++ i;
     	}
-    	List<InjuryType> injuryTypes = InjuryType.getAllTypes();
-    	String[] typeNames = new String[injuryTypes.size()];
-    	i = 0;
-    	for(InjuryType type : injuryTypes) {
-    		typeNames[i] = type.getName(BodyLocation.GENERIC, 0);
-    	}
+    	InjuryTypeChoice[] types = InjuryType.getAllTypes().stream()
+    	    .map((type) -> new InjuryTypeChoice(type))
+    	    .collect(Collectors.toList()).toArray(new InjuryTypeChoice[0]);
     	String[] tf = { "True", "False" };
-    	txtDays = new javax.swing.JTextArea();
-    	ddLocation = new javax.swing.JComboBox<String>(locNames);
-    	ddType = new javax.swing.JComboBox<String>(typeNames);
-    	txtFluff = new javax.swing.JTextArea();
-    	txtHits = new javax.swing.JTextArea();
-    	ddPermanent = new javax.swing.JComboBox<String>(tf);
-    	ddWorkedOn = new javax.swing.JComboBox<String>(tf);
-    	ddExtended = new javax.swing.JComboBox<String>(tf);
-        btnOK = new javax.swing.JButton();
-        btnClose = new javax.swing.JButton();
-        panBtn = new javax.swing.JPanel();
-        panMain = new javax.swing.JPanel();
+    	txtDays = new JTextArea();
+    	ddLocation = new JComboBox<BodyLocationChoice>(locations);
+    	ddType = new JComboBox<InjuryTypeChoice>(types);
+    	txtFluff = new JTextArea();
+    	txtHits = new JTextArea();
+    	ddPermanent = new JComboBox<String>(tf);
+    	ddWorkedOn = new JComboBox<String>(tf);
+    	ddExtended = new JComboBox<String>(tf);
+        btnOK = new JButton();
+        btnClose = new JButton();
+        panBtn = new JPanel();
+        panMain = new JPanel();
         
         ResourceBundle resourceMap = ResourceBundle.getBundle("mekhq.resources.EditInjuryEntryDialog", new EncodeControl()); //$NON-NLS-1$
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setName("Form"); // NOI18N
         setTitle(resourceMap.getString("Form.title"));
         getContentPane().setLayout(new BorderLayout());
@@ -189,7 +192,7 @@ public class EditInjuryEntryDialog extends javax.swing.JDialog {
         txtHits.setLineWrap(true);
         txtHits.setWrapStyleWord(true);
         txtHits.setBorder(BorderFactory.createCompoundBorder(
-	   			 BorderFactory.createTitledBorder("Number of Hits"),
+	   			 BorderFactory.createTitledBorder("Severity"),
 	   			 BorderFactory.createEmptyBorder(5,5,5,5)));
         txtHits.setPreferredSize(new Dimension(250,75));
         txtHits.setMinimumSize(new Dimension(250,75));
@@ -260,6 +263,7 @@ public class EditInjuryEntryDialog extends javax.swing.JDialog {
         btnOK.setText(resourceMap.getString("btnOkay.text")); // NOI18N
         btnOK.setName("btnOK"); // NOI18N
         btnOK.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnOKActionPerformed(evt);
             }
@@ -269,6 +273,7 @@ public class EditInjuryEntryDialog extends javax.swing.JDialog {
         btnClose.setText(resourceMap.getString("btnCancel.text")); // NOI18N
         btnClose.setName("btnClose"); // NOI18N
         btnClose.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCloseActionPerformed(evt);
             }
@@ -283,10 +288,10 @@ public class EditInjuryEntryDialog extends javax.swing.JDialog {
     
     private void btnOKActionPerformed(java.awt.event.ActionEvent evt) {
     	injury.setTime(Integer.parseInt(txtDays.getText()));
-    	injury.setHits(Integer.parseInt(txtHits.getText()));
+    	injury.setSeverity(Integer.parseInt(txtHits.getText()));
     	injury.setFluff(txtFluff.getText());
-    	injury.setLocation(ddLocation.getSelectedIndex());
-    	injury.setType(ddType.getSelectedIndex());
+    	injury.setLocation(((BodyLocationChoice) ddLocation.getSelectedItem()).loc);
+    	injury.setType(((InjuryTypeChoice) ddType.getSelectedItem()).type);
     	if (ddPermanent.getSelectedIndex() == 0) {
     		injury.setPermanent(true);
     	} else {
@@ -313,5 +318,22 @@ public class EditInjuryEntryDialog extends javax.swing.JDialog {
     
     public Injury getEntry() {
     	return injury;
+    }
+    
+    private static class BodyLocationChoice {
+        public final BodyLocation loc;
+        
+        public BodyLocationChoice(BodyLocation loc) {
+            this.loc = loc;
+        }
+    }
+    
+    private static class InjuryTypeChoice {
+        public final InjuryType type;
+        
+        public InjuryTypeChoice(InjuryType type) {
+            this.type = type;
+        }
+        
     }
 }

@@ -24,6 +24,7 @@ package mekhq.campaign.personnel;
 
 import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.w3c.dom.Node;
@@ -113,6 +114,10 @@ public class Injury {
         return location;
     }
     
+    public void setLocation(BodyLocation location) {
+        this.location = Objects.requireNonNull(location);
+    }
+    
     public int getSeverity() {
         return severity;
     }
@@ -157,7 +162,7 @@ public class Injury {
     }
     
     public void setType(InjuryType type) {
-        this.type = type;
+        this.type = Objects.requireNonNull(type);
     }
     
     /** @return the modifiers that the person is suffering from due to this injury */
