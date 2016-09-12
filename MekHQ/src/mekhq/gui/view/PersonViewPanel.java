@@ -636,7 +636,7 @@ public class PersonViewPanel extends javax.swing.JPanel {
             gridBagConstraints.anchor = GridBagConstraints.NORTHWEST;
             pnlInjuries.add(lblInjury, gridBagConstraints);
 
-            String text = (injury.getPermanent() && injury.getTime() < 1) ?
+            String text = (injury.isPermanent() && injury.getTime() < 1) ?
                 resourceMap.getString("lblPermanentInjury.text") //$NON-NLS-1$
                 : String.format(resourceMap.getString("format.injuryTime"), injury.getTime()); //$NON-NLS-1$
             txtInjury = new JTextArea(text);

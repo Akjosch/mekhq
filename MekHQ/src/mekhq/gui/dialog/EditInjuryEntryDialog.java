@@ -196,7 +196,7 @@ public class EditInjuryEntryDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         panMain.add(txtHits, gridBagConstraints);
         
-        ddPermanent.setSelectedIndex(injury.getPermanent() ? 0 : 1);
+        ddPermanent.setSelectedIndex(injury.isPermanent() ? 0 : 1);
         ddPermanent.setName("ddPermanent");
         ddPermanent.setEditable(false);
         ddPermanent.setBorder(BorderFactory.createCompoundBorder(

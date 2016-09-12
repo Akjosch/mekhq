@@ -19,6 +19,7 @@
 package mekhq.campaign.mod.am;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import mekhq.campaign.LogEntry;
 import mekhq.campaign.personnel.BodyLocation;
 import mekhq.campaign.personnel.Injury;
 import mekhq.campaign.personnel.InjuryType;
+import mekhq.campaign.personnel.Modifier;
 import mekhq.campaign.personnel.Person;
 
 public class InjuryTypes {
@@ -80,6 +82,11 @@ public class InjuryTypes {
         public String getFluffText(BodyLocation loc, int severity, int gender) {
             return "A severed spine in " + ((loc == BodyLocation.CHEST) ? "upper" : "lower") + " body";
         }
+        
+        @Override
+        public Collection<Modifier> getModifiers(Injury inj) {
+            return Arrays.asList(new Modifier(Modifier.Value.PILOTING, Integer.MAX_VALUE));
+        }
     }
 
     public static final class BrokenBack extends InjuryType {
@@ -102,6 +109,13 @@ public class InjuryTypes {
                             + " paralyzed"));
                     }
                 }));
+        }
+        
+        @Override
+        public Collection<Modifier> getModifiers(Injury inj) {
+            return Arrays.asList(
+                new Modifier(Modifier.Value.GUNNERY, 3),
+                new Modifier(Modifier.Value.PILOTING, 3));
         }
     }
 
@@ -137,6 +151,11 @@ public class InjuryTypes {
                         }
                     }));
             }
+        }
+        
+        @Override
+        public Collection<Modifier> getModifiers(Injury inj) {
+            return Arrays.asList(new Modifier(Modifier.Value.PILOTING, 3));
         }
     }
 
@@ -181,6 +200,11 @@ public class InjuryTypes {
                     })
                 );
         }
+        
+        @Override
+        public Collection<Modifier> getModifiers(Injury inj) {
+            return Arrays.asList(new Modifier(Modifier.Value.PILOTING, 2));
+        }
     }
 
     public static final class LostLimb extends InjuryType {
@@ -195,7 +219,7 @@ public class InjuryTypes {
         }
         
         @Override
-        public boolean impliesMissingLocation() {
+        public boolean impliesMissingLocation(BodyLocation loc) {
             return true;
         }
         
@@ -208,6 +232,19 @@ public class InjuryTypes {
         public String getFluffText(BodyLocation loc, int severity, int gender) {
             return "Lost " + Person.getGenderPronoun(gender, Person.PRONOUN_HISHER) + " "
                 + loc.readableName;
+        }
+        
+        @Override
+        public Collection<Modifier> getModifiers(Injury inj) {
+            BodyLocation loc = inj.getLocation();
+            switch(loc) {
+                case LEFT_ARM: case LEFT_HAND: case RIGHT_ARM: case RIGHT_HAND:
+                    return Arrays.asList(new Modifier(Modifier.Value.GUNNERY, 3));
+                case LEFT_LEG: case LEFT_FOOT: case RIGHT_LEG: case RIGHT_FOOT:
+                    return Arrays.asList(new Modifier(Modifier.Value.PILOTING, 3));
+                default:
+                    return Arrays.asList();
+            }
         }
     }
 
@@ -313,6 +350,19 @@ public class InjuryTypes {
         public List<InjuryType.InjuryAction> genStressEffect(Campaign c, Person p, Injury i, int hits) {
             return Arrays.asList(newResetRecoveryTimeAction(i));
         }
+        
+        @Override
+        public Collection<Modifier> getModifiers(Injury inj) {
+            BodyLocation loc = inj.getLocation();
+            switch(loc) {
+                case LEFT_ARM: case LEFT_HAND: case RIGHT_ARM: case RIGHT_HAND:
+                    return Arrays.asList(new Modifier(Modifier.Value.GUNNERY, inj.isPermanent() ? 1 : 2));
+                case LEFT_LEG: case LEFT_FOOT: case RIGHT_LEG: case RIGHT_FOOT:
+                    return Arrays.asList(new Modifier(Modifier.Value.PILOTING, inj.isPermanent() ? 1 : 2));
+                default:
+                    return Arrays.asList();
+            }
+        }
     }
 
     public static final class BruisedKidney extends InjuryType {
@@ -403,6 +453,11 @@ public class InjuryTypes {
                     })
                 );
         }
+        
+        @Override
+        public Collection<Modifier> getModifiers(Injury inj) {
+            return Arrays.asList(new Modifier(Modifier.Value.PILOTING, 1));
+        }
     }
 
     public static final class Sprain extends InjuryType {
@@ -423,6 +478,19 @@ public class InjuryTypes {
         @Override
         public String getFluffText(BodyLocation loc, int severity, int gender) {
             return "A sprained " + loc.readableName;
+        }
+        
+        @Override
+        public Collection<Modifier> getModifiers(Injury inj) {
+            BodyLocation loc = inj.getLocation();
+            switch(loc) {
+                case LEFT_ARM: case LEFT_HAND: case RIGHT_ARM: case RIGHT_HAND:
+                    return Arrays.asList(new Modifier(Modifier.Value.GUNNERY, 1));
+                case LEFT_LEG: case LEFT_FOOT: case RIGHT_LEG: case RIGHT_FOOT:
+                    return Arrays.asList(new Modifier(Modifier.Value.PILOTING, 1));
+                default:
+                    return Arrays.asList();
+            }
         }
     }
 

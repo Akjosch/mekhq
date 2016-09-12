@@ -3256,7 +3256,7 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
             if (i.getTime() > 0) {
                 i.setTime(i.getTime() - 1);
             }
-            if (i.getTime() < 1 && !i.getPermanent()) {
+            if (i.getTime() < 1 && !i.isPermanent()) {
                 if ((i.getType() == Injury.INJ_BROKEN_LIMB || i.getType() == Injury.INJ_SPRAIN || i.getType() == Injury.INJ_CONCUSSION
                      || i.getType() == Injury.INJ_BROKEN_COLLAR_BONE) && Compute.d6() == 1) {
                     i.setPermanent(true);
@@ -3286,18 +3286,11 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
     }
 
     public int getPilotingInjuryMod() {
-        int mod = 0;
+        Collection<Modifier> mods = new ArrayList<>();
+        injuries.forEach((inj) -> mods.addAll(inj.getModifiers()));
+        return Modifier.calcTotalModifier(mods, Modifier.Value.PILOTING);
+        /*
         for (Injury injury : injuries) {
-            if (injury.getType() == Injury.INJ_SPRAIN && (injury.getLocation() == BODY_LEFT_LEG || injury.getLocation() == BODY_RIGHT_LEG)) {
-                mod += 1;
-            }
-            if (injury.getType() == Injury.INJ_BROKEN_LIMB && (injury.getLocation() == BODY_LEFT_LEG || injury.getLocation() == BODY_RIGHT_LEG)) {
-                if (injury.getPermanent()) {
-                    mod += 1;
-                } else {
-                    mod += 2;
-                }
-            }
             if (injury.getType() == Injury.INJ_LOST_LIMB && (injury.getLocation() == BODY_LEFT_LEG || injury.getLocation() == BODY_RIGHT_LEG)) {
                 mod += 3;
             }
@@ -3312,26 +3305,13 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
             }
         }
         return mod;
+        */
     }
 
     public int getGunneryInjuryMod() {
-        int mod = 0;
-        for (Injury injury : injuries) {
-            if ((injury.getType() == Injury.INJ_SPRAIN && (injury.getLocation() == BODY_LEFT_ARM || injury.getLocation() == BODY_RIGHT_ARM)) || injury.getType() == Injury.INJ_BROKEN_COLLAR_BONE) {
-                mod += 1;
-            }
-            if (injury.getType() == Injury.INJ_BROKEN_LIMB && (injury.getLocation() == BODY_LEFT_ARM || injury.getLocation() == BODY_RIGHT_ARM)) {
-                if (injury.getPermanent()) {
-                    mod += 1;
-                } else {
-                    mod += 2;
-                }
-            }
-            if (injury.getType() == Injury.INJ_BROKEN_BACK || (injury.getType() == Injury.INJ_LOST_LIMB && (injury.getLocation() == BODY_LEFT_ARM || injury.getLocation() == BODY_RIGHT_ARM))) {
-                mod += 3;
-            }
-        }
-        return mod;
+        Collection<Modifier> mods = new ArrayList<>();
+        injuries.forEach((inj) -> mods.addAll(inj.getModifiers()));
+        return Modifier.calcTotalModifier(mods, Modifier.Value.GUNNERY);
     }
 
     /*
@@ -3363,7 +3343,7 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
         if (injuries.size() > 0) {
             if (permCheck) {
                 for (Injury injury : injuries) {
-                    if (!injury.getPermanent() || injury.getTime() > 0) {
+                    if (!injury.isPermanent() || injury.getTime() > 0) {
                         tf = true;
                         break;
                     }
@@ -3380,7 +3360,7 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
     		return false;
     	}
     	for (Injury injury : injuries) {
-    		if (!injury.getPermanent() || injury.getTime() > 0) {
+    		if (!injury.isPermanent() || injury.getTime() > 0) {
     			return false;
     		}
     	}

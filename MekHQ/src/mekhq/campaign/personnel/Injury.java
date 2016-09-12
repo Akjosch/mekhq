@@ -23,6 +23,7 @@
 package mekhq.campaign.personnel;
 
 import java.io.PrintWriter;
+import java.util.Collection;
 import java.util.UUID;
 
 import org.w3c.dom.Node;
@@ -158,6 +159,12 @@ public class Injury {
     public void setType(InjuryType type) {
         this.type = type;
     }
+    
+    /** @return the modifiers that the person is suffering from due to this injury */
+    public Collection<Modifier> getModifiers() {
+        return type.getModifiers(this);
+    }
+    
     // End Details Methods
     
     // Returns the full long name of this injury including location and type as applicable

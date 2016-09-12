@@ -19,6 +19,7 @@
 package mekhq.campaign.personnel;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -117,7 +118,12 @@ public class InjuryType {
     }
     
     /** Does having this injury mean the location is missing? (Amputation, genetic defect, ...) */
-    public boolean impliesMissingLocation() {
+    public boolean impliesMissingLocation(BodyLocation loc) {
+        return false;
+    }
+    
+    /** Does having this injury in this location imply the character is dead? */
+    public boolean impliesDead(BodyLocation loc) {
         return false;
     }
     
@@ -147,6 +153,10 @@ public class InjuryType {
     
     public String getFluffText(BodyLocation loc, int severity, int gender) {
         return fluffText;
+    }
+    
+    public Collection<Modifier> getModifiers(Injury inj) {
+        return Arrays.asList();
     }
     
     /**
