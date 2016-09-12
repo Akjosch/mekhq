@@ -92,6 +92,7 @@ public class EditPersonnelInjuriesDialog extends javax.swing.JDialog {
         btnAdd.setText(resourceMap.getString("btnAdd.text")); // NOI18N
         btnAdd.setName("btnAdd"); // NOI18N
         btnAdd.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 addEntry();
             }
@@ -101,6 +102,7 @@ public class EditPersonnelInjuriesDialog extends javax.swing.JDialog {
         btnEdit.setName("btnEdit"); // NOI18N
         btnEdit.setEnabled(false);
         btnEdit.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 editEntry();
             }
@@ -110,6 +112,7 @@ public class EditPersonnelInjuriesDialog extends javax.swing.JDialog {
         btnDelete.setName("btnDelete"); // NOI18N
         btnDelete.setEnabled(false);
         btnDelete.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 deleteEntry();
             }
@@ -133,7 +136,8 @@ public class EditPersonnelInjuriesDialog extends javax.swing.JDialog {
 		injuriesTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		injuriesTable.getSelectionModel().addListSelectionListener(
 				new javax.swing.event.ListSelectionListener() {
-					public void valueChanged(
+					@Override
+                    public void valueChanged(
 							javax.swing.event.ListSelectionEvent evt) {
 						injuriesTableValueChanged(evt);
 					}
@@ -147,6 +151,7 @@ public class EditPersonnelInjuriesDialog extends javax.swing.JDialog {
         btnOK.setText(resourceMap.getString("btnOK.text")); // NOI18N
         btnOK.setName("btnOK"); // NOI18N
         btnOK.addActionListener(new java.awt.event.ActionListener() {
+            @Override
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnOKActionPerformed(evt);
             }
@@ -227,10 +232,12 @@ public class EditPersonnelInjuriesDialog extends javax.swing.JDialog {
 			data = entries;
 		}
 		
-		public int getRowCount() {
+		@Override
+        public int getRowCount() {
             return data.size();
         }
 
+        @Override
         public int getColumnCount() {
             return N_COL;
         }
@@ -259,7 +266,8 @@ public class EditPersonnelInjuriesDialog extends javax.swing.JDialog {
             }
         }
 
-		public Object getValueAt(int row, int col) {
+		@Override
+        public Object getValueAt(int row, int col) {
 	        Injury entry;
 	        if(data.isEmpty()) {
 	        	return "";
@@ -273,13 +281,13 @@ public class EditPersonnelInjuriesDialog extends javax.swing.JDialog {
 				return entry.getLocationName();
 			}
 	        if(col == COL_TYPE) {
-				return entry.getTypeName();
+				return entry.getName();
 			}
 			if(col == COL_FLUFF) {
 				return entry.getFluff();
 			}
 			if(col == COL_HITS) {
-				return Integer.toString(entry.getHits());
+				return Integer.toString(entry.getSeverity());
 			}
 			if(col == COL_PERMANENT) {
 				return Boolean.toString(entry.isPermanent());
@@ -359,7 +367,8 @@ public class EditPersonnelInjuriesDialog extends javax.swing.JDialog {
 
 			private static final long serialVersionUID = 9054581142945717303L;
 
-			public Component getTableCellRendererComponent(JTable table,
+			@Override
+            public Component getTableCellRendererComponent(JTable table,
 					Object value, boolean isSelected, boolean hasFocus,
 					int row, int column) {
 				super.getTableCellRendererComponent(table, value, isSelected,

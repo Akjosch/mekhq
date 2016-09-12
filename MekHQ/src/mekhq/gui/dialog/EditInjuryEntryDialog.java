@@ -26,13 +26,16 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.UUID;
 
 import javax.swing.BorderFactory;
 
 import megamek.common.util.EncodeControl;
+import mekhq.campaign.personnel.BodyLocation;
 import mekhq.campaign.personnel.Injury;
+import mekhq.campaign.personnel.InjuryType;
 import mekhq.campaign.personnel.Person;
 
 /**
@@ -70,13 +73,17 @@ public class EditInjuryEntryDialog extends javax.swing.JDialog {
     private void initComponents() {
     	java.awt.GridBagConstraints gridBagConstraints;
 
-    	String[] locNames = new String[Person.BODY_NUM];
-    	for (int i = 0; i < Person.BODY_NUM; i++) {
-    		locNames[i] = Injury.getLocationName(i);
+    	String[] locNames = new String[BodyLocation.values().length];
+    	int i = 0;
+    	for(BodyLocation loc : BodyLocation.values()) {
+    		locNames[i] = loc.readableName;
+    		++ i;
     	}
-    	String[] typeNames = new String[Injury.INJ_NUM];
-    	for (int i = 0; i < Injury.INJ_NUM; i++) {
-    		typeNames[i] = Injury.getTypeName(i);
+    	List<InjuryType> injuryTypes = InjuryType.getAllTypes();
+    	String[] typeNames = new String[injuryTypes.size()];
+    	i = 0;
+    	for(InjuryType type : injuryTypes) {
+    		typeNames[i] = type.getName(BodyLocation.GENERIC, 0);
     	}
     	String[] tf = { "True", "False" };
     	txtDays = new javax.swing.JTextArea();
@@ -176,7 +183,7 @@ public class EditInjuryEntryDialog extends javax.swing.JDialog {
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         panMain.add(txtFluff, gridBagConstraints);
         
-        txtHits.setText(Integer.toString(injury.getHits()));
+        txtHits.setText(Integer.toString(injury.getSeverity()));
         txtHits.setName("txtHits");
         txtHits.setEditable(true);
         txtHits.setLineWrap(true);

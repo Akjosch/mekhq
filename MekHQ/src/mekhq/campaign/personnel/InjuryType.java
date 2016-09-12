@@ -18,8 +18,11 @@
  */
 package mekhq.campaign.personnel;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -82,6 +85,18 @@ public class InjuryType {
     
     public static void register(String key, InjuryType injType) {
         register(-1, key, injType);
+    }
+    
+    public static List<String> getAllKeys() {
+        List<String> result = new ArrayList<>(REGISTRY.keySet());
+        Collections.sort(result);
+        return result;
+    }
+    
+    public static List<InjuryType> getAllTypes() {
+        List<InjuryType> result = new ArrayList<>(REGISTRY.values());
+        Collections.sort(result, (it1, it2) -> it1.getKey().compareTo(it2.getKey()));
+        return result;
     }
     
     /** Default injury type: reduction in hit points */

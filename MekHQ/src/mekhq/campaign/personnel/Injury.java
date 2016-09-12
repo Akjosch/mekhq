@@ -48,7 +48,7 @@ public class Injury {
     protected UUID id;
      
      // Base constructor, in reality should never be used
-     private Injury() {
+     public Injury() {
          this(0, "", BodyLocation.GENERIC, InjuryType.BAD_HEALTH, 1, false, false);
     }
     

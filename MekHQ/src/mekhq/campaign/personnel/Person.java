@@ -253,15 +253,7 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
     protected int nTasks;
     protected boolean engineer;
 
-    /**
-     * * Start Advanced Medical ***
-     */
-
     private ArrayList<Injury> injuries = new ArrayList<Injury>();
-    private int hit_location[] = new int[BODY_NUM];
-    /**
-     * * End Advanced Medical ***
-     */
 
     /* Against the Bot */
     private boolean founder; // +1 share if using shares system
@@ -3168,13 +3160,14 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
 
     public void clearInjuries() {
         injuries.clear();
-
-        // Clear the doctor if there is one
         doctorId = null;
     }
 
     public void removeInjury(Injury i) {
         injuries.remove(i);
+        if(injuries.isEmpty()) {
+            doctorId = null;
+        }
     }
 
     public String getInjuriesDesc() {
@@ -3247,27 +3240,6 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
             return true;
         } else {
             return false;
-        }
-    }
-
-    public void AMheal() {
-        ArrayList<Injury> removals = new ArrayList<Injury>();
-        for (Injury i : injuries) {
-            if (i.getTime() > 0) {
-                i.setTime(i.getTime() - 1);
-            }
-            if (i.getTime() < 1 && !i.isPermanent()) {
-                if ((i.getType() == Injury.INJ_BROKEN_LIMB || i.getType() == Injury.INJ_SPRAIN || i.getType() == Injury.INJ_CONCUSSION
-                     || i.getType() == Injury.INJ_BROKEN_COLLAR_BONE) && Compute.d6() == 1) {
-                    i.setPermanent(true);
-                } else {
-                    removals.add(i);
-                }
-            }
-        }
-        injuries.removeAll(removals);
-        if (!needsAMFixing()) {
-            doctorId = null;
         }
     }
 

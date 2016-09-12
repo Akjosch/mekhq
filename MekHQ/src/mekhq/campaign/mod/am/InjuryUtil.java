@@ -41,6 +41,25 @@ import mekhq.campaign.personnel.Person;
 import mekhq.campaign.unit.Unit;
 
 public final class InjuryUtil {
+    /** Run a daily healing check */
+    public static void resolveDailyHealing(Person p) {
+        ArrayList<Injury> removals = new ArrayList<Injury>();
+        p.getInjuries().forEach((i) -> {
+            i.setTime(Math.max(i.getTime() - 1, 0));
+            if(i.getTime() < 1 && !i.isPermanent()) {
+                InjuryType type = i.getType();
+                if(((type == InjuryTypes.BROKEN_LIMB) || (type == InjuryTypes.SPRAIN)
+                    || (type == InjuryTypes.CONCUSSION) || (type == InjuryTypes.BROKEN_COLLAR_BONE))
+                    && (Compute.d6() == 1)) {
+                    i.setPermanent(true);
+                } else {
+                    removals.add(i);
+                }
+            }
+        });
+        removals.forEach((i) -> p.removeInjury(i));
+    }
+
     private static InjuryType.InjuryProducer newInjuryGenerator(Person person) {
         return (loc, type, severity) ->
         {
