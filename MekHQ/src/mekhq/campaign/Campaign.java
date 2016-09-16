@@ -1452,7 +1452,7 @@ public class Campaign implements Serializable {
         return report;
     }
 
-    public String advancedMedicalHealPerson(Person patient, Person doctor) {
+    public String _advancedMedicalHealPerson(Person patient, Person doctor) {
         Skill skill = doctor.getSkill(SkillType.S_DOCTOR);
         int level = skill.getLevel();
         int roll = Compute.randomInt(100);

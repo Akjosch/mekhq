@@ -61,6 +61,7 @@ import megamek.common.event.GameVictoryEvent;
 import megamek.common.loaders.EntityLoadingException;
 import mekhq.MekHQ;
 import mekhq.Utilities;
+import mekhq.campaign.event.BattleFinishedEvent;
 import mekhq.campaign.finances.Transaction;
 import mekhq.campaign.mission.AtBContract;
 import mekhq.campaign.mission.AtBScenario;
@@ -890,6 +891,7 @@ public class ResolveScenarioTracker {
             if(null == person || null == status) {
                 continue;
             }
+            MekHQ.EVENT_BUS.trigger(new BattleFinishedEvent(person, status));
             if(status.getHits() > person.getHits()) {
                 person.injure(status.getHits());
             }
@@ -912,9 +914,6 @@ public class ResolveScenarioTracker {
                                     campaign, (AtBContract)m);
                 }
             }
-            if (campaign.getCampaignOptions().useAdvancedMedical()) {
-                person.diagnose(status.getHits());
-            }
             if (status.toRemove()) {
                 campaign.removePerson(pid, false);
             }
@@ -926,6 +925,7 @@ public class ResolveScenarioTracker {
             if(null == person || null == status) {
                 continue;
             }
+            MekHQ.EVENT_BUS.trigger(new BattleFinishedEvent(person, status));
             if(status.isDead()) {
             	continue;
             }
@@ -965,9 +965,6 @@ public class ResolveScenarioTracker {
                             true, campaign.getCampaignOptions().getUseShareSystem()?person.getNumShares(campaign.getCampaignOptions().getSharesForAll()):0,
                                     campaign, (AtBContract)m);
                 }
-            }
-            if (campaign.getCampaignOptions().useAdvancedMedical()) {
-                person.diagnose(status.getHits());
             }
         }
 
@@ -1186,7 +1183,6 @@ public class ResolveScenarioTracker {
 	 *
 	 */
 	public class PersonStatus implements Comparable<PersonStatus> {
-
 		private String name;
 		private String unitName;
 		private int hits;
@@ -1197,6 +1193,7 @@ public class ResolveScenarioTracker {
 		private boolean pickedUp;
 		private UUID personId;
 		private boolean deployed;
+		private boolean forceDead;
 
 		public PersonStatus(String n, String u, int h, UUID id) {
 			name = n;
@@ -1209,6 +1206,7 @@ public class ResolveScenarioTracker {
 			pickedUp = false;
 			personId = id;
 			deployed = true;
+			forceDead = false;
 		}
 
         public UUID getId() {
@@ -1244,7 +1242,11 @@ public class ResolveScenarioTracker {
 		}
 
 		public boolean isDead() {
-			return hits >= 6;
+			return forceDead || (hits >= 6);
+		}
+		
+		public void setDead(boolean dead) {
+		    this.forceDead = dead;
 		}
 
 		public boolean isMissing() {

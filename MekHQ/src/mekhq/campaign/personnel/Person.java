@@ -3261,41 +3261,10 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
         }
     }
 
-    @Override
-    public boolean needsAMFixing() {
-        boolean retVal = false;
-        if (injuries.size() > 0) {
-            for (Injury i : injuries) {
-                if (i.getTime() > 0) {
-                    retVal = true;
-                    break;
-                }
-            }
-        }
-        return retVal;
-    }
-
     public int getPilotingInjuryMod() {
         Collection<Modifier> mods = new ArrayList<>();
         injuries.forEach((inj) -> mods.addAll(inj.getModifiers()));
         return Modifier.calcTotalModifier(mods, Modifier.Value.PILOTING);
-        /*
-        for (Injury injury : injuries) {
-            if (injury.getType() == Injury.INJ_LOST_LIMB && (injury.getLocation() == BODY_LEFT_LEG || injury.getLocation() == BODY_RIGHT_LEG)) {
-                mod += 3;
-            }
-            if (injury.getType() == Injury.INJ_CONCUSSION) {
-                mod += 1;
-            }
-            if (injury.getType() == Injury.INJ_CEREBRAL_CONTUSION) {
-                mod += 2;
-            }
-            if (injury.getType() == Injury.INJ_CTE || injury.getType() == Injury.INJ_BROKEN_BACK) {
-                mod += 3;
-            }
-        }
-        return mod;
-        */
     }
 
     public int getGunneryInjuryMod() {
