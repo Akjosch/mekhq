@@ -212,6 +212,11 @@ public class InjuryType {
         public String desc;
         public final BiConsumer<IntUnaryOperator, InjuryProducer> action;
         
+        /** "No operation" action (for reporting) */
+        public InjuryAction(String desc) {
+            this(desc, (rnd, gen) -> {});
+        }
+        
         public InjuryAction(String desc, BiConsumer<IntUnaryOperator, InjuryProducer> action) {
             this.desc = desc;
             this.action = action;

@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -36,28 +37,39 @@ import mekhq.campaign.Campaign;
 import mekhq.campaign.personnel.BodyLocation;
 import mekhq.campaign.personnel.Injury;
 import mekhq.campaign.personnel.InjuryType;
+import mekhq.campaign.personnel.InjuryType.InjuryAction;
 import mekhq.campaign.personnel.InjuryType.InjuryProducer;
 import mekhq.campaign.personnel.Person;
+import mekhq.campaign.personnel.Skill;
+import mekhq.campaign.personnel.SkillType;
 import mekhq.campaign.unit.Unit;
 
 public final class InjuryUtil {
+    // Fumble and critical success limits for doctor skills levels 0-10, on a d100
+    private static final int FUMBLE_LIMITS[] = {50, 40, 30, 20, 12, 6, 5, 4, 3, 2, 1};
+    private static final int CRIT_LIMITS[] = {98, 97, 94, 89, 84, 79, 74, 69, 64, 59, 49};
+    
     /** Run a daily healing check */
     public static void resolveDailyHealing(Campaign c, Person p) {
-        final ArrayList<Injury> removals = new ArrayList<Injury>();
-        p.getInjuries().forEach((i) -> {
-            i.setTime(Math.max(i.getTime() - 1, 0));
-            if(i.getTime() < 1 && !i.isPermanent()) {
-                InjuryType type = i.getType();
-                if(((type == InjuryTypes.BROKEN_LIMB) || (type == InjuryTypes.SPRAIN)
-                    || (type == InjuryTypes.CONCUSSION) || (type == InjuryTypes.BROKEN_COLLAR_BONE))
-                    && (Compute.d6() == 1)) {
-                    i.setPermanent(true);
-                } else {
-                    removals.add(i);
-                }
+        Person doc = c.getPerson(p.getDoctorId());
+        // TODO: Reporting
+        if((null != doc) && doc.isDoctor()) {
+            if(p.getDaysToWaitForHealing() <= 0) {
+                genMedicalTreatment(c, p, doc).forEach((ia) ->
+                {
+                    ia.action.accept(Compute::randomInt, newInjuryGenerator(c, p));
+                });
             }
+        } else {
+            genUntreatedEffects(c, p).forEach((ia) ->
+            {
+                ia.action.accept(Compute::randomInt, newInjuryGenerator(c, p));
+            });
+        }
+        genNaturalHealing(c, p).forEach((ia) ->
+        {
+            ia.action.accept(Compute::randomInt, newInjuryGenerator(c, p));
         });
-        removals.forEach((i) -> p.removeInjury(i));
     }
 
     /** Resolve injury modifications in case of entering combat with active ones */
@@ -239,5 +251,166 @@ public final class InjuryUtil {
 
         time = Math.round(time * mod * p.getAbilityTimeModifier() / 10000);
         return time;
+    }
+    
+    /** Generate the effects of a doctor dealing with injuries (frequency depends on campaign settings) */
+    public static List<InjuryAction> genMedicalTreatment(Campaign c, Person p, Person doc) {
+        Objects.requireNonNull(c);
+        Objects.requireNonNull(p);
+        Skill skill = doc.getSkill(SkillType.S_DOCTOR);
+        int level = skill.getLevel();
+        int roll = Compute.randomInt(100);
+        final int fumbleLimit = FUMBLE_LIMITS[(level >= 0) && (level <= 10) ? level : 0];
+        final int critLimt = CRIT_LIMITS[(level >= 0) && (level <= 10) ? level : 0];
+        int xpGained = 0;
+        int mistakeXP = 0;
+        int successXP = 0;
+        int numTreated = 0;
+        int numResting = 0;
+        
+        List<InjuryAction> result = new ArrayList<>();
+
+        // Determine XP, if any
+        if (roll < Math.max(1, fumbleLimit / 10)) {
+            mistakeXP += c.getCampaignOptions().getMistakeXP();
+            xpGained += mistakeXP;
+        } else if (roll > Math.min(98, 99 - Math.round(99 - critLimt) / 10)) {
+            successXP += c.getCampaignOptions().getSuccessXP();
+            xpGained += successXP;
+        }
+
+        for(Injury i : p.getInjuries()) {
+            if(!i.getWorkedOn()) {
+                final int critTimeReduction = i.getTime() - (int) Math.floor(i.getTime() * 0.9);
+                if(roll < fumbleLimit) {
+                    result.add(new InjuryAction(
+                        String.format("%s made a mistake in the treatment of %s and caused %s %s to worsen.",
+                            doc.getHyperlinkedFullTitle(), p.getHyperlinkedName(),
+                            p.getGenderPronoun(Person.PRONOUN_HISHER), i.getName()),
+                        (rnd, gen) -> {
+                        int time = i.getTime();
+                        i.setTime((int) Math.max(Math.ceil(time * 1.2), time + 5));
+                        if(rnd.applyAsInt(100) < (fumbleLimit / 4)) {
+                            // TODO: Add in special handling of the critical
+                            // injuries like broken back (make perm),
+                            // broken ribs (punctured lung/death chance) internal
+                            // bleeding (death chance)
+                        }
+                    }));
+                } else if((roll > critLimt) && (critTimeReduction > 0)) {
+                    result.add(new InjuryAction(
+                        String.format("%s performed some amazing work in treating %s of %s (%d fewer day(s) to heal)",
+                            doc.getHyperlinkedFullTitle(), i.getName(), p.getHyperlinkedName(), critTimeReduction),
+                        (rnd, gen) -> {
+                            i.setTime(i.getTime() - critTimeReduction);
+                        }));
+                } else {
+                    final int xpChance = (int) Math.round(100.0 / c.getCampaignOptions().getNTasksXP());
+                    result.add(new InjuryAction(
+                        String.format("%s successfully treated %s [%d%% chance of gaining %d XP]",
+                            doc.getHyperlinkedFullTitle(), p.getHyperlinkedName(),
+                            xpChance, c.getCampaignOptions().getTaskXP()),
+                        (rnd, gen) -> {
+                            if(doc.getNTasks() >= c.getCampaignOptions().getNTasksXP()) {
+                                doc.setXp(doc.getXp() + c.getCampaignOptions().getTaskXP());
+                                doc.setNTasks(0);
+                            } else {
+                                doc.setNTasks(doc.getNTasks() + 1);
+                            }
+                            i.setWorkedOn(true);
+                            Unit u = c.getUnit(p.getUnitId());
+                            if(null != u) {
+                                u.resetPilotAndEntity();
+                            }
+                        }));
+                }
+                i.setWorkedOn(true);
+                Unit u = c.getUnit(p.getUnitId());
+                if(null != u) {
+                    u.resetPilotAndEntity();
+                }
+                numTreated++;
+            } else {
+                result.add(new InjuryAction(
+                    String.format("%s spent time resting to heal %s %s.",
+                        p.getHyperlinkedName(), p.getGenderPronoun(Person.PRONOUN_HISHER), i.getName()),
+                    (rnd, gen) -> {
+                        
+                    }));
+                numResting++;
+            }
+        }
+        if (numTreated > 0) {
+            final int xp = xpGained;
+            final String treatmentSummary = (xpGained > 0)
+                ? String.format("%s successfully treated %s for %d injuries "
+                    + "(%d XP gained, %d for mistakes, %d for critical successes, and %d for tasks).",
+                    doc.getHyperlinkedFullTitle(), p.getHyperlinkedName(), numTreated,
+                    xp, mistakeXP, successXP, xp - mistakeXP - successXP)
+                : String.format("%s successfully treated %s for %d injuries.",
+                    doc.getHyperlinkedFullTitle(), p.getHyperlinkedName(), numTreated);
+                    
+            result.add(new InjuryAction(treatmentSummary,
+                (rnd, gen) -> { doc.setXp(doc.getXp() + xp); }));
+        }
+        if (numResting > 0) {
+            result.add(new InjuryAction(
+                String.format("%s spent time resting to heal %d injuries.",
+                    p.getHyperlinkedName(), numResting)));
+        }
+        return result;
+    }
+    
+    /** Generate the effects of "natural" healing (daily) */
+    public static List<InjuryAction> genNaturalHealing(Campaign c, Person p) {
+        Objects.requireNonNull(c);
+        Objects.requireNonNull(p);
+        
+        List<InjuryAction> result = new ArrayList<>();
+
+        p.getInjuries().forEach((i) -> {
+            if(i.getTime() <= 1 && !i.isPermanent()) {
+                InjuryType type = i.getType();
+                if((type == InjuryTypes.BROKEN_LIMB) || (type == InjuryTypes.SPRAIN)
+                    || (type == InjuryTypes.CONCUSSION) || (type == InjuryTypes.BROKEN_COLLAR_BONE)) {
+                    result.add(new InjuryAction(
+                        String.format("83% chance of %s healing, 17% chance of it becoming permanent.",
+                            i.getName()),
+                        (rnd, gen) -> {
+                            i.setTime(0);
+                            if(rnd.applyAsInt(6) == 0) {
+                                i.setPermanent(true);
+                            } else {
+                                p.removeInjury(i);
+                            }
+                        }));
+                } else {
+                    result.add(new InjuryAction(
+                        String.format("%s heals by itself", i.getName()),
+                        (rnd, gen) -> {
+                            i.setTime(0);
+                            p.removeInjury(i);
+                        }));
+                }
+            } else if(i.getTime() > 1) {
+                result.add(new InjuryAction(
+                    String.format("%s continues healing by itself", i.getName()),
+                    (rnd, gen) -> {
+                        i.setTime(Math.max(i.getTime() - 1, 0));
+                    }));
+            }
+        });
+        
+        return result;
+    }
+
+    /** Generate the effects not being under proper treatment (daily) */
+    public static List<InjuryAction> genUntreatedEffects(Campaign c, Person p) {
+        Objects.requireNonNull(c);
+        Objects.requireNonNull(p);
+        
+        List<InjuryAction> result = new ArrayList<>();
+        // TODO
+        return result;
     }
 }

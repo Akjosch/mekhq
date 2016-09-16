@@ -27,6 +27,5 @@ package mekhq.campaign.work;
  */
 public interface IMedicalWork extends IWork {
     void heal();
-    boolean needsAMFixing();
     String getPatientName();
 }
