@@ -53,23 +53,29 @@ public class InjuryTypes {
     // New injury types go here (or extend the class)
     public static final InjuryType SEVERED_SPINE = new InjuryTypes.SeveredSpine();
 
+    private static boolean registered = false;
+    
     /** Register all injury types defined here. Don't use them until you called this once! */
     public static void registerAll() {
-        InjuryType.register(0, "am:cut", CUT);
-        InjuryType.register(1, "am:bruise", BRUISE);
-        InjuryType.register(2, "am:sprain", SPRAIN);
-        InjuryType.register(3, "am:concussion", CONCUSSION);
-        InjuryType.register(4, "am:broken_rib", BROKEN_RIB);
-        InjuryType.register(5, "am:bruised_kidney", BRUISED_KIDNEY);
-        InjuryType.register(6, "am:broken_limb", BROKEN_LIMB);
-        InjuryType.register(7, "am:broken_collar_bone", BROKEN_COLLAR_BONE);
-        InjuryType.register(8, "am:internal_bleeding", INTERNAL_BLEEDING);
-        InjuryType.register(9, "am:lost_limb", LOST_LIMB);
-        InjuryType.register(10, "am:cerebral_contusion", CEREBRAL_CONTUSION);
-        InjuryType.register(11, "am:punctured_lung", PUNCTURED_LUNG);
-        InjuryType.register(12, "am:cte", CTE);
-        InjuryType.register(13, "am:broken_back", BROKEN_BACK);
-        InjuryType.register("am:severed_spine", SEVERED_SPINE);
+        if(!registered) {
+            InjuryType.register(0, "am:cut", CUT);
+            InjuryType.register(1, "am:bruise", BRUISE);
+            InjuryType.register(2, "am:laceration", LACERATION);
+            InjuryType.register(3, "am:sprain", SPRAIN);
+            InjuryType.register(4, "am:concussion", CONCUSSION);
+            InjuryType.register(5, "am:broken_rib", BROKEN_RIB);
+            InjuryType.register(6, "am:bruised_kidney", BRUISED_KIDNEY);
+            InjuryType.register(7, "am:broken_limb", BROKEN_LIMB);
+            InjuryType.register(8, "am:broken_collar_bone", BROKEN_COLLAR_BONE);
+            InjuryType.register(9, "am:internal_bleeding", INTERNAL_BLEEDING);
+            InjuryType.register(10, "am:lost_limb", LOST_LIMB);
+            InjuryType.register(11, "am:cerebral_contusion", CEREBRAL_CONTUSION);
+            InjuryType.register(12, "am:punctured_lung", PUNCTURED_LUNG);
+            InjuryType.register(13, "am:cte", CTE);
+            InjuryType.register(14, "am:broken_back", BROKEN_BACK);
+            InjuryType.register("am:severed_spine", SEVERED_SPINE);
+            registered = true;
+        }
     }
     
     public static final class SeveredSpine extends InjuryType {

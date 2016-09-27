@@ -126,6 +126,7 @@ import mekhq.campaign.mission.AtBScenario;
 import mekhq.campaign.mission.Contract;
 import mekhq.campaign.mission.Mission;
 import mekhq.campaign.mission.Scenario;
+import mekhq.campaign.mod.am.InjuryTypes;
 import mekhq.campaign.parts.AmmoStorage;
 import mekhq.campaign.parts.Armor;
 import mekhq.campaign.parts.BaArmor;
@@ -3444,6 +3445,8 @@ public class Campaign implements Serializable {
                 }*/ else if (xn.equalsIgnoreCase("parts")) {
                     processPartNodes(retVal, wn, version);
                 } else if (xn.equalsIgnoreCase("personnel")) {
+                    // TODO: Make this depending on campaign options
+                    InjuryTypes.registerAll();
                     processPersonnelNodes(retVal, wn, version);
                 } else if (xn.equalsIgnoreCase("ancestors")) {
                     processAncestorNodes(retVal, wn, version);

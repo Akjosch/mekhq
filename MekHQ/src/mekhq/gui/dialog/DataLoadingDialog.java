@@ -192,7 +192,15 @@ public class DataLoadingDialog extends JDialog implements PropertyChangeListener
         					JOptionPane.ERROR_MESSAGE);
         			cancelled = true;
         			cancel(true);
-        		} catch (Exception ex) {
+        		} catch(OutOfMemoryError e) {
+                    JOptionPane.showMessageDialog(null,
+                        "MekHQ ran out of memory attempting to load the campaign file. \nTry increasing the memory allocated to MekHQ and reloading.\nSee the FAQ at http://megamek.info for details.",
+                        "Not Enough Memory",
+                        JOptionPane.ERROR_MESSAGE);
+                    //setVisible(false);
+                    cancelled = true;
+                    cancel(true);
+        		} catch (Throwable ex) {
         			ex.printStackTrace();
         			JOptionPane.showMessageDialog(null,
         					"The campaign file could not be loaded.\nPlease check the log file for details.",
@@ -201,14 +209,8 @@ public class DataLoadingDialog extends JDialog implements PropertyChangeListener
         			//setVisible(false);
         			cancelled = true;
         			cancel(true);
-        		} catch(OutOfMemoryError e) {
-        		    JOptionPane.showMessageDialog(null,
-                            "MekHQ ran out of memory attempting to load the campaign file. \nTry increasing the memory allocated to MekHQ and reloading.\nSee the FAQ at http://megamek.info for details.",
-                            "Not Enough Memory",
-                            JOptionPane.ERROR_MESSAGE);
-                    //setVisible(false);
-                    cancelled = true;
-                    cancel(true);
+        		} finally {
+        		    MekHQ.logMessage("Campaign loading process finished.");
         		}
             }
             setProgress(4);

@@ -20,9 +20,14 @@ package mekhq.campaign.personnel;
 
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
+@XmlJavaTypeAdapter(BodyLocation.XMLAdapter.class)
 public enum BodyLocation {
     HEAD(0, "head"), LEFT_LEG(1, "left leg", true), LEFT_ARM(2, "left arm", true),
     CHEST(3, "chest"), ABDOMEN(4, "abdomen"), RIGHT_ARM(5, "right arm", true), RIGHT_LEG(6, "right leg", true),
@@ -41,6 +46,11 @@ public enum BodyLocation {
         for(BodyLocation workTime : values()) {
             if(workTime.id > 0) {
                 idMap[workTime.id] = workTime;
+            }
+            if(workTime.children.isEmpty()) {
+                workTime.children = EnumSet.noneOf(BodyLocation.class);
+            } else {
+                workTime.children = EnumSet.copyOf(workTime.children);
             }
         }
     }
@@ -65,7 +75,9 @@ public enum BodyLocation {
     public final boolean isLimb;
     public final String readableName;
     public final BodyLocation parent;
-    private final Set<BodyLocation> children = EnumSet.noneOf(BodyLocation.class);
+    // We can't use an EnumSet here because it requires the whole enum to be initialised. We
+    // fix it later, in the static code block.
+    private Set<BodyLocation> children = new HashSet<>();
 
     private BodyLocation(int id, String readableName) {
         this(id, readableName, false, null);
@@ -104,6 +116,19 @@ public enum BodyLocation {
     
     public boolean isChildOf(BodyLocation parent) {
         return (null != this.parent) ? (this.parent == parent) || this.parent.isChildOf(parent) : false;
+    }
+    
+    private static final class XMLAdapter extends XmlAdapter<String, BodyLocation> {
+        @Override
+        public BodyLocation unmarshal(String v) throws Exception {
+            return (null == v) ? null : BodyLocation.of(v);
+        }
+
+        @Override
+        public String marshal(BodyLocation v) throws Exception {
+            return (null == v) ? null : v.toString();
+        }
+        
     }
 }
 

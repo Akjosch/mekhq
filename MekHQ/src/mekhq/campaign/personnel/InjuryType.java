@@ -31,9 +31,13 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.IntUnaryOperator;
 
+import javax.xml.bind.annotation.adapters.XmlAdapter;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import mekhq.Utilities;
 import mekhq.campaign.Campaign;
 
+@XmlJavaTypeAdapter(InjuryType.XMLAdapter.class)
 public class InjuryType {
     // Registry methods
     private static final Map<String, InjuryType> REGISTRY = new HashMap<>();
@@ -114,7 +118,7 @@ public class InjuryType {
     protected int maxSeverity = 1;
     protected String fluffText = "";
     
-    protected Set<BodyLocation> allowedLocations = EnumSet.allOf(BodyLocation.class);
+    protected Set<BodyLocation> allowedLocations = null;
     
     protected InjuryType() {
     }
@@ -128,6 +132,9 @@ public class InjuryType {
     }
     
     public boolean isValidInLocation(BodyLocation loc) {
+        if(null == allowedLocations) {
+            allowedLocations = EnumSet.allOf(BodyLocation.class);
+        }
         return allowedLocations.contains(loc);
     }
     
@@ -221,5 +228,18 @@ public class InjuryType {
             this.desc = desc;
             this.action = action;
         }
+    }
+    
+    private static final class XMLAdapter extends XmlAdapter<String, InjuryType> {
+        @Override
+        public InjuryType unmarshal(String v) throws Exception {
+            return (null == v) ? null : InjuryType.byKey(v);
+        }
+
+        @Override
+        public String marshal(InjuryType v) throws Exception {
+            return (null == v) ? null : v.getKey();
+        }
+        
     }
 }
