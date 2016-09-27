@@ -109,7 +109,7 @@ import mekhq.Utilities;
 import mekhq.Version;
 import mekhq.campaign.event.DayEndingEvent;
 import mekhq.campaign.event.NewDayEvent;
-import mekhq.campaign.event.PersonHealingEvent;
+import mekhq.campaign.event.medical.PersonHealingEvent;
 import mekhq.campaign.finances.Asset;
 import mekhq.campaign.finances.Finances;
 import mekhq.campaign.finances.Loan;

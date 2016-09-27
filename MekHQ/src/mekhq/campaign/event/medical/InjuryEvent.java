@@ -16,11 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with MekHQ.  If not, see <http://www.gnu.org/licenses/>.
  */
-package mekhq.campaign.event;
+package mekhq.campaign.event.medical;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
+import mekhq.campaign.event.PersonEvent;
 import mekhq.campaign.personnel.Injury;
 import mekhq.campaign.personnel.Person;
 
