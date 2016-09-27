@@ -73,6 +73,7 @@ import mekhq.campaign.CampaignOptions;
 import mekhq.campaign.ExtraData;
 import mekhq.campaign.LogEntry;
 import mekhq.campaign.event.InjuryEvent;
+import mekhq.campaign.event.MedicalCheckEvent;
 import mekhq.campaign.parts.Part;
 import mekhq.campaign.unit.Unit;
 import mekhq.campaign.work.IAcquisitionWork;
@@ -2453,7 +2454,9 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
 
     @Override
     public boolean needsFixing() {
-        return (hits > 0 || needsAMFixing()) && status != S_KIA && status == S_ACTIVE;
+        MedicalCheckEvent medicalCheck = new MedicalCheckEvent(this, (hits > 0) && (status == S_ACTIVE));
+        MekHQ.EVENT_BUS.trigger(medicalCheck);
+        return medicalCheck.needsHealing();
     }
 
     @Override
@@ -3172,7 +3175,7 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
      * All methods below are for the Advanced Medical option **
      */
 
-    public ArrayList<Injury> getInjuries() {
+    public List<Injury> getInjuries() {
         return injuries;
     }
 

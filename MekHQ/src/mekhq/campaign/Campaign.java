@@ -2213,9 +2213,7 @@ public class Campaign implements Serializable {
             p.resetMinutesLeft();
             // Reset acquisitions made to 0
             p.setAcquisition(0);
-            if (p.needsFixing()
-                || (getCampaignOptions().useAdvancedMedical() && p
-                    .needsAMFixing())) {
+            if(p.needsFixing()) {
                 p.decrementDaysToWaitForHealing();
                 Person doctor = getPerson(p.getDoctorId());
                 if (null != doctor && doctor.isDoctor()) {

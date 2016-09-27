@@ -18,22 +18,25 @@
  */
 package mekhq.campaign.event;
 
-import java.util.Objects;
-
-import megamek.common.event.MMEvent;
 import mekhq.campaign.personnel.Person;
 
 /**
- * Abstract base class for all events pertaining to a person
+ * An event gathering modifying if a person needs medical attention. Event handlers can
+ * intercept it and modify the <tt>needsHealing</tt> variable.
  */
-public abstract class PersonEvent extends MMEvent {
-    private Person person;
-    
-    public PersonEvent(Person person) {
-        this.person = Objects.requireNonNull(person);
+public class MedicalCheckEvent extends PersonEvent {
+    protected boolean needsHealing;
+
+    public MedicalCheckEvent(Person person, boolean needsHealing) {
+        super(person);
+        this.needsHealing = needsHealing;
+    }
+
+    public boolean needsHealing() {
+        return needsHealing;
     }
     
-    public Person getPerson() {
-        return person;
+    public void setNeedsHealing(boolean needsHealing) {
+        this.needsHealing = needsHealing;
     }
 }

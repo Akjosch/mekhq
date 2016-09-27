@@ -23,6 +23,7 @@ import java.util.Objects;
 import megamek.common.event.Subscribe;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.event.BattleFinishedEvent;
+import mekhq.campaign.event.MedicalCheckEvent;
 import mekhq.campaign.event.NewDayEvent;
 import mekhq.campaign.personnel.Injury;
 import mekhq.campaign.personnel.Person;
@@ -77,6 +78,16 @@ public final class AMEventHandler {
             Unit u = campaign.getUnit(p.getUnitId());
             if (null != u) {
                 u.resetPilotAndEntity();
+            }
+        }
+    }
+    
+    @Subscribe
+    private void medicalCheckHandler(MedicalCheckEvent event) {
+        for(Injury i : event.getPerson().getInjuries()) {
+            if(i.getTime() > 0) {
+                event.setNeedsHealing(true);
+                break;
             }
         }
     }
