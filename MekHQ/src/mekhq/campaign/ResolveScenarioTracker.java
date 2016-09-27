@@ -61,7 +61,7 @@ import megamek.common.event.GameVictoryEvent;
 import megamek.common.loaders.EntityLoadingException;
 import mekhq.MekHQ;
 import mekhq.Utilities;
-import mekhq.campaign.event.BattleFinishedEvent;
+import mekhq.campaign.event.PersonBattleFinishedEvent;
 import mekhq.campaign.finances.Transaction;
 import mekhq.campaign.mission.AtBContract;
 import mekhq.campaign.mission.AtBScenario;
@@ -891,7 +891,7 @@ public class ResolveScenarioTracker {
             if(null == person || null == status) {
                 continue;
             }
-            MekHQ.EVENT_BUS.trigger(new BattleFinishedEvent(person, status));
+            MekHQ.EVENT_BUS.trigger(new PersonBattleFinishedEvent(person, status));
             if(status.getHits() > person.getHits()) {
                 person.injure(status.getHits());
             }
@@ -925,7 +925,7 @@ public class ResolveScenarioTracker {
             if(null == person || null == status) {
                 continue;
             }
-            MekHQ.EVENT_BUS.trigger(new BattleFinishedEvent(person, status));
+            MekHQ.EVENT_BUS.trigger(new PersonBattleFinishedEvent(person, status));
             if(status.isDead()) {
             	continue;
             }

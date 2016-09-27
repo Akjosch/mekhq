@@ -148,7 +148,6 @@ import mekhq.campaign.parts.equipment.MissingEquipmentPart;
 import mekhq.campaign.parts.equipment.MissingMASC;
 import mekhq.campaign.personnel.Ancestors;
 import mekhq.campaign.personnel.Bloodname;
-import mekhq.campaign.personnel.Injury;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.personnel.RankTranslator;
 import mekhq.campaign.personnel.Ranks;
@@ -683,6 +682,7 @@ public class Campaign implements Serializable {
             msns.add(m);
         }
         Collections.sort(msns, new Comparator<Mission>() {
+            @Override
             public int compare(final Mission m1, final Mission m2) {
                 return ((Comparable<Boolean>) m2.isActive()).compareTo(m1
                                                                                .isActive());
@@ -1411,25 +1411,16 @@ public class Campaign implements Serializable {
 	}
 */
     public String healPerson(Person medWork, Person doctor) {
-        PersonHealingEvent healingEvent = new PersonHealingEvent(medWork, doctor);
-        if(MekHQ.EVENT_BUS.trigger(healingEvent)) {
-            return healingEvent.getReport();
-        }
-        // The doctor might have been replaced by an event handler
-        doctor = healingEvent.getDoctor();
-        if(null == doctor) {
-            return healingEvent.getReport();
-        }
-        String report = healingEvent.getReport();
-        report += doctor.getHyperlinkedFullTitle() + " attempts to heal "
-                  + medWork.getPatientName();
+        StringBuilder report = new StringBuilder();
+        report.append(doctor.getHyperlinkedFullTitle()).append(" attempts to heal ")
+                  .append(medWork.getPatientName());
         TargetRoll target = getTargetFor(medWork, doctor);
         int roll = Compute.d6(2);
-        report = report + ",  needs " + target.getValueAsString()
-                 + " and rolls " + roll + ":";
+        report.append(",  needs ").append(target.getValueAsString())
+            .append(" and rolls ").append(roll).append(":");
         int xpGained = 0;
         if (roll >= target.getValue()) {
-            report = report + medWork.succeed();
+            report = report.append(medWork.succeed());
             Unit u = getUnit(medWork.getUnitId());
             if (null != u) {
                 u.resetPilotAndEntity();
@@ -1445,18 +1436,17 @@ public class Campaign implements Serializable {
                 doctor.setNTasks(0);
             }
         } else {
-            report = report + medWork.fail(0);
+            report = report.append(medWork.fail(0));
             if (roll == 2 && target.getValue() != TargetRoll.AUTOMATIC_FAIL) {
                 xpGained += getCampaignOptions().getMistakeXP();
             }
         }
         if (xpGained > 0) {
             doctor.setXp(doctor.getXp() + xpGained);
-            report += " (" + xpGained + "XP gained) ";
+            report.append(" (").append(xpGained).append("XP gained) ");
         }
-        medWork.setDaysToWaitForHealing(getCampaignOptions()
-                                                .getHealingWaitingPeriod());
-        return report;
+        medWork.setDaysToWaitForHealing(getCampaignOptions().getHealingWaitingPeriod());
+        return report.toString();
     }
 
     public TargetRoll getTargetFor(IMedicalWork medWork, Person doctor) {
@@ -2143,7 +2133,8 @@ public class Campaign implements Serializable {
 
         		/* Sort by date and add to the campaign */
         		Collections.sort(sList, new Comparator<AtBScenario>() {
-					public int compare(AtBScenario s1, AtBScenario s2) {
+					@Override
+                    public int compare(AtBScenario s1, AtBScenario s2) {
 						return s1.getDate().compareTo(s2.getDate());
 					}
         		});
@@ -2221,15 +2212,22 @@ public class Campaign implements Serializable {
             if(p.needsFixing()) {
                 p.decrementDaysToWaitForHealing();
                 Person doctor = getPerson(p.getDoctorId());
-                if (null != doctor && doctor.isDoctor()) {
-                    if (p.getDaysToWaitForHealing() <= 0) {
-                        addReport(healPerson(p, doctor));
-                    }
-                } else if (p.checkNaturalHealing(15)) {
-                    addReport(p.getHyperlinkedFullTitle() + " heals naturally!");
-                    Unit u = getUnit(p.getUnitId());
-                    if (null != u) {
-                        u.resetPilotAndEntity();
+                PersonHealingEvent healingEvent = new PersonHealingEvent(p, doctor);
+                boolean healingDone = MekHQ.EVENT_BUS.trigger(healingEvent);
+                addReport(healingEvent.getReport());
+                if(!healingDone) {
+                    doctor = healingEvent.getDoctor();
+                    // Default healing
+                    if((null != doctor) && doctor.isDoctor()) {
+                        if(p.getDaysToWaitForHealing() <= 0) {
+                            addReport(healPerson(p, doctor));
+                        }
+                    } else if(p.checkNaturalHealing(15)) {
+                        addReport(p.getHyperlinkedFullTitle() + " heals naturally!");
+                        Unit u = getUnit(p.getUnitId());
+                        if(null != u) {
+                            u.resetPilotAndEntity();
+                        }
                     }
                 }
             }
@@ -2830,6 +2828,9 @@ public class Campaign implements Serializable {
     }
 
     public void addReport(String r) {
+        if((null == r) || r.isEmpty()) {
+            return;
+        }
         currentReport.add(r);
         if( currentReportHTML.length() > 0 ) {
         	currentReportHTML = currentReportHTML + REPORT_LINEBREAK + r;
@@ -6086,6 +6087,7 @@ public class Campaign implements Serializable {
             }
         }
         Collections.sort(personalKills, new Comparator<Kill>() {
+            @Override
             public int compare(final Kill u1, final Kill u2) {
                 return u1.getDate().compareTo(u2.getDate());
             }

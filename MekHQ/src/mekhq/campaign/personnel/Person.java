@@ -2386,8 +2386,14 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
         return hits;
     }
 
-    private void setHits(int h) {
-        this.hits = h;
+    /**
+     * Set the amount of hits this person has suffered.
+     * <p>
+     * This method doesn't trigger any checks for medical event handlers. For that, use
+     * <tt>injure(hits)</tt>.
+     */
+    public void setHits(int hits) {
+        this.hits = hits;
     }
 
     // Injury handling
@@ -2444,10 +2450,15 @@ public class Person implements Serializable, MekHqXmlSerializable, IMedicalWork 
         return isLocationMissing(loc.parent);
     }
 
+    /**
+     * Reduces the hits by 1, optionally removing the assigned doctor when they reach 0.
+     * <p>
+     * TODO: Remake it so that it supports pluggable medical systems
+     */
     @Override
     public void heal() {
         hits = Math.max(hits - 1, 0);
-        if (!needsFixing()) {
+        if(!needsFixing()) {
             doctorId = null;
         }
     }

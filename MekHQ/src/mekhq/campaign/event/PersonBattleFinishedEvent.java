@@ -24,10 +24,10 @@ import mekhq.campaign.personnel.Person;
 /**
  * An event fired for every person who just came back from battle, dead or alive.
  */
-public class BattleFinishedEvent extends PersonEvent {
+public class PersonBattleFinishedEvent extends PersonEvent {
     private PersonStatus status;
     
-    public BattleFinishedEvent(Person person, PersonStatus status) {
+    public PersonBattleFinishedEvent(Person person, PersonStatus status) {
         super(person);
         this.status = status;
     }

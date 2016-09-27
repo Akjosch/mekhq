@@ -22,7 +22,7 @@ import java.util.Objects;
 
 import megamek.common.event.Subscribe;
 import mekhq.campaign.Campaign;
-import mekhq.campaign.event.BattleFinishedEvent;
+import mekhq.campaign.event.PersonBattleFinishedEvent;
 import mekhq.campaign.event.NewDayEvent;
 import mekhq.campaign.event.medical.MedicalCheckEvent;
 import mekhq.campaign.event.medical.PersonHealingEvent;
@@ -38,7 +38,7 @@ public final class AMEventHandler {
     }
     
     @Subscribe
-    private void battleHandler(BattleFinishedEvent e) {
+    private void battleHandler(PersonBattleFinishedEvent e) {
         InjuryUtil.resolveAfterCombat(campaign, e.getPerson(), e.getStatus().getHits());
         InjuryUtil.resolveCombatDamage(campaign, e.getPerson(), e.getStatus().getHits());
         e.getStatus().setHits(0);
@@ -50,10 +50,10 @@ public final class AMEventHandler {
     @Subscribe
     private void newDayHandler(NewDayEvent e) {
         for(Person p : campaign.getPersonnel()) {
-            for(Injury injury : p.getInjuries()) {
+            for(Injury i : p.getInjuries()) {
                 campaign.addReport(p.getHyperlinkedFullTitle() + " spent time resting to heal "
                           + p.getGenderPronoun(Person.PRONOUN_HISHER)
-                          + " " + injury.getName() + "!");
+                          + " " + i.getName() + "!");
             }
             InjuryUtil.resolveDailyHealing(campaign, p);
             Unit u = campaign.getUnit(p.getUnitId());
