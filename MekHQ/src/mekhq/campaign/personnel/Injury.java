@@ -44,6 +44,7 @@ public class Injury {
     private BodyLocation location;
     private InjuryType type;
     private boolean permanent;
+    // Flag to indicate someone capable successfully treated this injury.
     private boolean workedOn;
     private boolean extended;
     protected UUID id;
@@ -149,7 +150,7 @@ public class Injury {
         extended = ext;
     }
     
-    public boolean getWorkedOn() {
+    public boolean isWorkedOn() {
         return workedOn;
     }
     

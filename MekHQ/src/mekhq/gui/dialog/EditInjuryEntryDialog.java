@@ -224,7 +224,7 @@ public class EditInjuryEntryDialog extends JDialog {
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         panMain.add(ddPermanent, gridBagConstraints);
         
-        ddWorkedOn.setSelectedIndex(injury.getWorkedOn() ? 0 : 1);
+        ddWorkedOn.setSelectedIndex(injury.isWorkedOn() ? 0 : 1);
         ddWorkedOn.setName("ddWorkedOn");
         ddWorkedOn.setEditable(false);
         ddWorkedOn.setBorder(BorderFactory.createCompoundBorder(

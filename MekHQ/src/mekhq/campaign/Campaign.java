@@ -2230,7 +2230,7 @@ public class Campaign implements Serializable {
                            && p.needsAMFixing() && doctor == null) {
                     for (Injury injury : p.getInjuries()) {
                         // We didn't get treated by a doctor... oops!
-                        if (!injury.getWorkedOn()) {
+                        if (!injury.isWorkedOn()) {
                             if (!injury.getExtended()) {
                                 injury.setExtended(true);
                                 injury.setTime(Math.round(injury.getTime()

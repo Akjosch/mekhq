@@ -293,7 +293,7 @@ public class EditPersonnelInjuriesDialog extends javax.swing.JDialog {
 				return Boolean.toString(entry.isPermanent());
 			}
 			if(col == COL_WORKEDON) {
-				return Boolean.toString(entry.getWorkedOn());
+				return Boolean.toString(entry.isWorkedOn());
 			}
 			if(col == COL_EXTENDED) {
 				return Boolean.toString(entry.getExtended());

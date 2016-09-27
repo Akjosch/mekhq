@@ -44,6 +44,9 @@ import mekhq.campaign.personnel.Skill;
 import mekhq.campaign.personnel.SkillType;
 import mekhq.campaign.unit.Unit;
 
+/**
+ * Static helper methods implementing the "advanced medical" sub-system
+ */
 public final class InjuryUtil {
     // Fumble and critical success limits for doctor skills levels 0-10, on a d100
     private static final int FUMBLE_LIMITS[] = {50, 40, 30, 20, 12, 6, 5, 4, 3, 2, 1};
@@ -280,7 +283,7 @@ public final class InjuryUtil {
         }
 
         for(Injury i : p.getInjuries()) {
-            if(!i.getWorkedOn()) {
+            if(!i.isWorkedOn()) {
                 final int critTimeReduction = i.getTime() - (int) Math.floor(i.getTime() * 0.9);
                 if(roll < fumbleLimit) {
                     result.add(new InjuryAction(
@@ -371,15 +374,17 @@ public final class InjuryUtil {
         p.getInjuries().forEach((i) -> {
             if(i.getTime() <= 1 && !i.isPermanent()) {
                 InjuryType type = i.getType();
-                if((type == InjuryTypes.BROKEN_LIMB) || (type == InjuryTypes.SPRAIN)
-                    || (type == InjuryTypes.CONCUSSION) || (type == InjuryTypes.BROKEN_COLLAR_BONE)) {
+                if(!i.isWorkedOn() &&
+                    ((type == InjuryTypes.BROKEN_LIMB) || (type == InjuryTypes.SPRAIN)
+                    || (type == InjuryTypes.CONCUSSION) || (type == InjuryTypes.BROKEN_COLLAR_BONE))) {
                     result.add(new InjuryAction(
-                        String.format("83% chance of %s healing, 17% chance of it becoming permanent.",
+                        String.format("83%% chance of %s healing, 17%% chance of it becoming permanent.",
                             i.getName()),
                         (rnd, gen) -> {
                             i.setTime(0);
                             if(rnd.applyAsInt(6) == 0) {
                                 i.setPermanent(true);
+                                p.addLogEntry(c.getDate(), String.format("%s didn't heal properly", i.getName()));
                             } else {
                                 p.removeInjury(i);
                             }
@@ -410,7 +415,19 @@ public final class InjuryUtil {
         Objects.requireNonNull(p);
         
         List<InjuryAction> result = new ArrayList<>();
-        // TODO
+        
+        p.getInjuries().forEach((i) -> {
+            if((i.getTime() > 0) && !i.isPermanent() && !i.isWorkedOn()) {
+                result.add(new InjuryAction(
+                    String.format("30%% chance of %s worsening its condition", i.getName()),
+                    (rnd, gen) -> {
+                        if(rnd.applyAsInt(100) < 30) {
+                            i.setTime(i.getTime() + 1);
+                        }
+                    }));
+            }
+        });
+        
         return result;
     }
 }
