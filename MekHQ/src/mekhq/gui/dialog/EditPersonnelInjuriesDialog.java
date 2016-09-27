@@ -26,7 +26,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridLayout;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -255,7 +254,7 @@ public class EditPersonnelInjuriesDialog extends javax.swing.JDialog {
         	case COL_FLUFF:
                 return "Fluff Message";
         	case COL_HITS:
-        		return "Number of Hits";
+        		return "Severity";
         	case COL_PERMANENT:
         		return "Is Permanent";
         	case COL_WORKEDON:

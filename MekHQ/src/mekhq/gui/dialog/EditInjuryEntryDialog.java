@@ -66,6 +66,8 @@ public class EditInjuryEntryDialog extends JDialog {
     private JComboBox<String> ddExtended;
     private JPanel panBtn;
     private JPanel panMain;
+    private BodyLocationChoice[] locations;
+    private InjuryTypeChoice[] types;
     
     /** Creates new form EditInjuryEntryDialog */
     public EditInjuryEntryDialog(java.awt.Frame parent, boolean modal, Injury e) {
@@ -79,13 +81,13 @@ public class EditInjuryEntryDialog extends JDialog {
     private void initComponents() {
     	GridBagConstraints gridBagConstraints;
 
-    	BodyLocationChoice[] locations = new BodyLocationChoice[BodyLocation.values().length];
+    	locations = new BodyLocationChoice[BodyLocation.values().length];
     	int i = 0;
     	for(BodyLocation loc : BodyLocation.values()) {
     		locations[i] = new BodyLocationChoice(loc);
     		++ i;
     	}
-    	InjuryTypeChoice[] types = InjuryType.getAllTypes().stream()
+    	types = InjuryType.getAllTypes().stream()
     	    .map((type) -> new InjuryTypeChoice(type))
     	    .collect(Collectors.toList()).toArray(new InjuryTypeChoice[0]);
     	String[] tf = { "True", "False" };
@@ -130,7 +132,12 @@ public class EditInjuryEntryDialog extends JDialog {
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         panMain.add(txtDays, gridBagConstraints);
         
-        ddLocation.setSelectedIndex(injury.getLocation());
+        for(BodyLocationChoice choice : locations) {
+            if(injury.getLocation() == choice.loc) {
+                ddLocation.setSelectedItem(choice);
+                break;
+            }
+        }
         ddLocation.setName("ddLocation");
         ddLocation.setEditable(false);
         ddLocation.setBorder(BorderFactory.createCompoundBorder(
@@ -148,7 +155,12 @@ public class EditInjuryEntryDialog extends JDialog {
         gridBagConstraints.insets = new java.awt.Insets(5, 5, 5, 5);
         panMain.add(ddLocation, gridBagConstraints);
         
-        ddType.setSelectedIndex(injury.getType());
+        for(InjuryTypeChoice choice : types) {
+            if(injury.getType() == choice.type) {
+                ddType.setSelectedItem(choice);
+                break;
+            }
+        }
         ddType.setName("ddType");
         ddType.setEditable(false);
         ddType.setBorder(BorderFactory.createCompoundBorder(
@@ -326,6 +338,11 @@ public class EditInjuryEntryDialog extends JDialog {
         public BodyLocationChoice(BodyLocation loc) {
             this.loc = loc;
         }
+        
+        @Override
+        public String toString() {
+            return loc.readableName;
+        }
     }
     
     private static class InjuryTypeChoice {
@@ -335,5 +352,9 @@ public class EditInjuryEntryDialog extends JDialog {
             this.type = type;
         }
         
+        @Override
+        public String toString() {
+            return type.getName(BodyLocation.GENERIC, 1);
+        }
     }
 }
