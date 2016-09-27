@@ -25,6 +25,7 @@ import mekhq.campaign.Campaign;
 import mekhq.campaign.event.BattleFinishedEvent;
 import mekhq.campaign.event.MedicalCheckEvent;
 import mekhq.campaign.event.NewDayEvent;
+import mekhq.campaign.event.PersonHealingEvent;
 import mekhq.campaign.personnel.Injury;
 import mekhq.campaign.personnel.Person;
 import mekhq.campaign.unit.Unit;
@@ -63,10 +64,16 @@ public final class AMEventHandler {
     }
     
     @Subscribe
-    private void medicalCheckHandler(MedicalCheckEvent event) {
-        for(Injury i : event.getPerson().getInjuries()) {
+    private void healingHandler(PersonHealingEvent e) {
+        // We replace the default healing in the NewDayEvent handler
+        e.cancel();
+    }
+    
+    @Subscribe
+    private void medicalCheckHandler(MedicalCheckEvent e) {
+        for(Injury i : e.getPerson().getInjuries()) {
             if(i.getTime() > 0) {
-                event.setNeedsHealing(true);
+                e.setNeedsHealing(true);
                 break;
             }
         }

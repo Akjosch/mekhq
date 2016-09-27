@@ -27,6 +27,7 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.swing.JPanel;
@@ -53,7 +54,7 @@ public class EditPersonnelInjuriesDialog extends javax.swing.JDialog {
     /*private Campaign campaign;
     private int days;*/
     private Person person;
-    private ArrayList<Injury> injuries;
+    private List<Injury> injuries;
     private InjuryTableModel injuryModel;
     
     private javax.swing.JButton btnAdd;
@@ -216,7 +217,7 @@ public class EditPersonnelInjuriesDialog extends javax.swing.JDialog {
 		private static final long serialVersionUID = 534443424190075264L;
 
 		protected String[] columnNames;
-		protected ArrayList<Injury> data;
+		protected List<Injury> data;
 
 		public final static int COL_DAYS	=	0;
 		public final static int COL_LOCATION =	1;
@@ -228,7 +229,7 @@ public class EditPersonnelInjuriesDialog extends javax.swing.JDialog {
 		public final static int COL_EXTENDED =	7;
         public final static int N_COL		=	8;
 		
-		public InjuryTableModel(ArrayList<Injury> entries) {
+		public InjuryTableModel(List<Injury> entries) {
 			data = entries;
 		}
 		
@@ -354,7 +355,7 @@ public class EditPersonnelInjuriesDialog extends javax.swing.JDialog {
         }
         
         //fill table with values
-        public void setData(ArrayList<Injury> entries) {
+        public void setData(List<Injury> entries) {
             data = entries;
             fireTableDataChanged();
         }

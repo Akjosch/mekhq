@@ -13,6 +13,7 @@ import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import javax.swing.BorderFactory;
@@ -624,7 +625,7 @@ public class PersonViewPanel extends javax.swing.JPanel {
         JLabel lblInjury;
         JTextArea txtInjury;
         int row = 0;
-        ArrayList<Injury> injuries = person.getInjuries();
+        List<Injury> injuries = person.getInjuries();
         for(Injury injury : injuries) {
             lblInjury = new JLabel(injury.getFluff());
             gridBagConstraints = new GridBagConstraints();

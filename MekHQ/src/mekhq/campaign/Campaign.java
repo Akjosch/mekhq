@@ -109,6 +109,7 @@ import mekhq.Utilities;
 import mekhq.Version;
 import mekhq.campaign.event.DayEndingEvent;
 import mekhq.campaign.event.NewDayEvent;
+import mekhq.campaign.event.PersonHealingEvent;
 import mekhq.campaign.finances.Asset;
 import mekhq.campaign.finances.Finances;
 import mekhq.campaign.finances.Loan;
@@ -1410,10 +1411,16 @@ public class Campaign implements Serializable {
 	}
 */
     public String healPerson(Person medWork, Person doctor) {
-        if (getCampaignOptions().useAdvancedMedical()) {
-            return advancedMedicalHealPerson(medWork, doctor);
+        PersonHealingEvent healingEvent = new PersonHealingEvent(medWork, doctor);
+        if(MekHQ.EVENT_BUS.trigger(healingEvent)) {
+            return healingEvent.getReport();
         }
-        String report = "";
+        // The doctor might have been replaced by an event handler
+        doctor = healingEvent.getDoctor();
+        if(null == doctor) {
+            return healingEvent.getReport();
+        }
+        String report = healingEvent.getReport();
         report += doctor.getHyperlinkedFullTitle() + " attempts to heal "
                   + medWork.getPatientName();
         TargetRoll target = getTargetFor(medWork, doctor);
@@ -1464,9 +1471,7 @@ public class Campaign implements Serializable {
                                   medWork.getPatientName()
                                   + " is already being tended by another doctor");
         }
-        if (!medWork.needsFixing()
-            && !(getCampaignOptions().useAdvancedMedical() && medWork
-                .needsAMFixing())) {
+        if (!medWork.needsFixing()) {
             return new TargetRoll(TargetRoll.IMPOSSIBLE,
                                   medWork.getPatientName() + " does not require healing.");
         }
@@ -2222,38 +2227,6 @@ public class Campaign implements Serializable {
                     }
                 } else if (p.checkNaturalHealing(15)) {
                     addReport(p.getHyperlinkedFullTitle() + " heals naturally!");
-                    Unit u = getUnit(p.getUnitId());
-                    if (null != u) {
-                        u.resetPilotAndEntity();
-                    }
-                } else if (getCampaignOptions().useAdvancedMedical()
-                           && p.needsAMFixing() && doctor == null) {
-                    for (Injury injury : p.getInjuries()) {
-                        // We didn't get treated by a doctor... oops!
-                        if (!injury.isWorkedOn()) {
-                            if (!injury.getExtended()) {
-                                injury.setExtended(true);
-                                injury.setTime(Math.round(injury.getTime()
-                                                          * (1 + ((Compute.randomInt(15) + 35) / 100))));
-                                // We need to set the original time to the
-                                // extended time for purposes of seeing if it
-                                // becomes permanent
-                                injury.setOriginalTime(injury.getTime());
-                            }
-                            // The longer you wait to get this checked out, the
-                            // more likely it is to become permanent.
-							/*
-							 * if (Compute.randomInt(100) <
-							 * (injury.getOriginalTime() - injury.getTime())) {
-							 *
-							 * }
-							 */
-                        }
-                        addReport(p.getHyperlinkedFullTitle() + " spent time resting to heal "
-                                  + p.getGenderPronoun(Person.PRONOUN_HISHER)
-                                  + " " + injury.getName() + "!");
-                    }
-                    p.AMheal();
                     Unit u = getUnit(p.getUnitId());
                     if (null != u) {
                         u.resetPilotAndEntity();

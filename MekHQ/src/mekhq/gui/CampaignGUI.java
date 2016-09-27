@@ -4234,7 +4234,7 @@ public class CampaignGUI extends JPanel {
             for(int i = 0; i < patientSize; ++ i) {
                 Person p = unassignedPatientModel.getElementAt(i);
                 if((null != p)
-                        && (p.needsFixing() || (getCampaign().getCampaignOptions().useAdvancedMedical() && p.needsAMFixing()))
+                        && p.needsFixing()
                         && (getCampaign().getPatientsFor(doctor) < 25)
                         && (getCampaign().getTargetFor(p, doctor).getValue() != TargetRoll.IMPOSSIBLE)) {
                         p.setDoctorId(doctor.getId(), getCampaign().getCampaignOptions().getHealingWaitingPeriod());
@@ -4245,7 +4245,7 @@ public class CampaignGUI extends JPanel {
         } else {
             for (Person p : selectedPatients) {
                 if((null != p)
-                    && (p.needsFixing() || (getCampaign().getCampaignOptions().useAdvancedMedical() && p.needsAMFixing()))
+                    && p.needsFixing()
                     && (getCampaign().getPatientsFor(doctor) < 25)
                     && (getCampaign().getTargetFor(p, doctor).getValue() != TargetRoll.IMPOSSIBLE)) {
                     p.setDoctorId(doctor.getId(), getCampaign().getCampaignOptions().getHealingWaitingPeriod());

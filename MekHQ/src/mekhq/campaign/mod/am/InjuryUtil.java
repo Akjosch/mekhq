@@ -391,7 +391,7 @@ public final class InjuryUtil {
                         }));
                 } else {
                     result.add(new InjuryAction(
-                        String.format("%s heals by itself", i.getName()),
+                        String.format("%s heals", i.getName()),
                         (rnd, gen) -> {
                             i.setTime(0);
                             p.removeInjury(i);
@@ -399,7 +399,7 @@ public final class InjuryUtil {
                 }
             } else if(i.getTime() > 1) {
                 result.add(new InjuryAction(
-                    String.format("%s continues healing by itself", i.getName()),
+                    String.format("%s continues healing", i.getName()),
                     (rnd, gen) -> {
                         i.setTime(Math.max(i.getTime() - 1, 0));
                     }));
