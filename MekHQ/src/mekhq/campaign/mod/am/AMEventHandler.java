@@ -24,6 +24,7 @@ import megamek.common.event.Subscribe;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.event.PersonBattleFinishedEvent;
 import mekhq.campaign.event.NewDayEvent;
+import mekhq.campaign.event.OptionsChangedEvent;
 import mekhq.campaign.event.medical.MedicalCheckEvent;
 import mekhq.campaign.event.medical.PersonHealingEvent;
 import mekhq.campaign.personnel.Injury;
@@ -32,13 +33,23 @@ import mekhq.campaign.unit.Unit;
 
 public final class AMEventHandler {
     private Campaign campaign;
+    private boolean enabled;
     
     public AMEventHandler(Campaign campaign) {
         this.campaign = Objects.requireNonNull(campaign);
+        this.enabled = campaign.getCampaignOptions().useAdvancedMedical();
     }
     
     @Subscribe
-    private void battleHandler(PersonBattleFinishedEvent e) {
+    public void campaignOptionsChangedHandler(OptionsChangedEvent e) {
+        enabled = e.getOptions().useAdvancedMedical();
+    }
+    
+    @Subscribe
+    public void battleHandler(PersonBattleFinishedEvent e) {
+        if(!enabled) {
+            return;
+        }
         InjuryUtil.resolveAfterCombat(campaign, e.getPerson(), e.getStatus().getHits());
         InjuryUtil.resolveCombatDamage(campaign, e.getPerson(), e.getStatus().getHits());
         e.getStatus().setHits(0);
@@ -48,7 +59,10 @@ public final class AMEventHandler {
     }
     
     @Subscribe
-    private void newDayHandler(NewDayEvent e) {
+    public void newDayHandler(NewDayEvent e) {
+        if(!enabled) {
+            return;
+        }
         for(Person p : campaign.getPersonnel()) {
             for(Injury i : p.getInjuries()) {
                 campaign.addReport(p.getHyperlinkedFullTitle() + " spent time resting to heal "
@@ -64,13 +78,18 @@ public final class AMEventHandler {
     }
     
     @Subscribe
-    private void healingHandler(PersonHealingEvent e) {
-        // We replace the default healing in the NewDayEvent handler
-        e.cancel();
+    public void healingHandler(PersonHealingEvent e) {
+        if(enabled) {
+            // We replace the default healing in the NewDayEvent handler
+            e.cancel();
+        }
     }
     
     @Subscribe
-    private void medicalCheckHandler(MedicalCheckEvent e) {
+    public void medicalCheckHandler(MedicalCheckEvent e) {
+        if(!enabled) {
+            return;
+        }
         for(Injury i : e.getPerson().getInjuries()) {
             if(i.getTime() > 0) {
                 e.setNeedsHealing(true);

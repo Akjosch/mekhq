@@ -97,6 +97,7 @@ import mekhq.campaign.Campaign;
 import mekhq.campaign.CampaignOptions;
 import mekhq.campaign.GamePreset;
 import mekhq.campaign.RandomSkillPreferences;
+import mekhq.campaign.event.OptionsChangedEvent;
 import mekhq.campaign.market.PersonnelMarket;
 import mekhq.campaign.parts.Part;
 import mekhq.campaign.personnel.Person;
@@ -3971,6 +3972,7 @@ public class CampaignOptionsDialog extends javax.swing.JDialog {
 				////TODO: it would be nice if we could just update the choices in this dialog now
 				//rather than closing it, but that is currently not possible given how
 				//this dialog is set up
+				MekHQ.EVENT_BUS.trigger(new OptionsChangedEvent(campaign));
 				this.setVisible(false);
 			}
 		}
@@ -4315,6 +4317,7 @@ public class CampaignOptionsDialog extends javax.swing.JDialog {
         options.setContractMarketReportRefresh(chkUnitMarketReportRefresh.isSelected());
 
         // End Against the Bot
+        MekHQ.EVENT_BUS.trigger(new OptionsChangedEvent(campaign, options));
     }
 
     private void btnOkayActionPerformed() {

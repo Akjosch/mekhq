@@ -48,6 +48,7 @@ import mekhq.MekHQ;
 import mekhq.NullEntityException;
 import mekhq.campaign.Campaign;
 import mekhq.campaign.GamePreset;
+import mekhq.campaign.mod.am.InjuryUtil;
 import mekhq.campaign.personnel.Bloodname;
 import mekhq.campaign.universe.Faction;
 import mekhq.campaign.universe.Planets;
@@ -168,6 +169,8 @@ public class DataLoadingDialog extends JDialog implements PropertyChangeListener
             	try {
 					newCampaign = true;
 					campaign = new Campaign();
+					// TODO This should be in a plugin system
+					InjuryUtil.registerEventHandler(campaign);
 					campaign.setApp(app);
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
@@ -184,6 +187,7 @@ public class DataLoadingDialog extends JDialog implements PropertyChangeListener
         			campaign = Campaign.createCampaignFromXMLFileInputStream(fis, app);
         			// Restores all transient attributes from serialized objects
         			campaign.restore();
+                    InjuryUtil.registerEventHandler(campaign);
         			fis.close();
         		} catch (NullEntityException ex) {
         			JOptionPane.showMessageDialog(null,
