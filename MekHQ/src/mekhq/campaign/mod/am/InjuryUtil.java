@@ -162,6 +162,7 @@ public final class InjuryUtil {
     }
 
     /** Generate combat injuries for a specific body location */
+    @SuppressWarnings("incomplete-switch")
     public static Collection<Injury> genInjuries(Campaign c, Person p, BodyLocation loc, int hits) {
         List<Injury> newInjuries = new ArrayList<Injury>();
         final InjuryProducer gen = newInjuryGenerator(c, p);
